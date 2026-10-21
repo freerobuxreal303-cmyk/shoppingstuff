@@ -1,5 +1,5 @@
 // Service Worker for Smart Grocery & Nutrition Tracker PWA
-const CACHE_NAME = 'smart-grocery-v4';
+const CACHE_NAME = 'smart-grocery-v5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -34,29 +34,32 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Network-First strategy: fetch latest from network, update cache, fallback to cache when offline
 self.addEventListener('fetch', (event) => {
-  // Respond from cache first, then fetch fallback
+  // Only handle GET requests
+  if (event.request.method !== 'GET') return;
+
+  // Do not cache Supabase API calls
+  if (event.request.url.includes('supabase.co')) return;
+
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        if (
-          !networkResponse ||
-          networkResponse.status !== 200 ||
-          networkResponse.type !== 'basic'
-        ) {
-          return networkResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
         return networkResponse;
-      }).catch(() => {
-        return caches.match('./index.html');
-      });
-    })
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          if (event.request.headers.get('accept')?.includes('text/html')) {
+            return caches.match('./index.html');
+          }
+        });
+      })
   );
 });
