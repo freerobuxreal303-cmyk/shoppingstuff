@@ -34,9 +34,13 @@ class SmartGroceryApp {
     this.soundEnabled = true;
     this.audioCtx = null;
 
+    // Default Supabase Credentials (freerobuxreal303-cmyk's Project)
+    this.DEFAULT_SB_URL = 'https://jnluauwepczsglnzckdw.supabase.co';
+    this.DEFAULT_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpubHVhdXdlcGN6c2dsbnpja2R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NDM1MDEsImV4cCI6MjEwODExOTUwMX0.VK1Qo2I3ePs_lhtnY08rRm7WEJd1tco7HSEagoUPmF8';
+
     // Cloud & Auth State
-    this.supabaseUrl = localStorage.getItem(this.STORAGE_KEY_SB_URL) || '';
-    this.supabaseAnonKey = localStorage.getItem(this.STORAGE_KEY_SB_KEY) || '';
+    this.supabaseUrl = localStorage.getItem(this.STORAGE_KEY_SB_URL) || this.DEFAULT_SB_URL;
+    this.supabaseAnonKey = localStorage.getItem(this.STORAGE_KEY_SB_KEY) || this.DEFAULT_SB_KEY;
     this.supabase = null;
     this.currentUser = null;
     this.isCloudSyncing = false;
@@ -60,6 +64,14 @@ class SmartGroceryApp {
   // SUPABASE CLOUD & GOOGLE OAUTH INITIALIZATION
   // =========================================================================
   async initSupabase() {
+    // Automatically persist default credentials if empty
+    if (!localStorage.getItem(this.STORAGE_KEY_SB_URL)) {
+      localStorage.setItem(this.STORAGE_KEY_SB_URL, this.supabaseUrl);
+    }
+    if (!localStorage.getItem(this.STORAGE_KEY_SB_KEY)) {
+      localStorage.setItem(this.STORAGE_KEY_SB_KEY, this.supabaseAnonKey);
+    }
+
     const urlInput = document.getElementById('supabaseUrlInput');
     const keyInput = document.getElementById('supabaseAnonKeyInput');
     if (urlInput) urlInput.value = this.supabaseUrl;
@@ -256,6 +268,12 @@ class SmartGroceryApp {
     }
   }
 
+  copyAndOpenSQLEditor() {
+    this.copySupabaseSQL();
+    window.open('https://supabase.com/dashboard/project/jnluauwepczsglnzckdw/sql/new', '_blank');
+    this.showToast('SQL disalin! Buka tab SQL Editor, tekan Ctrl+V lalu klik RUN 🚀');
+  }
+
   copySupabaseSQL() {
     const sqlText = `-- Skrip SQL Supabase untuk Smart Grocery Tracker
 create table if not exists shopping_items (
@@ -289,11 +307,31 @@ alter table shopping_history enable row level security;
 create policy "Users can manage own items" on shopping_items for all using (auth.uid() = user_id or user_id is null);
 create policy "Users can manage own history" on shopping_history for all using (auth.uid() = user_id or user_id is null);`;
 
-    navigator.clipboard.writeText(sqlText).then(() => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(sqlText).then(() => {
+        this.showToast('Skrip SQL berhasil disalin ke clipboard! 📋');
+      }).catch(() => {
+        this.fallbackCopyText(sqlText);
+      });
+    } else {
+      this.fallbackCopyText(sqlText);
+    }
+  }
+
+  fallbackCopyText(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
       this.showToast('Skrip SQL berhasil disalin ke clipboard! 📋');
-    }).catch(() => {
-      this.showToast('Gagal menyalin otomatis, silakan pilih teks manual di kotak.');
-    });
+    } catch(e) {
+      this.showToast('Silakan pilih teks manual di kotak SQL.');
+    }
+    document.body.removeChild(ta);
   }
 
   // =========================================================================
@@ -323,6 +361,11 @@ create policy "Users can manage own history" on shopping_history for all using (
         }));
         this.saveState();
         this.renderAll();
+      } else if (!itemsErr && this.cart.length > 0) {
+        // First login: upload existing local cart to user's cloud account
+        for (const it of this.cart) {
+          await this.syncItemToCloud(it, 'upsert');
+        }
       }
 
       // 2. Fetch History Sessions from Supabase
@@ -342,6 +385,11 @@ create policy "Users can manage own history" on shopping_history for all using (
         }));
         this.saveState();
         this.renderHistory();
+      } else if (!histErr && this.historySessions.length > 0) {
+        // Upload existing local history sessions
+        for (const sess of this.historySessions) {
+          await this.syncSessionToCloud(sess);
+        }
       }
     } catch (e) {
       console.warn('Sync from cloud notice:', e);

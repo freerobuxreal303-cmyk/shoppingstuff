@@ -629,19 +629,24 @@
 
           <!-- Section 2: Supabase Credentials -->
           <div class="protein-view-card">
-            <h4 style="font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px;">Koneksi Project Supabase</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <h4 style="font-size: 12px; font-weight: 700; color: #fff; margin: 0;">Koneksi Project Supabase</h4>
+              <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: #34d399; font-weight: 600; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 999px; padding: 2px 7px;">
+                <span class="cloud-dot"></span> Terhubung
+              </span>
+            </div>
             <p style="font-size: 10.5px; color: var(--text-muted); margin-bottom: 8px;">
-              Ambil Project URL &amp; anon key dari Dashboard Supabase &gt; Project Settings &gt; API.
+              Project: <strong>freerobuxreal303-cmyk</strong> (<code>jnluauwepczsglnzckdw</code>)
             </p>
 
             <div class="form-input-group">
               <label class="form-label-title">Supabase Project URL</label>
-              <input type="text" class="form-input-control" id="supabaseUrlInput" placeholder="https://xyzcompany.supabase.co">
+              <input type="text" class="form-input-control" id="supabaseUrlInput" value="https://jnluauwepczsglnzckdw.supabase.co" placeholder="https://xyzcompany.supabase.co">
             </div>
 
             <div class="form-input-group">
               <label class="form-label-title">Supabase Anon Public Key</label>
-              <input type="text" class="form-input-control" id="supabaseAnonKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+              <input type="text" class="form-input-control" id="supabaseAnonKeyInput" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpubHVhdXdlcGN6c2dsbnpja2R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NDM1MDEsImV4cCI6MjEwODExOTUwMX0.VK1Qo2I3ePs_lhtnY08rRm7WEJd1tco7HSEagoUPmF8" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
             </div>
 
             <div style="display: flex; gap: 8px; margin-top: 8px;">
@@ -658,10 +663,10 @@
           <div class="protein-view-card" style="margin-top: 10px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
               <h4 style="font-size: 12px; font-weight: 700; color: #fff;">Skrip SQL Tabel Supabase</h4>
-              <button class="preset-chip" onclick="app.copySupabaseSQL()">📋 Salin SQL (1-Klik)</button>
+              <button class="preset-chip" onclick="app.copySupabaseSQL()">📋 Salin SQL</button>
             </div>
-            <p style="font-size: 10px; color: var(--text-muted);">
-              Jalankan di <strong>Supabase SQL Editor</strong> untuk membuat tabel <code>shopping_items</code> &amp; <code>shopping_history</code> secara otomatis:
+            <p style="font-size: 10px; color: var(--text-muted); margin-bottom: 8px;">
+              Jalankan sekali di <strong>Supabase SQL Editor</strong> untuk membuat tabel <code>shopping_items</code> &amp; <code>shopping_history</code>:
             </p>
             <div class="sql-code-box" id="sqlCodeBoxPreview">-- Buat tabel belanja
 create table if not exists shopping_items (
@@ -689,6 +694,10 @@ create table if not exists shopping_history (
   items jsonb,
   created_at timestamp with time zone default timezone('utc'::text, now())
 );</div>
+
+            <button class="btn-primary-block" style="margin-top: 10px; background: linear-gradient(135deg, #059669, #10b981); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="app.copyAndOpenSQLEditor()">
+              🚀 Buka Supabase SQL Editor (Salin &amp; Buka 1-Klik)
+            </button>
           </div>
 
         </div>
