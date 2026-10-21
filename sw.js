@@ -1,10 +1,11 @@
 // Service Worker for Smart Grocery & Nutrition Tracker PWA
-const CACHE_NAME = 'smart-grocery-v1';
+const CACHE_NAME = 'smart-grocery-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
   './app.js',
+  './supabase.js',
   './manifest.json',
   './favicon.svg',
   './icon-192.svg',
@@ -41,7 +42,6 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse;
       }
       return fetch(event.request).then((networkResponse) => {
-        // Cache external or dynamic assets if valid
         if (
           !networkResponse ||
           networkResponse.status !== 200 ||
@@ -55,7 +55,6 @@ self.addEventListener('fetch', (event) => {
         });
         return networkResponse;
       }).catch(() => {
-        // Offline fallback
         return caches.match('./index.html');
       });
     })

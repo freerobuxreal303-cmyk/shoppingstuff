@@ -6,12 +6,16 @@
  * - F-03: Tiered / Stacked Discount Calculator (e.g. 50%+20% or flat Rp)
  * - F-04: Realtime Price Comparator vs Last Month (↑ Red, ↓ Green, = Gray)
  * - F-05: Budget Safety Cap (Wallet limit, cashier warning banner, remaining cash)
- * - F-06: Shopping History & Database (LocalStorage persistence, receipt archive)
+ * - F-06: Shopping History & Database (LocalStorage + Supabase Cloud Persistence)
  *
  * Smart Nutrition & Value Tracker Extensions:
  * 1. Healthy Grade Nutri-Score Badges (A=Green, B=Lime, C=Yellow, E=Red)
  * 2. Protein-per-Rupiah Calculator (Rp ... / gram protein & "Best Protein Value!" for < Rp 600/g)
  * 3. Healthy Cart Meter (Segmented mini-bar: Fresh/Healthy % vs Ultra-Processed %)
+ *
+ * Cloud Database & Authentication:
+ * - Supabase Cloud Database Sync (Table: shopping_items & shopping_history)
+ * - Google OAuth Integration (Single Sign-On with Avatar, Name, Email)
  */
 
 class SmartGroceryApp {
@@ -20,6 +24,8 @@ class SmartGroceryApp {
     this.STORAGE_KEY_BUDGET = 'smart_grocery_budget_v1';
     this.STORAGE_KEY_HISTORY = 'smart_grocery_history_v1';
     this.STORAGE_KEY_SOUND = 'smart_grocery_sound_v1';
+    this.STORAGE_KEY_SB_URL = 'smart_grocery_sb_url';
+    this.STORAGE_KEY_SB_KEY = 'smart_grocery_sb_key';
 
     // State
     this.cart = [];
@@ -28,18 +34,370 @@ class SmartGroceryApp {
     this.soundEnabled = true;
     this.audioCtx = null;
 
+    // Cloud & Auth State
+    this.supabaseUrl = localStorage.getItem(this.STORAGE_KEY_SB_URL) || '';
+    this.supabaseAnonKey = localStorage.getItem(this.STORAGE_KEY_SB_KEY) || '';
+    this.supabase = null;
+    this.currentUser = null;
+    this.isCloudSyncing = false;
+
     // Active editing item ID
     this.editingItemId = null;
 
     this.init();
   }
 
-  init() {
+  async init() {
     this.loadState();
     this.setupEventListeners();
     this.setupClock();
+    this.initSupabase();
     this.renderAll();
     this.registerPWA();
+  }
+
+  // =========================================================================
+  // SUPABASE CLOUD & GOOGLE OAUTH INITIALIZATION
+  // =========================================================================
+  async initSupabase() {
+    const urlInput = document.getElementById('supabaseUrlInput');
+    const keyInput = document.getElementById('supabaseAnonKeyInput');
+    if (urlInput) urlInput.value = this.supabaseUrl;
+    if (keyInput) keyInput.value = this.supabaseAnonKey;
+
+    if (window.supabase && this.supabaseUrl && this.supabaseAnonKey) {
+      try {
+        this.supabase = window.supabase.createClient(this.supabaseUrl, this.supabaseAnonKey);
+        
+        // Listen to auth changes (e.g. after Google OAuth redirect)
+        this.supabase.auth.onAuthStateChange(async (event, session) => {
+          if (session && session.user) {
+            this.currentUser = session.user;
+            this.showToast(`Selamat datang, ${this.currentUser.user_metadata?.full_name || this.currentUser.email}!`);
+            await this.syncFromCloud();
+          } else {
+            this.currentUser = null;
+          }
+          this.renderAuth();
+        });
+
+        // Check active session
+        const { data: { session } } = await this.supabase.auth.getSession();
+        if (session && session.user) {
+          this.currentUser = session.user;
+          await this.syncFromCloud();
+        }
+      } catch (e) {
+        console.warn('Supabase initialization notice:', e);
+      }
+    }
+
+    this.renderAuth();
+  }
+
+  renderAuth() {
+    const headerContainer = document.getElementById('headerAuthContainer');
+    const modalSection = document.getElementById('modalUserAuthSection');
+
+    // 1. Header Auth Display
+    if (headerContainer) {
+      if (this.currentUser) {
+        const meta = this.currentUser.user_metadata || {};
+        const avatar = meta.avatar_url || meta.picture || '';
+        const name = meta.full_name || this.currentUser.email.split('@')[0];
+        
+        headerContainer.innerHTML = `
+          <div class="user-profile-badge" onclick="app.openCloudModal()" title="Profil Akun Cloud & Sinkronisasi">
+            ${avatar 
+              ? `<img class="user-avatar-img" src="${avatar}" alt="Avatar">`
+              : `<div class="user-avatar-placeholder">${name.charAt(0).toUpperCase()}</div>`
+            }
+            <span style="max-width: 75px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(name)}</span>
+            <span class="cloud-dot" title="Tersambung ke Cloud"></span>
+          </div>
+        `;
+      } else {
+        headerContainer.innerHTML = `
+          <button class="btn-google-oauth" onclick="app.signInWithGoogle()" title="Masuk dengan Akun Google">
+            <svg width="14" height="14" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Masuk Google</span>
+          </button>
+        `;
+      }
+    }
+
+    // 2. Modal User Auth Section
+    if (modalSection) {
+      if (this.currentUser) {
+        const meta = this.currentUser.user_metadata || {};
+        const avatar = meta.avatar_url || meta.picture || '';
+        const name = meta.full_name || 'Pengguna Google';
+        const email = this.currentUser.email;
+
+        modalSection.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              ${avatar 
+                ? `<img style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #14b8a6;" src="${avatar}" alt="Avatar">`
+                : `<div style="width: 40px; height: 40px; border-radius: 50%; background: #0f766e; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">${name.charAt(0)}</div>`
+              }
+              <div>
+                <div style="font-size: 13px; font-weight: 700; color: #fff;">${this.escapeHtml(name)}</div>
+                <div style="font-size: 10.5px; color: var(--text-muted);">${this.escapeHtml(email)}</div>
+                <div class="cloud-sync-status-indicator" style="margin-top: 2px;">
+                  <span class="cloud-dot"></span>
+                  <span style="color: #34d399; font-weight: 600;">Akun Google Terhubung &bull; Cloud Aktif</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn-secondary-block" style="width: auto; padding: 6px 12px; margin: 0; color: #f87171;" onclick="app.signOut()">
+              Keluar
+            </button>
+          </div>
+        `;
+      } else {
+        modalSection.innerHTML = `
+          <div style="text-align: center; padding: 8px 4px;">
+            <h4 style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;">Masuk dengan Akun Google</h4>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+              Simpan data belanjaanmu secara otomatis ke database awan Supabase agar tidak hilang saat ganti perangkat.
+            </p>
+            <button class="btn-google-oauth btn-google-oauth-lg" onclick="app.signInWithGoogle()">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Lanjutkan dengan Google</span>
+            </button>
+          </div>
+        `;
+      }
+    }
+  }
+
+  async signInWithGoogle() {
+    if (!this.supabase) {
+      this.openCloudModal();
+      this.showToast('Masukkan URL & Anon Key Supabase terlebih dahulu di modal ini.');
+      return;
+    }
+
+    try {
+      this.showToast('Membuka autentikasi Google...');
+      const { error } = await this.supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + window.location.pathname
+        }
+      });
+      if (error) throw error;
+    } catch (err) {
+      console.error('Google Sign-In Error:', err);
+      this.showToast(`Gagal Google Auth: ${err.message}`, '⚠️');
+    }
+  }
+
+  async signOut() {
+    if (!this.supabase) return;
+    try {
+      await this.supabase.auth.signOut();
+      this.currentUser = null;
+      this.renderAuth();
+      this.showToast('Berhasil keluar dari akun Google');
+    } catch (err) {
+      console.error('Sign Out Error:', err);
+    }
+  }
+
+  saveSupabaseConfig() {
+    const url = document.getElementById('supabaseUrlInput')?.value.trim();
+    const key = document.getElementById('supabaseAnonKeyInput')?.value.trim();
+
+    if (!url || !key) {
+      this.showToast('Harap isi Project URL dan Anon Key Supabase!', '⚠️');
+      return;
+    }
+
+    this.supabaseUrl = url;
+    this.supabaseAnonKey = key;
+    localStorage.setItem(this.STORAGE_KEY_SB_URL, url);
+    localStorage.setItem(this.STORAGE_KEY_SB_KEY, key);
+
+    this.initSupabase();
+    this.showToast('Konfigurasi Supabase disimpan!');
+  }
+
+  async testSupabaseConnection() {
+    if (!this.supabase) {
+      this.showToast('Supabase belum terkonfigurasi!', '⚠️');
+      return;
+    }
+    try {
+      this.showToast('Menguji koneksi ke cloud Supabase...');
+      const { data, error } = await this.supabase.from('shopping_items').select('id').limit(1);
+      if (error && error.code !== 'PGRST116') {
+        // Table might not exist yet
+        if (error.message.includes('relation') || error.message.includes('does not exist')) {
+          this.showToast('Terhubung ke Supabase! (Tabel shopping_items belum dibuat, klik Salin SQL)', '💡');
+          return;
+        }
+        throw error;
+      }
+      this.showToast('Koneksi Supabase Sukses & Siap Digunakan! 🚀');
+    } catch (err) {
+      this.showToast(`Koneksi Gagal: ${err.message}`, '⚠️');
+    }
+  }
+
+  copySupabaseSQL() {
+    const sqlText = `-- Skrip SQL Supabase untuk Smart Grocery Tracker
+create table if not exists shopping_items (
+  id text primary key,
+  user_id uuid references auth.users(id),
+  name text not null,
+  category text,
+  unit text,
+  qty integer default 1,
+  original_price numeric default 0,
+  discount_str text default '',
+  last_month_price numeric default 0,
+  nutrition_tag text,
+  protein_grams numeric default 0,
+  updated_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+create table if not exists shopping_history (
+  id text primary key,
+  user_id uuid references auth.users(id),
+  date text,
+  total_cost numeric,
+  healthy_percentage numeric,
+  items jsonb,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+alter table shopping_items enable row level security;
+alter table shopping_history enable row level security;
+
+create policy "Users can manage own items" on shopping_items for all using (auth.uid() = user_id or user_id is null);
+create policy "Users can manage own history" on shopping_history for all using (auth.uid() = user_id or user_id is null);`;
+
+    navigator.clipboard.writeText(sqlText).then(() => {
+      this.showToast('Skrip SQL berhasil disalin ke clipboard! 📋');
+    }).catch(() => {
+      this.showToast('Gagal menyalin otomatis, silakan pilih teks manual di kotak.');
+    });
+  }
+
+  // =========================================================================
+  // CLOUD DATA SYNC (SUPABASE TABLE)
+  // =========================================================================
+  async syncFromCloud() {
+    if (!this.supabase || !this.currentUser) return;
+    try {
+      // 1. Fetch Cart Items from Supabase
+      const { data: cloudItems, error: itemsErr } = await this.supabase
+        .from('shopping_items')
+        .select('*')
+        .eq('user_id', this.currentUser.id);
+
+      if (!itemsErr && cloudItems && cloudItems.length > 0) {
+        this.cart = cloudItems.map(row => ({
+          id: row.id,
+          name: row.name,
+          category: row.category,
+          unit: row.unit,
+          qty: row.qty,
+          originalPrice: parseFloat(row.original_price || 0),
+          discountStr: row.discount_str || '',
+          lastMonthPrice: parseFloat(row.last_month_price || 0),
+          nutritionTag: row.nutrition_tag || 'Standar / Netral',
+          proteinGrams: parseFloat(row.protein_grams || 0)
+        }));
+        this.saveState();
+        this.renderAll();
+      }
+
+      // 2. Fetch History Sessions from Supabase
+      const { data: cloudHistory, error: histErr } = await this.supabase
+        .from('shopping_history')
+        .select('*')
+        .eq('user_id', this.currentUser.id)
+        .order('created_at', { ascending: false });
+
+      if (!histErr && cloudHistory && cloudHistory.length > 0) {
+        this.historySessions = cloudHistory.map(row => ({
+          id: row.id,
+          date: row.date,
+          totalCost: parseFloat(row.total_cost || 0),
+          healthyPercentage: row.healthy_percentage || 70,
+          items: row.items || []
+        }));
+        this.saveState();
+        this.renderHistory();
+      }
+    } catch (e) {
+      console.warn('Sync from cloud notice:', e);
+    }
+  }
+
+  async syncItemToCloud(item, action = 'upsert') {
+    if (!this.supabase || !this.currentUser) return;
+    try {
+      if (action === 'upsert') {
+        await this.supabase.from('shopping_items').upsert({
+          id: item.id,
+          user_id: this.currentUser.id,
+          name: item.name,
+          category: item.category,
+          unit: item.unit,
+          qty: item.qty,
+          original_price: item.originalPrice,
+          discount_str: item.discountStr || '',
+          last_month_price: item.lastMonthPrice || 0,
+          nutrition_tag: item.nutritionTag || 'Standar / Netral',
+          protein_grams: item.proteinGrams || 0,
+          updated_at: new Date().toISOString()
+        });
+      } else if (action === 'delete') {
+        await this.supabase.from('shopping_items').delete().eq('id', item.id);
+      }
+    } catch (e) {
+      console.warn('Cloud sync error (fallback to local):', e);
+    }
+  }
+
+  async syncSessionToCloud(session) {
+    if (!this.supabase || !this.currentUser) return;
+    try {
+      await this.supabase.from('shopping_history').insert({
+        id: session.id,
+        user_id: this.currentUser.id,
+        date: session.date,
+        total_cost: session.totalCost,
+        healthy_percentage: session.healthyPercentage,
+        items: session.items,
+        created_at: new Date().toISOString()
+      });
+    } catch (e) {
+      console.warn('Cloud history sync notice:', e);
+    }
+  }
+
+  openCloudModal() {
+    this.renderAuth();
+    document.getElementById('cloudModalBackdrop')?.classList.add('open');
+  }
+
+  closeCloudModal() {
+    document.getElementById('cloudModalBackdrop')?.classList.remove('open');
   }
 
   // =========================================================================
@@ -65,7 +423,6 @@ class SmartGroceryApp {
       const now = ctx.currentTime;
 
       if (type === 'success') {
-        // High-pitched cheerful double beep (barcode scan feel)
         osc.frequency.setValueAtTime(880, now);
         osc.frequency.exponentialRampToValueAtTime(1320, now + 0.1);
         gain.gain.setValueAtTime(0.12, now);
@@ -73,7 +430,6 @@ class SmartGroceryApp {
         osc.start(now);
         osc.stop(now + 0.15);
       } else if (type === 'warning') {
-        // Low double alert beep (over-budget warning)
         osc.frequency.setValueAtTime(320, now);
         gain.gain.setValueAtTime(0.18, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
@@ -129,7 +485,6 @@ class SmartGroceryApp {
       if (savedCart) {
         this.cart = JSON.parse(savedCart) || [];
       } else {
-        // Load default realistic dataset reflecting Rian's monthly shopping dilemma
         this.loadSampleData();
       }
     } catch (e) {
@@ -159,9 +514,9 @@ class SmartGroceryApp {
         qty: 1,
         originalPrice: 28000,
         discountStr: '',
-        lastMonthPrice: 29500, // Harga turun Rp 1.500 dibanding bln lalu
+        lastMonthPrice: 29500,
         nutritionTag: 'Tinggi Protein',
-        proteinGrams: 130 // 1kg telur = ~130g protein -> Rp 215/g (Best Value)
+        proteinGrams: 130
       },
       {
         id: 'item_2',
@@ -170,10 +525,10 @@ class SmartGroceryApp {
         unit: 'pack',
         qty: 1,
         originalPrice: 38000,
-        discountStr: '10%', // Diskon 10% -> Rp 34.200
-        lastMonthPrice: 32000, // Harga naik Rp 2.200 dibanding bln lalu
+        discountStr: '10%',
+        lastMonthPrice: 32000,
         nutritionTag: 'Tinggi Protein',
-        proteinGrams: 115 // 500g dada ayam = ~115g protein -> Rp 297/g (Best Value)
+        proteinGrams: 115
       },
       {
         id: 'item_3',
@@ -183,9 +538,9 @@ class SmartGroceryApp {
         qty: 2,
         originalPrice: 5000,
         discountStr: '',
-        lastMonthPrice: 5000, // Harga stabil
+        lastMonthPrice: 5000,
         nutritionTag: 'Tinggi Protein',
-        proteinGrams: 38 // 1 papan tempe = ~38g protein -> Rp 131/g (Juara Protein Hemat)
+        proteinGrams: 38
       },
       {
         id: 'item_4',
@@ -195,7 +550,7 @@ class SmartGroceryApp {
         qty: 2,
         originalPrice: 4000,
         discountStr: '',
-        lastMonthPrice: 3500, // Naik Rp 500
+        lastMonthPrice: 3500,
         nutritionTag: 'Tinggi Serat',
         proteinGrams: 5
       },
@@ -206,7 +561,7 @@ class SmartGroceryApp {
         unit: 'pack',
         qty: 1,
         originalPrice: 75000,
-        discountStr: '5000', // Potongan nominal Rp 5.000 -> Rp 70.000
+        discountStr: '5000',
         lastMonthPrice: 72000,
         nutritionTag: 'Standar / Netral',
         proteinGrams: 35
@@ -230,7 +585,7 @@ class SmartGroceryApp {
         unit: 'botol',
         qty: 1,
         originalPrice: 22000,
-        discountStr: '50%+20%', // Promo Cuci Gudang bertumpuk! (Kasus Rian)
+        discountStr: '50%+20%',
         lastMonthPrice: 20000,
         nutritionTag: 'Standar / Netral',
         proteinGrams: 0
@@ -245,11 +600,6 @@ class SmartGroceryApp {
   // =========================================================================
   // CORE CALCULATION LOGIC (F-02, F-03, F-04, Value for Health)
   // =========================================================================
-
-  /**
-   * F-03: Menghitung diskon bertingkat (e.g. 50%+20%), diskon persentase tunggal (e.g. 25%),
-   * atau diskon nominal (e.g. 15000).
-   */
   calculateDiscount(originalPrice, discountStr) {
     if (!discountStr || typeof discountStr !== 'string') {
       return {
@@ -272,7 +622,6 @@ class SmartGroceryApp {
       };
     }
 
-    // Kasus 1: Diskon Bertingkat (contoh: "50%+20%" atau "30+10")
     if (cleanStr.includes('+')) {
       const parts = cleanStr.split('+');
       let currentPrice = originalPrice;
@@ -300,7 +649,6 @@ class SmartGroceryApp {
       };
     }
 
-    // Kasus 2: Diskon Persentase Tunggal (contoh: "25%")
     if (cleanStr.includes('%')) {
       const pNum = parseFloat(cleanStr.replace('%', ''));
       if (!isNaN(pNum) && pNum > 0) {
@@ -316,7 +664,6 @@ class SmartGroceryApp {
       }
     }
 
-    // Kasus 3: Diskon Nominal Langsung (contoh: "15000" atau "Rp 15.000")
     const numOnly = parseFloat(cleanStr.replace(/[^0-9]/g, ''));
     if (!isNaN(numOnly) && numOnly > 0) {
       const pot = Math.min(originalPrice, numOnly);
@@ -340,14 +687,9 @@ class SmartGroceryApp {
     };
   }
 
-  /**
-   * Fitur 2: Menghitung Protein-per-Rupiah (Value for Health)
-   * Rumus: Harga Bersih Akhir / Total Gram Protein
-   */
   calculateProteinValue(finalUnitPrice, proteinGrams) {
     if (!proteinGrams || proteinGrams <= 0) return null;
     const costPerGram = Math.round(finalUnitPrice / proteinGrams);
-    // Indikator "Best Protein Value!" jika di bawah Rp 600 per gram protein
     const isBestValue = costPerGram < 600;
     return {
       costPerGram,
@@ -356,9 +698,6 @@ class SmartGroceryApp {
     };
   }
 
-  /**
-   * Fitur 1: Memetakan Tag Nutrisi ke Nutri-Score Visual Grade
-   */
   getNutriScoreGrade(nutritionTag) {
     switch (nutritionTag) {
       case 'Tinggi Protein':
@@ -375,9 +714,6 @@ class SmartGroceryApp {
     }
   }
 
-  /**
-   * F-04: Menghitung Fluktuasi Harga vs Bulan Lalu
-   */
   calculatePriceFluctuation(finalUnitPrice, lastMonthPrice) {
     if (!lastMonthPrice || lastMonthPrice <= 0) {
       return { type: 'new', badgeClass: 'price-same', text: 'Barang Baru' };
@@ -419,6 +755,7 @@ class SmartGroceryApp {
     this.renderHealthyCartMeter();
     this.renderProteinRanking();
     this.renderHistory();
+    this.renderAuth();
   }
 
   renderCart() {
@@ -428,7 +765,6 @@ class SmartGroceryApp {
 
     if (!container) return;
 
-    // Filter items based on user selection
     let filteredItems = this.cart;
     if (filterVal === 'healthy') {
       filteredItems = this.cart.filter(item => item.nutritionTag === 'Tinggi Protein' || item.nutritionTag === 'Tinggi Serat' || item.nutritionTag === 'Rendah Gula');
@@ -479,22 +815,18 @@ class SmartGroceryApp {
 
       html += `
         <div class="cart-item-card" data-id="${item.id}">
-          
-          <!-- Top Row: Name, Category, Nutri-Score Grade Badge -->
           <div class="item-card-top-row">
             <div class="item-main-details">
               <div class="item-name-text">${this.escapeHtml(item.name)}</div>
               <span class="item-category-pill">${this.escapeHtml(item.category)} &bull; ${this.escapeHtml(item.unit)}</span>
             </div>
             
-            <!-- Fitur 1: Nutri-Score Corner Badge -->
             <div class="nutri-badge-corner ${nutriScore.class}" title="${nutriScore.label}">
               <span>${nutriScore.icon}</span>
               <span>Grade ${nutriScore.grade}</span>
             </div>
           </div>
 
-          <!-- Price & Discount & Fluctuation Row (F-03, F-04) -->
           <div class="item-pricing-row">
             <div class="price-breakdown-box">
               <div>
@@ -508,7 +840,6 @@ class SmartGroceryApp {
               ` : ''}
             </div>
 
-            <!-- F-04: Komparator Harga Realtime vs Bulan Lalu -->
             <div>
               <span class="price-comparator-badge ${fluc.badgeClass}" title="Perbandingan dengan harga bulan lalu">
                 ${fluc.text}
@@ -516,7 +847,6 @@ class SmartGroceryApp {
             </div>
           </div>
 
-          <!-- Fitur 2: Protein-per-Rupiah (Value for Health) Display -->
           ${pVal ? `
             <div class="protein-value-row">
               <span class="protein-calc-text">
@@ -530,7 +860,6 @@ class SmartGroceryApp {
             </div>
           ` : ''}
 
-          <!-- Bottom Row: Stepper (F-02), Subtotal, and Quick Actions -->
           <div class="item-card-bottom-row">
             <div class="touch-friendly-stepper">
               <button class="stepper-btn" onclick="app.updateItemQty('${item.id}', -1)" title="Kurangi Kuantitas">&minus;</button>
@@ -554,7 +883,6 @@ class SmartGroceryApp {
               </div>
             </div>
           </div>
-
         </div>
       `;
     });
@@ -620,7 +948,6 @@ class SmartGroceryApp {
       }
     }
 
-    // Cashier Embarrassment Protection (Titik Kritis SRS Rian)
     if (cashierBanner) {
       if (pct >= 100) {
         cashierBanner.classList.remove('hidden');
@@ -632,7 +959,6 @@ class SmartGroceryApp {
       }
     }
 
-    // Update Tab 3 Metrics
     const statsBudget = document.getElementById('statsBudgetLimit');
     const statsSpent = document.getElementById('statsTotalSpent');
     const statsRemaining = document.getElementById('statsRemainingMoney');
@@ -648,15 +974,13 @@ class SmartGroceryApp {
   }
 
   // =========================================================================
-  // FITUR 3: HEALTHY CART METER (Ringkasan Keranjang Sehat)
-  // Mini-bar persentase: Makanan Segar/Sehat vs Makanan Instan/Olahan
+  // FITUR 3: HEALTHY CART METER
   // =========================================================================
   renderHealthyCartMeter() {
     let freshSpend = 0;
     let processedSpend = 0;
 
     this.cart.forEach(item => {
-      // Exclude non-food (sabun, pembersih) from nutritional composition ratio
       if (item.category === 'Perawatan & Pembersih') return;
 
       const disc = this.calculateDiscount(item.originalPrice, item.discountStr);
@@ -674,7 +998,6 @@ class SmartGroceryApp {
       ) {
         freshSpend += subtotal;
       } else {
-        // Netral/Umum split 50/50
         freshSpend += subtotal * 0.5;
         processedSpend += subtotal * 0.5;
       }
@@ -734,7 +1057,6 @@ class SmartGroceryApp {
     const tbody = document.getElementById('proteinCartRankingBody');
     if (!tbody) return;
 
-    // Filter items with protein info and calculate cost per gram
     const proteinItems = [];
     this.cart.forEach(item => {
       if (item.proteinGrams && item.proteinGrams > 0) {
@@ -752,7 +1074,6 @@ class SmartGroceryApp {
       }
     });
 
-    // Sort by best value (cheapest protein first)
     proteinItems.sort((a, b) => a.costPerGram - b.costPerGram);
 
     if (proteinItems.length === 0) {
@@ -879,7 +1200,7 @@ class SmartGroceryApp {
     container.innerHTML = html;
   }
 
-  finishShoppingSession() {
+  async finishShoppingSession() {
     if (this.cart.length === 0) {
       this.showToast('Keranjang masih kosong!');
       return;
@@ -908,7 +1229,7 @@ class SmartGroceryApp {
 
     this.historySessions.unshift(newSession);
 
-    // Update historical reference: Barang-barang yang dibeli ini menjadi referensi "harga bulan lalu" berikutnya!
+    // Update historical reference
     this.cart.forEach(item => {
       const disc = this.calculateDiscount(item.originalPrice, item.discountStr);
       item.lastMonthPrice = disc.finalUnitPrice;
@@ -917,7 +1238,10 @@ class SmartGroceryApp {
     this.saveState();
     this.playBeep('success');
     this.renderAll();
-    this.showToast('Struk belanja berhasil diarsipkan ke Riwayat Bulanan!');
+
+    // Cloud sync
+    await this.syncSessionToCloud(newSession);
+    this.showToast('Struk belanja berhasil diarsipkan (Lokal & Cloud)!');
   }
 
   restoreShoppingSession(sessionId) {
@@ -958,7 +1282,7 @@ class SmartGroceryApp {
   // =========================================================================
   // CART ACTIONS & STEPPERS (F-02 Realtime Automatic Calculations)
   // =========================================================================
-  updateItemQty(itemId, delta) {
+  async updateItemQty(itemId, delta) {
     const item = this.cart.find(i => i.id === itemId);
     if (!item) return;
 
@@ -966,17 +1290,25 @@ class SmartGroceryApp {
     this.saveState();
     this.playBeep('success');
     this.renderAll();
+
+    // Background cloud sync
+    await this.syncItemToCloud(item, 'upsert');
   }
 
-  deleteItem(itemId) {
+  async deleteItem(itemId) {
+    const itemToDelete = this.cart.find(i => i.id === itemId);
     this.cart = this.cart.filter(i => i.id !== itemId);
     this.saveState();
     this.playBeep('delete');
     this.renderAll();
     this.showToast('Barang dihapus dari keranjang');
+
+    if (itemToDelete) {
+      await this.syncItemToCloud(itemToDelete, 'delete');
+    }
   }
 
-  addQuickPreset(presetType) {
+  async addQuickPreset(presetType) {
     let preset = null;
     switch (presetType) {
       case 'telur':
@@ -1066,6 +1398,8 @@ class SmartGroceryApp {
       this.playBeep('success');
       this.renderAll();
       this.showToast(`Ditambahkan: ${preset.name}`);
+
+      await this.syncItemToCloud(preset, 'upsert');
     }
   }
 
@@ -1190,7 +1524,7 @@ class SmartGroceryApp {
     }
   }
 
-  saveItemForm() {
+  async saveItemForm() {
     const name = document.getElementById('inputNamaProduk')?.value.trim();
     const category = document.getElementById('selectKategori')?.value;
     const unit = document.getElementById('selectSatuan')?.value;
@@ -1206,8 +1540,9 @@ class SmartGroceryApp {
       return;
     }
 
+    let savedItem = null;
+
     if (this.editingItemId) {
-      // Edit existing
       const item = this.cart.find(i => i.id === this.editingItemId);
       if (item) {
         item.name = name;
@@ -1219,10 +1554,10 @@ class SmartGroceryApp {
         item.lastMonthPrice = lastMonthPrice;
         item.nutritionTag = nutritionTag;
         item.proteinGrams = proteinGrams;
+        savedItem = item;
       }
       this.showToast(`Diperbarui: ${name}`);
     } else {
-      // Add new
       const newItem = {
         id: 'item_' + Date.now(),
         name,
@@ -1236,6 +1571,7 @@ class SmartGroceryApp {
         proteinGrams
       };
       this.cart.unshift(newItem);
+      savedItem = newItem;
       this.showToast(`Ditambahkan: ${name}`);
     }
 
@@ -1243,6 +1579,11 @@ class SmartGroceryApp {
     this.playBeep('success');
     this.closeItemModal();
     this.renderAll();
+
+    // Background sync to Supabase
+    if (savedItem) {
+      await this.syncItemToCloud(savedItem, 'upsert');
+    }
   }
 
   // =========================================================================
@@ -1285,24 +1626,20 @@ class SmartGroceryApp {
   // NAVIGATION & UI HELPERS
   // =========================================================================
   switchTab(targetTabId) {
-    // Hide all tabs
     document.querySelectorAll('.tab-view-content').forEach(section => {
       section.classList.add('hidden');
     });
 
-    // Show target tab
     const target = document.getElementById(targetTabId);
     if (target) {
       target.classList.remove('hidden');
     }
 
-    // Update bottom nav buttons
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       const matches = btn.getAttribute('data-tab') === targetTabId;
       btn.classList.toggle('active', matches);
     });
 
-    // Refresh renderings for active tab
     if (targetTabId === 'tab-cart') {
       this.renderCart();
       this.renderBudgetAndSafetyCap();
@@ -1329,7 +1666,7 @@ class SmartGroceryApp {
     clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(() => {
       toast.classList.remove('show');
-    }, 2400);
+    }, 2500);
   }
 
   setupClock() {
@@ -1345,7 +1682,6 @@ class SmartGroceryApp {
   }
 
   setupEventListeners() {
-    // Nav tabs
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const tab = btn.getAttribute('data-tab');
@@ -1353,42 +1689,47 @@ class SmartGroceryApp {
       });
     });
 
-    // FAB open modal
     document.getElementById('openAddItemModalBtn')?.addEventListener('click', () => {
       this.openAddItemModal();
     });
 
-    // Close modal
     document.getElementById('closeItemModalBtn')?.addEventListener('click', () => {
       this.closeItemModal();
     });
 
-    // Edit budget button
     document.getElementById('editBudgetLimitBtn')?.addEventListener('click', () => {
       this.openBudgetModal();
     });
 
-    // Sound toggle
+    document.getElementById('openCloudModalBtn')?.addEventListener('click', () => {
+      this.openCloudModal();
+    });
+
     document.getElementById('soundToggleIcon')?.addEventListener('click', () => {
       this.toggleSound();
     });
 
-    // Reset sample data button
     document.getElementById('resetSampleDataBtn')?.addEventListener('click', () => {
       if (confirm('Muat ulang keranjang sampel Studi Kasus Rian?')) {
         this.loadSampleData();
       }
     });
 
-    // Close modal on backdrop click
     document.getElementById('itemModalBackdrop')?.addEventListener('click', (e) => {
       if (e.target.id === 'itemModalBackdrop') {
         this.closeItemModal();
       }
     });
+
     document.getElementById('budgetModalBackdrop')?.addEventListener('click', (e) => {
       if (e.target.id === 'budgetModalBackdrop') {
         this.closeBudgetModal();
+      }
+    });
+
+    document.getElementById('cloudModalBackdrop')?.addEventListener('click', (e) => {
+      if (e.target.id === 'cloudModalBackdrop') {
+        this.closeCloudModal();
       }
     });
   }
