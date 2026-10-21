@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Smart Grocery &amp; Nutrition Tracker - Mobile PWA</title>
+  
+  <!-- SEO & PWA Meta Tags -->
+  <meta name="description" content="Aplikasi Mobile PWA Smart Grocery, Budget Safety Cap & Smart Nutrition Value Tracker untuk Siswa Rantau.">
+  <meta name="theme-color" content="#0d9488">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SmartGrocery">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="icon-192.svg">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Desktop Viewport Wrapper (Enforces max 430px smartphone canvas) -->
+  <div class="desktop-viewport-wrapper">
+    
+    <div class="mobile-app-container" id="mobileAppContainer">
+      
+      <!-- Simulated Phone Status Bar -->
+      <div class="phone-status-bar">
+        <span id="liveClockDisplay">09:41</span>
+        <div class="notch-pill">
+          <div class="notch-dot"></div>
+          <span style="font-size: 9px; color: #a7f3d0; font-weight: 700;">SMART PWA</span>
+        </div>
+        <div class="status-right">
+          <span id="onlineStatusBadge">● 4G</span>
+          <span id="soundToggleIcon" style="cursor: pointer;" title="Toggle Suara Efek">🔊</span>
+        </div>
+      </div>
+
+      <!-- App Header -->
+      <header class="app-header">
+        <div class="brand-badge">
+          <div class="brand-logo-icon">
+            <!-- Shopping Cart SVG -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="21" r="1"></circle>
+              <circle cx="19" cy="21" r="1"></circle>
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+            </svg>
+          </div>
+          <div class="brand-titles">
+            <h1>Smart Grocery &amp; Value</h1>
+            <p>Studi Kasus Rian &bull; Nutrition &amp; Safety Cap</p>
+          </div>
+        </div>
+        
+        <div class="header-actions">
+          <button class="icon-btn-round" id="resetSampleDataBtn" title="Muat Ulang Data Sampel Rian">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+              <path d="M21 3v5h-5"></path>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+              <path d="M8 16H3v5"></path>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Scrollable Content Area -->
+      <main class="app-main-content">
+        
+        <!-- ==========================================
+             TAB 1: KERANJANG BELANJA (HOME / SHOPPING)
+             ========================================== -->
+        <section id="tab-cart" class="tab-view-content">
+          
+          <!-- FEATURE F-05: BUDGET SAFETY CAP (Pengendali Anggaran Dompet Rian) -->
+          <div class="budget-safety-card" id="budgetSafetyCard">
+            <div class="budget-header-row">
+              <div class="budget-title-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                  <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+                Budget Safety Cap
+              </div>
+              <button class="budget-limit-btn" id="editBudgetLimitBtn">
+                Ubah Limit
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+              </button>
+            </div>
+
+            <div class="budget-amount-row">
+              <div>
+                <div class="total-spent-big" id="totalCartCostDisplay">Rp 0</div>
+                <div style="font-size: 10px; color: var(--text-dim);">Total Belanja Saat Ini</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="budget-cap-target" id="budgetLimitDisplay">Limit: Rp 250.000</div>
+                <div class="remaining-status" id="remainingCashStatus">
+                  <span class="status-indicator-dot" id="budgetStatusDot"></span>
+                  <span id="remainingCashText">Sisa: Rp 250.000</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Progress Bar -->
+            <div class="budget-progress-bar-bg">
+              <div class="budget-progress-fill" id="budgetProgressBarFill" style="width: 0%;"></div>
+            </div>
+
+            <!-- Cashier Over-budget Warning (SRS Titik Kritis Kasir) -->
+            <div class="cashier-alert-banner hidden" id="cashierAlertBanner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span id="cashierAlertText">PERINGATAN KASIR: Melebihi uang tunai di dompet!</span>
+            </div>
+          </div>
+
+          <!-- FEATURE 3: RINGKASAN KERANJANG SEHAT (Healthy Cart Meter) -->
+          <div class="healthy-cart-meter-card">
+            <div class="healthy-meter-header">
+              <div class="healthy-meter-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12A10 10 0 0 1 12 2Z"></path>
+                  <path d="M12 6v6l4 2"></path>
+                </svg>
+                Healthy Cart Meter
+              </div>
+              <div class="healthy-score-pill" id="healthyScorePill">75% Sehat</div>
+            </div>
+
+            <!-- Mini-bar komposisi keranjang -->
+            <div class="cart-composition-bar" title="Proporsi Anggaran Sehat vs Makanan Instan/Olahan">
+              <div class="bar-segment-fresh" id="barSegmentFresh" style="width: 75%;"></div>
+              <div class="bar-segment-processed" id="barSegmentProcessed" style="width: 25%;"></div>
+            </div>
+
+            <div class="healthy-meter-legend">
+              <div class="legend-item">
+                <span class="legend-dot fresh"></span>
+                <span id="legendFreshText">Segar / Tinggi Gizi: 75%</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot processed"></span>
+                <span id="legendProcessedText">Instan / Olahan: 25%</span>
+              </div>
+            </div>
+
+            <div class="healthy-cart-tip" id="healthyCartTipText">
+              💡 Komposisi seimbang! Prioritaskan protein bernilai tinggi (telur, tempe, dada ayam) agar uang saku hemat &amp; stamina fit.
+            </div>
+          </div>
+
+          <!-- Quick Anak Kos Preset Chips -->
+          <div class="quick-preset-container">
+            <button class="preset-chip" onclick="app.addQuickPreset('telur')">🥚 Telur 1kg</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('tempe')">🥢 Tempe 2 papan</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('ayam')">🍗 Dada Ayam 500g</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('bayam')">🥬 Bayam Segar</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('tahu')">🧊 Tahu Putih</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('mie')">🍜 Mie Instan</button>
+          </div>
+
+          <!-- Section Headline Bar with Category Filter -->
+          <div class="section-headline-bar">
+            <h2>
+              Keranjang Belanja
+              <span class="item-counter-badge" id="cartItemCounter">0 item</span>
+            </h2>
+            <div class="cart-controls-row">
+              <select class="filter-pill-select" id="cartCategoryFilter" onchange="app.renderCart()">
+                <option value="all">Semua Kategori</option>
+                <option value="healthy">🌱 Hanya Sehat (Grade A/B)</option>
+                <option value="protein_value">🔥 Best Protein Value</option>
+                <option value="ultra_processed">⚠️ Ultra-Processed</option>
+                <option value="Makanan">🍲 Makanan Saja</option>
+                <option value="Non-Makanan">🧼 Kebutuhan Rumah</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Cart Items Container -->
+          <div class="cart-items-list" id="cartItemsContainer">
+            <!-- Dynamic items rendered here -->
+          </div>
+
+          <!-- Checkout & Finish Action Button (F-06 Struk Belanja) -->
+          <div style="margin-top: 18px; margin-bottom: 24px;">
+            <button class="btn-primary-block" id="finishShoppingBtn" onclick="app.finishShoppingSession()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Selesaikan Belanja &amp; Simpan Struk
+            </button>
+          </div>
+
+        </section>
+
+        <!-- ==========================================
+             TAB 2: NILAI PROTEIN PER RUPIAH (FEATURE 2)
+             ========================================== -->
+        <section id="tab-protein" class="tab-view-content hidden">
+          <div class="protein-hero-banner">
+            <h3>🥩 Kalkulator Protein-per-Rupiah</h3>
+            <p>Bagi anak rantau dengan uang saku terbatas, hitung berapa Rupiah yang kamu bayar untuk 1 gram protein murni. Targetkan di bawah <strong>Rp 600 / gram protein</strong> untuk penghematan maksimal!</p>
+          </div>
+
+          <!-- Interactive Custom Food Test Calculator -->
+          <div class="protein-view-card">
+            <h4 style="font-size: 12.5px; font-weight: 700; color: #fff; margin-bottom: 8px;">Uji Nilai Makanan Baru</h4>
+            <div class="form-grid-two-col">
+              <div class="form-input-group">
+                <label class="form-label-title">Harga Makanan (Rp)</label>
+                <input type="number" class="form-input-control" id="calcTestPrice" placeholder="Misal: 28000" value="28000">
+              </div>
+              <div class="form-input-group">
+                <label class="form-label-title">Total Protein (gram)</label>
+                <input type="number" class="form-input-control" id="calcTestProtein" placeholder="Misal: 130" value="130">
+              </div>
+            </div>
+            <button class="btn-primary-block" style="margin-top: 4px;" onclick="app.calculateQuickProteinValue()">
+              Hitung Nilai Protein
+            </button>
+            <div id="quickCalcResultBox" class="live-calc-box" style="margin-top: 10px;">
+              Hasil: <strong>Rp 215 / gram protein</strong> &bull; <span class="best-protein-value-badge">🔥 Best Protein Value!</span>
+            </div>
+          </div>
+
+          <!-- Ranking Table of User Cart Items by Protein Efficiency -->
+          <div class="protein-view-card">
+            <h4 style="font-size: 12.5px; font-weight: 700; color: #fff; margin-bottom: 8px;">Peringkat Nilai Protein Keranjangmu</h4>
+            <div style="overflow-x: auto;">
+              <table class="protein-ranking-table">
+                <thead>
+                  <tr>
+                    <th>Item Belanja</th>
+                    <th>Gram Protein</th>
+                    <th>Harga Bersih</th>
+                    <th>Rp / Gram</th>
+                  </tr>
+                </thead>
+                <tbody id="proteinCartRankingBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Standard Indonesian Student Benchmark Guide -->
+          <div class="protein-view-card">
+            <h4 style="font-size: 12.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">Panduan Harga Protein Anak Kos</h4>
+            <table class="protein-ranking-table">
+              <thead>
+                <tr>
+                  <th>Sumber Protein</th>
+                  <th>Kisaran Biaya</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="best-rank-row">
+                  <td><strong>Tempe (1 papan / ~38g protein)</strong></td>
+                  <td>Rp 130 - Rp 160 / g</td>
+                  <td><span class="best-protein-value-badge">🔥 Juara Hemat</span></td>
+                </tr>
+                <tr class="best-rank-row">
+                  <td><strong>Telur Ayam (1 kg / ~130g protein)</strong></td>
+                  <td>Rp 210 - Rp 230 / g</td>
+                  <td><span class="best-protein-value-badge">🔥 Super Value</span></td>
+                </tr>
+                <tr class="best-rank-row">
+                  <td><strong>Tahu Putih (1 kantong / ~30g)</strong></td>
+                  <td>Rp 230 - Rp 260 / g</td>
+                  <td><span class="best-protein-value-badge">🔥 Super Value</span></td>
+                </tr>
+                <tr class="best-rank-row">
+                  <td><strong>Dada Ayam (500g / ~115g)</strong></td>
+                  <td>Rp 260 - Rp 310 / g</td>
+                  <td><span class="best-protein-value-badge">🔥 Nilai Tinggi</span></td>
+                </tr>
+                <tr>
+                  <td>Ikan Sarden Kaleng</td>
+                  <td>Rp 500 - Rp 650 / g</td>
+                  <td>⚖️ Sedang</td>
+                </tr>
+                <tr>
+                  <td>Sosis Olahan Instan</td>
+                  <td>Rp 1.200 - Rp 1.600 / g</td>
+                  <td>⚠️ Boros Gizi</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: ANALISIS ANGGARAN & KASIR (SRS F-05)
+             ========================================== -->
+        <section id="tab-budget" class="tab-view-content hidden">
+          <div class="metric-summary-grid">
+            <div class="metric-stat-card">
+              <div class="metric-stat-label">Batas Anggaran</div>
+              <div class="metric-stat-value" id="statsBudgetLimit">Rp 250.000</div>
+            </div>
+            <div class="metric-stat-card">
+              <div class="metric-stat-label">Total Belanja</div>
+              <div class="metric-stat-value text-success" id="statsTotalSpent">Rp 0</div>
+            </div>
+            <div class="metric-stat-card">
+              <div class="metric-stat-label">Sisa Dompet</div>
+              <div class="metric-stat-value" id="statsRemainingMoney">Rp 250.000</div>
+            </div>
+            <div class="metric-stat-card">
+              <div class="metric-stat-label">Total Hemat Diskon</div>
+              <div class="metric-stat-value text-warning" id="statsTotalDiscountSaved">Rp 0</div>
+            </div>
+          </div>
+
+          <!-- Form Edit Anggaran -->
+          <div class="protein-view-card">
+            <h4 style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 8px;">Pengaturan Uang Tunai di Dompet</h4>
+            <div class="form-input-group">
+              <label class="form-label-title">Nominal Anggaran Belanja (Rp)</label>
+              <input type="number" class="form-input-control" id="customBudgetInput" value="250000" step="10000">
+            </div>
+            <button class="btn-primary-block" onclick="app.updateBudgetCap()">Simpan Anggaran Baru</button>
+          </div>
+
+          <!-- Tips Pencegahan Kasir -->
+          <div class="protein-view-card" style="border-left: 3px solid #14b8a6;">
+            <h4 style="font-size: 12.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">💡 Tips Anti Panik di Depan Kasir</h4>
+            <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+              1. Selalu cek status <strong>Budget Safety Cap</strong> sebelum memasuki antrean kasir.<br>
+              2. Jika bar menyala merah, batalkan barang sekunder (camilan/minuman bersoda) terlebih dahulu.<br>
+              3. Waspadai diskon bertingkat <code>50% + 20%</code> yang sering menjebak; pastikan harga akhirnya benar-benar lebih murah dari produk alternatif.
+            </p>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: RIWAYAT & DATABASE BELANJA (SRS F-06)
+             ========================================== -->
+        <section id="tab-history" class="tab-view-content hidden">
+          <div class="section-headline-bar">
+            <h2>Arsip Struk Belanja</h2>
+            <button class="quick-clean-btn" onclick="app.exportDataJSON()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Ekspor JSON
+            </button>
+          </div>
+
+          <div id="historySessionsContainer">
+            <!-- Dynamic history list rendered here -->
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Floating Action Button (FAB) to Add Item -->
+      <button class="fab-add-button" id="openAddItemModalBtn" title="Tambah Barang Belanja Baru">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+
+      <!-- Bottom Navigation Bar (Ergonomis Ramah Jempol) -->
+      <nav class="bottom-nav-bar">
+        <button class="nav-tab-btn active" data-tab="tab-cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="8" cy="21" r="1"></circle>
+            <circle cx="19" cy="21" r="1"></circle>
+            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+          </svg>
+          <span>Keranjang</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="tab-protein">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          <span>Nilai Gizi</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="tab-budget">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+          <span>Anggaran</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="tab-history">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>Riwayat</span>
+        </button>
+      </nav>
+
+      <!-- ==========================================
+           MODAL BOTTOM SHEET: INPUT / EDIT ITEM
+           (SRS F-01 s/d F-04, Fitur 1 Nutrisi, Fitur 2 Protein)
+           ========================================== -->
+      <div class="modal-backdrop-layer" id="itemModalBackdrop">
+        <div class="modal-bottom-sheet" id="itemModalSheet">
+          <div class="modal-handle-bar"></div>
+          
+          <div class="modal-header-row">
+            <h3 id="itemModalTitle">Tambah Item Belanja</h3>
+            <button class="modal-close-btn" id="closeItemModalBtn">&times;</button>
+          </div>
+
+          <form id="itemForm" onsubmit="event.preventDefault(); app.saveItemForm();">
+            <input type="hidden" id="formItemId">
+
+            <!-- F-01: Nama Produk -->
+            <div class="form-input-group">
+              <label class="form-label-title" for="inputNamaProduk">Nama Produk *</label>
+              <input type="text" class="form-input-control" id="inputNamaProduk" placeholder="Contoh: Dada Ayam Fillet / Telur Ayam" required>
+            </div>
+
+            <!-- F-01: Kategori & Satuan -->
+            <div class="form-grid-two-col">
+              <div class="form-input-group">
+                <label class="form-label-title" for="selectKategori">Kategori Barang *</label>
+                <select class="form-select-control" id="selectKategori" required>
+                  <option value="Daging, Ayam & Telur">🥩 Daging, Ayam & Telur</option>
+                  <option value="Tahu, Tempe & Nabati">🥢 Tahu, Tempe & Nabati</option>
+                  <option value="Sayur & Buah Segar">🥬 Sayur & Buah Segar</option>
+                  <option value="Beras & Makanan Pokok">🌾 Beras & Makanan Pokok</option>
+                  <option value="Susu & Olahan">🥛 Susu & Olahan</option>
+                  <option value="Makanan Instan & Camilan">🍜 Makanan Instan & Camilan</option>
+                  <option value="Bumbu & Minyak Masak">🧂 Bumbu & Minyak</option>
+                  <option value="Perawatan & Pembersih">🧼 Perawatan & Pembersih</option>
+                  <option value="Lainnya">📦 Lainnya</option>
+                </select>
+              </div>
+
+              <div class="form-input-group">
+                <label class="form-label-title" for="selectSatuan">Satuan Ukuran *</label>
+                <select class="form-select-control" id="selectSatuan" required>
+                  <option value="kg">kg (Kilogram)</option>
+                  <option value="gram">gram</option>
+                  <option value="liter">liter</option>
+                  <option value="pcs">pcs / buah</option>
+                  <option value="pack">pack / bungkus</option>
+                  <option value="papan">papan (tempe)</option>
+                  <option value="butir">butir</option>
+                  <option value="botol">botol</option>
+                  <option value="kaleng">kaleng</option>
+                  <option value="ikat">ikat (sayur)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- F-01 & F-02: Kuantitas & Harga Satuan -->
+            <div class="form-grid-two-col">
+              <div class="form-input-group">
+                <label class="form-label-title" for="inputQty">Kuantitas (Qty) *</label>
+                <input type="number" class="form-input-control" id="inputQty" value="1" min="1" max="999" required oninput="app.updateFormCalculationsPreview()">
+              </div>
+
+              <div class="form-input-group">
+                <label class="form-label-title" for="inputHargaSatuan">Harga Satuan (Rp) *</label>
+                <input type="number" class="form-input-control" id="inputHargaSatuan" placeholder="Misal: 35000" min="0" required oninput="app.updateFormCalculationsPreview()">
+              </div>
+            </div>
+
+            <!-- F-03: KALKULATOR DISKON BERTINGKAT -->
+            <div class="form-input-group">
+              <label class="form-label-title" for="inputDiskon">
+                Diskon Promo (Tunggal / Bertingkat / Nominal)
+              </label>
+              <input type="text" class="form-input-control" id="inputDiskon" placeholder="Contoh: 20%, 50%+20%, atau 15000" oninput="app.updateFormCalculationsPreview()">
+              
+              <!-- Quick Preset Discount Pills -->
+              <div class="discount-preset-pills">
+                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('')">Tanpa Diskon</button>
+                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('10%')">10%</button>
+                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('25%')">25%</button>
+                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('50%')">50%</button>
+                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('50%+20%')">50%+20%</button>
+                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('15000')">Potong 15rb</button>
+              </div>
+
+              <div id="formDiscountPreviewBox" class="live-calc-box hidden">
+                <!-- Preview rincian matematis diskon bertingkat -->
+              </div>
+            </div>
+
+            <!-- F-04: KOMPARATOR HARGA BULAN LALU -->
+            <div class="form-input-group">
+              <label class="form-label-title" for="inputHargaBulanLalu">
+                Harga Bulan Lalu (Rp) <span style="font-size: 10px; color: var(--text-dim);">(Opsional untuk Komparasi Fluktuasi)</span>
+              </label>
+              <input type="number" class="form-input-control" id="inputHargaBulanLalu" placeholder="Misal: 32000" min="0" oninput="app.updateFormCalculationsPreview()">
+              
+              <div id="formPriceComparePreviewBox" class="live-calc-box hidden">
+                <!-- Preview fluktuasi naik/turun/sama -->
+              </div>
+            </div>
+
+            <!-- ==============================================
+                 FITUR 1: TAG NUTRISI CEPAT (HEALTHY GRADE BADGE)
+                 ============================================== -->
+            <div class="form-input-group">
+              <label class="form-label-title">
+                Tag Nutrisi Cepat (Nutri-Score Grade)
+              </label>
+              <div class="nutrition-tag-selector-grid">
+                <button type="button" class="nutrition-tag-option-btn selected" data-nutri="Tinggi Protein" onclick="app.selectNutritionTag('Tinggi Protein')">
+                  <span>🍗</span> Tinggi Protein
+                </button>
+                <button type="button" class="nutrition-tag-option-btn" data-nutri="Tinggi Serat" onclick="app.selectNutritionTag('Tinggi Serat')">
+                  <span>🥬</span> Tinggi Serat
+                </button>
+                <button type="button" class="nutrition-tag-option-btn" data-nutri="Rendah Gula" onclick="app.selectNutritionTag('Rendah Gula')">
+                  <span>💧</span> Rendah Gula
+                </button>
+                <button type="button" class="nutrition-tag-option-btn" data-nutri="Ultra-Processed / Batasi" onclick="app.selectNutritionTag('Ultra-Processed / Batasi')">
+                  <span>⚠️</span> Ultra-Processed / Batasi
+                </button>
+                <button type="button" class="nutrition-tag-option-btn" data-nutri="Standar / Netral" onclick="app.selectNutritionTag('Standar / Netral')">
+                  <span>⚖️</span> Standar / Netral
+                </button>
+              </div>
+              <input type="hidden" id="selectedNutritionTag" value="Tinggi Protein">
+            </div>
+
+            <!-- ==============================================
+                 FITUR 2: KALKULATOR PROTEIN-PER-RUPIAH
+                 ============================================== -->
+            <div class="form-input-group">
+              <label class="form-label-title" for="inputProteinGrams">
+                Total Protein per Kemasan (gram) <span style="font-size: 10px; color: #38bdf8;">(Opsional - Value for Health)</span>
+              </label>
+              <input type="number" class="form-input-control" id="inputProteinGrams" placeholder="Contoh: 115 (Dada Ayam 500g) atau 130 (Telur 1kg)" min="0" step="0.5" oninput="app.updateFormCalculationsPreview()">
+              
+              <div id="formProteinCalcPreviewBox" class="live-calc-box hidden">
+                <!-- Preview biaya per gram protein -->
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-primary-block" id="saveItemSubmitBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Simpan ke Keranjang
+            </button>
+            <button type="button" class="btn-secondary-block" onclick="app.closeItemModal()">Batal</button>
+          </form>
+
+        </div>
+      </div>
+
+      <!-- ==========================================
+           MODAL EDIT BUDGET CAP
+           ========================================== -->
+      <div class="modal-backdrop-layer" id="budgetModalBackdrop">
+        <div class="modal-bottom-sheet" style="max-height: 50vh;">
+          <div class="modal-handle-bar"></div>
+          <div class="modal-header-row">
+            <h3>Ubah Batas Anggaran (Dompet)</h3>
+            <button class="modal-close-btn" onclick="app.closeBudgetModal()">&times;</button>
+          </div>
+          <div class="form-input-group">
+            <label class="form-label-title">Batas Maksimal Uang Saku (Rp)</label>
+            <input type="number" class="form-input-control" id="modalBudgetLimitInput" value="250000" step="10000">
+          </div>
+          <button class="btn-primary-block" onclick="app.saveBudgetModal()">Simpan Batas Anggaran</button>
+        </div>
+      </div>
+
+      <!-- Toast Notification Alert -->
+      <div class="toast-notification-toast" id="appToast">
+        <span id="toastIcon">🔔</span>
+        <span id="toastMessage">Notifikasi sistem</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
