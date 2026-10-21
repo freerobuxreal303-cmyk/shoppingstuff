@@ -148,7 +148,7 @@ class SmartGroceryApp {
       if (this.currentUser) {
         const meta = this.currentUser.user_metadata || {};
         const avatar = meta.avatar_url || meta.picture || '';
-        const name = meta.full_name || 'Pengguna Google';
+        const name = meta.full_name || this.currentUser.email.split('@')[0];
         const email = this.currentUser.email;
 
         modalSection.innerHTML = `
@@ -156,14 +156,14 @@ class SmartGroceryApp {
             <div style="display: flex; align-items: center; gap: 10px;">
               ${avatar 
                 ? `<img style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #14b8a6;" src="${avatar}" alt="Avatar">`
-                : `<div style="width: 40px; height: 40px; border-radius: 50%; background: #0f766e; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">${name.charAt(0)}</div>`
+                : `<div style="width: 40px; height: 40px; border-radius: 50%; background: #0f766e; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">${name.charAt(0).toUpperCase()}</div>`
               }
               <div>
                 <div style="font-size: 13px; font-weight: 700; color: #fff;">${this.escapeHtml(name)}</div>
                 <div style="font-size: 10.5px; color: var(--text-muted);">${this.escapeHtml(email)}</div>
                 <div class="cloud-sync-status-indicator" style="margin-top: 2px;">
                   <span class="cloud-dot"></span>
-                  <span style="color: #34d399; font-weight: 600;">Akun Google Terhubung &bull; Cloud Aktif</span>
+                  <span style="color: #34d399; font-weight: 600;">Akun Cloud Terhubung &bull; Sinkronisasi Aktif</span>
                 </div>
               </div>
             </div>
@@ -174,19 +174,50 @@ class SmartGroceryApp {
         `;
       } else {
         modalSection.innerHTML = `
-          <div style="text-align: center; padding: 8px 4px;">
-            <h4 style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;">Masuk dengan Akun Google</h4>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
-              Simpan data belanjaanmu secara otomatis ke database awan Supabase agar tidak hilang saat ganti perangkat.
-            </p>
-            <button class="btn-google-oauth btn-google-oauth-lg" onclick="app.signInWithGoogle()">
+          <div style="padding: 4px;">
+            <div style="text-align: center; margin-bottom: 12px;">
+              <h4 style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;">Masuk ke Akun Cloud Supabase</h4>
+              <p style="font-size: 11px; color: var(--text-muted);">
+                Simpan keranjang &amp; riwayat belanja secara otomatis ke database Supabase <code>jnluauwepczsglnzckdw</code>.
+              </p>
+            </div>
+
+            <!-- Opsi 1: Google OAuth SSO -->
+            <button class="btn-google-oauth btn-google-oauth-lg" onclick="app.signInWithGoogle()" style="margin-bottom: 10px;">
               <svg width="18" height="18" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
               </svg>
-              <span>Lanjutkan dengan Google</span>
+              <span>Lanjutkan dengan Akun Google</span>
+            </button>
+
+            <!-- Divider -->
+            <div style="display: flex; align-items: center; gap: 8px; margin: 12px 0;">
+              <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
+              <span style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">atau masuk dengan email</span>
+              <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
+            </div>
+
+            <!-- Opsi 2: Email & Password Direct Auth -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <input type="email" class="form-input-control" id="authEmailInput" placeholder="Email kamu (cth: siswa@gmail.com)">
+              <input type="password" class="form-input-control" id="authPasswordInput" placeholder="Password (min. 6 karakter)">
+              
+              <div style="display: flex; gap: 6px;">
+                <button class="btn-primary-block" style="flex: 1; padding: 9px; font-size: 11.5px;" onclick="app.signInWithEmail()">
+                  🔑 Masuk Email
+                </button>
+                <button class="btn-secondary-block" style="flex: 1; padding: 9px; font-size: 11.5px; margin-top: 0;" onclick="app.signUpWithEmail()">
+                  ✨ Buat Akun Baru
+                </button>
+              </div>
+            </div>
+
+            <!-- Opsi 3: 1-Click Instant Demo User -->
+            <button class="btn-secondary-block" style="margin-top: 10px; padding: 8px; font-size: 11px; background: rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.3); color: #34d399;" onclick="app.loginDemoUser()">
+              ⚡ Login Cepat Akun Demo (Rian Grocery - 1-Klik)
             </button>
           </div>
         `;
@@ -197,11 +228,31 @@ class SmartGroceryApp {
   async signInWithGoogle() {
     if (!this.supabase) {
       this.openCloudModal();
-      this.showToast('Masukkan URL & Anon Key Supabase terlebih dahulu di modal ini.');
+      this.showToast('Supabase belum terkonfigurasi!', '⚠️');
       return;
     }
 
     try {
+      this.showToast('Memeriksa status Google Provider...');
+      // Preflight: Cek apakah Google Provider sudah diaktifkan di Supabase Dashboard
+      try {
+        const res = await fetch(`${this.supabaseUrl}/auth/v1/settings`, {
+          headers: {
+            'apikey': this.supabaseAnonKey,
+            'Authorization': `Bearer ${this.supabaseAnonKey}`
+          }
+        });
+        if (res.ok) {
+          const cfg = await res.json();
+          if (cfg && cfg.external && cfg.external.google === false) {
+            this.showGoogleNotEnabledModal();
+            return;
+          }
+        }
+      } catch (checkErr) {
+        console.warn('Preflight check warning:', checkErr);
+      }
+
       this.showToast('Membuka autentikasi Google...');
       const { error } = await this.supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -212,7 +263,117 @@ class SmartGroceryApp {
       if (error) throw error;
     } catch (err) {
       console.error('Google Sign-In Error:', err);
-      this.showToast(`Gagal Google Auth: ${err.message}`, '⚠️');
+      this.showGoogleNotEnabledModal();
+    }
+  }
+
+  showGoogleNotEnabledModal() {
+    this.openCloudModal();
+    const modalSection = document.getElementById('modalUserAuthSection');
+    if (modalSection) {
+      modalSection.innerHTML = `
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 14px; text-align: left;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 18px;">⚠️</span>
+            <strong style="color: #f87171; font-size: 13px;">Google Provider Belum Diaktifkan</strong>
+          </div>
+          <p style="font-size: 11px; color: #e2e8f0; line-height: 1.5; margin-bottom: 10px;">
+            Supabase secara default menonaktifkan Google OAuth hingga di-enable di Dashboard. Kamu bisa:
+          </p>
+          
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <a href="https://supabase.com/dashboard/project/jnluauwepczsglnzckdw/auth/providers" target="_blank" class="btn-primary-block" style="background: #2563eb; color: #fff; text-align: center; text-decoration: none; padding: 9px; font-size: 11.5px; border-radius: 8px;">
+              🌐 1. Aktifkan Google di Supabase Dashboard
+            </a>
+            
+            <button class="btn-primary-block" style="background: #10b981; color: #fff; padding: 9px; font-size: 11.5px; border-radius: 8px;" onclick="app.renderAuth()">
+              ✉️ 2. Masuk / Daftar Menggunakan Email &amp; Password
+            </button>
+
+            <button class="btn-secondary-block" style="padding: 8px; font-size: 11px; margin: 0; background: rgba(20, 184, 166, 0.15); color: #34d399;" onclick="app.loginDemoUser()">
+              ⚡ 3. Login 1-Klik Akun Demo (Langsung Masuk &amp; Sync)
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    this.showToast('Provider Google belum aktif di dashboard Supabase', '⚠️');
+  }
+
+  async signInWithEmail() {
+    const email = document.getElementById('authEmailInput')?.value.trim();
+    const password = document.getElementById('authPasswordInput')?.value;
+    if (!email || !password) {
+      this.showToast('Harap masukkan email dan password!', '⚠️');
+      return;
+    }
+    this.showToast('Memproses login...');
+    try {
+      const { data, error } = await this.supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      if (error) throw error;
+      this.currentUser = data.user;
+      this.showToast(`Selamat datang, ${this.currentUser.user_metadata?.full_name || this.currentUser.email}!`, '🎉');
+      await this.syncFromCloud();
+      this.renderAuth();
+    } catch (err) {
+      console.error('Email login error:', err);
+      this.showToast(`Login gagal: ${err.message}`, '⚠️');
+    }
+  }
+
+  async signUpWithEmail() {
+    const email = document.getElementById('authEmailInput')?.value.trim();
+    const password = document.getElementById('authPasswordInput')?.value;
+    if (!email || !password) {
+      this.showToast('Harap masukkan email dan password!', '⚠️');
+      return;
+    }
+    if (password.length < 6) {
+      this.showToast('Password minimal 6 karakter!', '⚠️');
+      return;
+    }
+    this.showToast('Mendaftarkan akun baru...');
+    try {
+      const { data, error } = await this.supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: email.split('@')[0] }
+        }
+      });
+      if (error) throw error;
+      if (data.session && data.user) {
+        this.currentUser = data.user;
+        this.showToast('Akun berhasil dibuat dan langsung login!', '🎉');
+        await this.syncFromCloud();
+        this.renderAuth();
+      } else {
+        this.showToast('Akun berhasil dibuat! Silakan login.', '💡');
+      }
+    } catch (err) {
+      console.error('Email signup error:', err);
+      this.showToast(`Pendaftaran gagal: ${err.message}`, '⚠️');
+    }
+  }
+
+  async loginDemoUser() {
+    this.showToast('Masuk dengan Akun Demo Rian...');
+    try {
+      const { data, error } = await this.supabase.auth.signInWithPassword({
+        email: 'rian.smartgrocery@gmail.com',
+        password: 'Password123!'
+      });
+      if (error) throw error;
+      this.currentUser = data.user;
+      this.showToast('Berhasil masuk sebagai Rian Grocery! Database cloud aktif 🚀', '🎉');
+      await this.syncFromCloud();
+      this.renderAuth();
+    } catch (err) {
+      console.error('Demo login error:', err);
+      this.showToast(`Demo login notice: ${err.message}`, '⚠️');
     }
   }
 
@@ -222,7 +383,7 @@ class SmartGroceryApp {
       await this.supabase.auth.signOut();
       this.currentUser = null;
       this.renderAuth();
-      this.showToast('Berhasil keluar dari akun Google');
+      this.showToast('Berhasil keluar dari akun');
     } catch (err) {
       console.error('Sign Out Error:', err);
     }
