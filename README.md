@@ -6,7 +6,7 @@
 
 ## 🌐 Link Live & Repository
 
-- 🚀 **Live Demo Vercel:** [https://shoppingstuff-freerobuxreal303-9364.vercel.app/](https://shoppingstuff-freerobuxreal303-9364.vercel.app/)
+- 🚀 **Live Demo Vercel:** [https://shoppingstuff.vercel.app](https://shoppingstuff.vercel.app)
 - 💻 **GitHub Repository:** [https://github.com/freerobuxreal303-cmyk/shoppingstuff](https://github.com/freerobuxreal303-cmyk/shoppingstuff)
 - 🗄️ **Supabase Project:** `jnluauwepczsglnzckdw` ([https://supabase.com/dashboard/project/jnluauwepczsglnzckdw](https://supabase.com/dashboard/project/jnluauwepczsglnzckdw))
 
@@ -61,7 +61,7 @@ Aplikasi sudah terhubung langsung ke proyek Supabase kamu:
 
 ### Cara 1: Buka Langsung di HP atau Laptop (Paling Praktis)
 1. Buka browser (Chrome / Safari / Edge) dan kunjungi:
-   👉 **[https://shoppingstuff-freerobuxreal303-9364.vercel.app/](https://shoppingstuff-freerobuxreal303-9364.vercel.app/)**
+   👉 **[https://shoppingstuff.vercel.app/](https://shoppingstuff.vercel.app/)**
 2. **Install sebagai Aplikasi HP (PWA):**
    - Di Android (Chrome): Klik titik tiga di pojok kanan atas > Pilih **"Add to Home Screen"** (Tambahkan ke Layar Utama).
    - Di iPhone (Safari): Klik tombol Share (ikon kotak panah ke atas) > Pilih **"Add to Home Screen"**.

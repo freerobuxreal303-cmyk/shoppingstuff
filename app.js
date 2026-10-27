@@ -1,10 +1,10 @@
-/**
+﻿/**
  * SMART GROCERY & NUTRITION TRACKER (STUDI KASUS RIAN - MOBILE PWA)
  * SRS Checklist Implemented:
  * - F-01: Complete Item Logging (Name, Category, Unit, Qty, Unit Price, Last Month Price)
  * - F-02: Realtime Quantity Calculation (Touch-friendly steppers)
  * - F-03: Tiered / Stacked Discount Calculator (e.g. 50%+20% or flat Rp)
- * - F-04: Realtime Price Comparator vs Last Month (↑ Red, ↓ Green, = Gray)
+ * - F-04: Realtime Price Comparator vs Last Month (â†‘ Red, â†“ Green, = Gray)
  * - F-05: Budget Safety Cap (Wallet limit, cashier warning banner, remaining cash)
  * - F-06: Shopping History & Database (LocalStorage + Supabase Cloud Persistence)
  *
@@ -171,10 +171,10 @@ class SmartGroceryApp {
             <div style="display: flex; align-items: center; gap: 10px;">
               ${avatar 
                 ? `<img style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #14b8a6;" src="${avatar}" alt="Avatar">`
-                : `<div style="width: 40px; height: 40px; border-radius: 50%; background: #0f766e; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">${name.charAt(0).toUpperCase()}</div>`
+                : `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #ec4899, #db2777); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">${name.charAt(0).toUpperCase()}</div>`
               }
               <div>
-                <div style="font-size: 13px; font-weight: 700; color: #fff;">${this.escapeHtml(name)}</div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">${this.escapeHtml(name)}</div>
                 <div style="font-size: 10.5px; color: var(--text-muted);">${this.escapeHtml(email)}</div>
                 <div class="cloud-sync-status-indicator" style="margin-top: 2px;">
                   <span class="cloud-dot"></span>
@@ -191,7 +191,7 @@ class SmartGroceryApp {
         modalSection.innerHTML = `
           <div style="padding: 4px;">
             <div style="text-align: center; margin-bottom: 12px;">
-              <h4 style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;">Masuk ke Akun Cloud Supabase</h4>
+              <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Masuk ke Akun Cloud Supabase</h4>
               <p style="font-size: 11px; color: var(--text-muted);">
                 Simpan keranjang &amp; riwayat belanja secara otomatis ke database Supabase <code>jnluauwepczsglnzckdw</code>.
               </p>
@@ -222,17 +222,17 @@ class SmartGroceryApp {
               
               <div style="display: flex; gap: 6px;">
                 <button class="btn-primary-block" style="flex: 1; padding: 9px; font-size: 11.5px;" onclick="app.signInWithEmail()">
-                  🔑 Masuk Email
+                  ðŸ”‘ Masuk Email
                 </button>
                 <button class="btn-secondary-block" style="flex: 1; padding: 9px; font-size: 11.5px; margin-top: 0;" onclick="app.signUpWithEmail()">
-                  ✨ Buat Akun Baru
+                  âœ¨ Buat Akun Baru
                 </button>
               </div>
             </div>
 
             <!-- Opsi 3: 1-Click Instant Demo User -->
             <button class="btn-secondary-block" style="margin-top: 10px; padding: 8px; font-size: 11px; background: rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.3); color: #34d399;" onclick="app.loginDemoUser()">
-              ⚡ Login Cepat Akun Demo (Rian Grocery - 1-Klik)
+              âš¡ Login Cepat Akun Demo (Rian Grocery - 1-Klik)
             </button>
           </div>
         `;
@@ -243,7 +243,7 @@ class SmartGroceryApp {
   async signInWithGoogle() {
     if (!this.supabase) {
       this.openCloudModal();
-      this.showToast('Supabase belum terkonfigurasi!', '⚠️');
+      this.showToast('Supabase belum terkonfigurasi!', 'âš ï¸');
       return;
     }
 
@@ -260,7 +260,7 @@ class SmartGroceryApp {
         if (res.ok) {
           const cfg = await res.json();
           if (cfg && cfg.external && cfg.external.google === false) {
-            this.showToast('Provider Google belum aktif di dashboard, masuk otomatis sebagai Akun Rian...', '⚡');
+            this.showToast('Provider Google belum aktif di dashboard, masuk otomatis sebagai Akun Rian...', 'âš¡');
             await this.loginDemoUser();
             return;
           }
@@ -279,7 +279,7 @@ class SmartGroceryApp {
       if (error) throw error;
     } catch (err) {
       console.error('Google Sign-In Error:', err);
-      this.showToast('Masuk otomatis dengan Akun Cloud...', '⚡');
+      this.showToast('Masuk otomatis dengan Akun Cloud...', 'âš¡');
       await this.loginDemoUser();
     }
   }
@@ -291,7 +291,7 @@ class SmartGroceryApp {
       modalSection.innerHTML = `
         <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 14px; text-align: left;">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-            <span style="font-size: 18px;">⚠️</span>
+            <span style="font-size: 18px;">âš ï¸</span>
             <strong style="color: #f87171; font-size: 13px;">Google Provider Belum Diaktifkan</strong>
           </div>
           <p style="font-size: 11px; color: #e2e8f0; line-height: 1.5; margin-bottom: 10px;">
@@ -300,28 +300,28 @@ class SmartGroceryApp {
           
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <a href="https://supabase.com/dashboard/project/jnluauwepczsglnzckdw/auth/providers" target="_blank" class="btn-primary-block" style="background: #2563eb; color: #fff; text-align: center; text-decoration: none; padding: 9px; font-size: 11.5px; border-radius: 8px;">
-              🌐 1. Aktifkan Google di Supabase Dashboard
+              ðŸŒ 1. Aktifkan Google di Supabase Dashboard
             </a>
             
             <button class="btn-primary-block" style="background: #10b981; color: #fff; padding: 9px; font-size: 11.5px; border-radius: 8px;" onclick="app.renderAuth()">
-              ✉️ 2. Masuk / Daftar Menggunakan Email &amp; Password
+              âœ‰ï¸ 2. Masuk / Daftar Menggunakan Email &amp; Password
             </button>
 
             <button class="btn-secondary-block" style="padding: 8px; font-size: 11px; margin: 0; background: rgba(20, 184, 166, 0.15); color: #34d399;" onclick="app.loginDemoUser()">
-              ⚡ 3. Login 1-Klik Akun Demo (Langsung Masuk &amp; Sync)
+              âš¡ 3. Login 1-Klik Akun Demo (Langsung Masuk &amp; Sync)
             </button>
           </div>
         </div>
       `;
     }
-    this.showToast('Provider Google belum aktif di dashboard Supabase', '⚠️');
+    this.showToast('Provider Google belum aktif di dashboard Supabase', 'âš ï¸');
   }
 
   async signInWithEmail() {
     const email = document.getElementById('authEmailInput')?.value.trim();
     const password = document.getElementById('authPasswordInput')?.value;
     if (!email || !password) {
-      this.showToast('Harap masukkan email dan password!', '⚠️');
+      this.showToast('Harap masukkan email dan password!', 'âš ï¸');
       return;
     }
     this.showToast('Memproses login...');
@@ -332,12 +332,12 @@ class SmartGroceryApp {
       });
       if (error) throw error;
       this.currentUser = data.user;
-      this.showToast(`Selamat datang, ${this.currentUser.user_metadata?.full_name || this.currentUser.email}!`, '🎉');
+      this.showToast(`Selamat datang, ${this.currentUser.user_metadata?.full_name || this.currentUser.email}!`, 'ðŸŽ‰');
       await this.syncFromCloud();
       this.renderAuth();
     } catch (err) {
       console.error('Email login error:', err);
-      this.showToast(`Login gagal: ${err.message}`, '⚠️');
+      this.showToast(`Login gagal: ${err.message}`, 'âš ï¸');
     }
   }
 
@@ -345,11 +345,11 @@ class SmartGroceryApp {
     const email = document.getElementById('authEmailInput')?.value.trim();
     const password = document.getElementById('authPasswordInput')?.value;
     if (!email || !password) {
-      this.showToast('Harap masukkan email dan password!', '⚠️');
+      this.showToast('Harap masukkan email dan password!', 'âš ï¸');
       return;
     }
     if (password.length < 6) {
-      this.showToast('Password minimal 6 karakter!', '⚠️');
+      this.showToast('Password minimal 6 karakter!', 'âš ï¸');
       return;
     }
     this.showToast('Mendaftarkan akun baru...');
@@ -364,15 +364,15 @@ class SmartGroceryApp {
       if (error) throw error;
       if (data.session && data.user) {
         this.currentUser = data.user;
-        this.showToast('Akun berhasil dibuat dan langsung login!', '🎉');
+        this.showToast('Akun berhasil dibuat dan langsung login!', 'ðŸŽ‰');
         await this.syncFromCloud();
         this.renderAuth();
       } else {
-        this.showToast('Akun berhasil dibuat! Silakan login.', '💡');
+        this.showToast('Akun berhasil dibuat! Silakan login.', 'ðŸ’¡');
       }
     } catch (err) {
       console.error('Email signup error:', err);
-      this.showToast(`Pendaftaran gagal: ${err.message}`, '⚠️');
+      this.showToast(`Pendaftaran gagal: ${err.message}`, 'âš ï¸');
     }
   }
 
@@ -385,12 +385,12 @@ class SmartGroceryApp {
       });
       if (error) throw error;
       this.currentUser = data.user;
-      this.showToast('Berhasil masuk sebagai Rian Grocery! Database cloud aktif 🚀', '🎉');
+      this.showToast('Berhasil masuk sebagai Rian Grocery! Database cloud aktif ðŸš€', 'ðŸŽ‰');
       await this.syncFromCloud();
       this.renderAuth();
     } catch (err) {
       console.error('Demo login error:', err);
-      this.showToast(`Demo login notice: ${err.message}`, '⚠️');
+      this.showToast(`Demo login notice: ${err.message}`, 'âš ï¸');
     }
   }
 
@@ -411,7 +411,7 @@ class SmartGroceryApp {
     const key = document.getElementById('supabaseAnonKeyInput')?.value.trim();
 
     if (!url || !key) {
-      this.showToast('Harap isi Project URL dan Anon Key Supabase!', '⚠️');
+      this.showToast('Harap isi Project URL dan Anon Key Supabase!', 'âš ï¸');
       return;
     }
 
@@ -426,7 +426,7 @@ class SmartGroceryApp {
 
   async testSupabaseConnection() {
     if (!this.supabase) {
-      this.showToast('Supabase belum terkonfigurasi!', '⚠️');
+      this.showToast('Supabase belum terkonfigurasi!', 'âš ï¸');
       return;
     }
     try {
@@ -435,21 +435,21 @@ class SmartGroceryApp {
       if (error && error.code !== 'PGRST116') {
         // Table might not exist yet
         if (error.message.includes('relation') || error.message.includes('does not exist')) {
-          this.showToast('Terhubung ke Supabase! (Tabel shopping_items belum dibuat, klik Salin SQL)', '💡');
+          this.showToast('Terhubung ke Supabase! (Tabel shopping_items belum dibuat, klik Salin SQL)', 'ðŸ’¡');
           return;
         }
         throw error;
       }
-      this.showToast('Koneksi Supabase Sukses & Siap Digunakan! 🚀');
+      this.showToast('Koneksi Supabase Sukses & Siap Digunakan! ðŸš€');
     } catch (err) {
-      this.showToast(`Koneksi Gagal: ${err.message}`, '⚠️');
+      this.showToast(`Koneksi Gagal: ${err.message}`, 'âš ï¸');
     }
   }
 
   copyAndOpenSQLEditor() {
     this.copySupabaseSQL();
     window.open('https://supabase.com/dashboard/project/jnluauwepczsglnzckdw/sql/new', '_blank');
-    this.showToast('SQL disalin! Buka tab SQL Editor, tekan Ctrl+V lalu klik RUN 🚀');
+    this.showToast('SQL disalin! Buka tab SQL Editor, tekan Ctrl+V lalu klik RUN ðŸš€');
   }
 
   copySupabaseSQL() {
@@ -487,7 +487,7 @@ create policy "Users can manage own history" on shopping_history for all using (
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(sqlText).then(() => {
-        this.showToast('Skrip SQL berhasil disalin ke clipboard! 📋');
+        this.showToast('Skrip SQL berhasil disalin ke clipboard! ðŸ“‹');
       }).catch(() => {
         this.fallbackCopyText(sqlText);
       });
@@ -505,7 +505,7 @@ create policy "Users can manage own history" on shopping_history for all using (
     ta.select();
     try {
       document.execCommand('copy');
-      this.showToast('Skrip SQL berhasil disalin ke clipboard! 📋');
+      this.showToast('Skrip SQL berhasil disalin ke clipboard! ðŸ“‹');
     } catch(e) {
       this.showToast('Silakan pilih teks manual di kotak SQL.');
     }
@@ -679,7 +679,7 @@ create policy "Users can manage own history" on shopping_history for all using (
     localStorage.setItem(this.STORAGE_KEY_SOUND, JSON.stringify(this.soundEnabled));
     const icon = document.getElementById('soundToggleIcon');
     if (icon) {
-      icon.textContent = this.soundEnabled ? '🔊' : '🔇';
+      icon.textContent = this.soundEnabled ? 'ðŸ”Š' : 'ðŸ”‡';
     }
     this.showToast(this.soundEnabled ? 'Suara efek aktif' : 'Suara efek dibisukan');
   }
@@ -697,7 +697,7 @@ create policy "Users can manage own history" on shopping_history for all using (
       if (savedSound !== null) {
         this.soundEnabled = JSON.parse(savedSound);
         const icon = document.getElementById('soundToggleIcon');
-        if (icon) icon.textContent = this.soundEnabled ? '🔊' : '🔇';
+        if (icon) icon.textContent = this.soundEnabled ? 'ðŸ”Š' : 'ðŸ”‡';
       }
 
       if (savedBudget) {
@@ -871,7 +871,7 @@ create policy "Users can manage own history" on shopping_history for all using (
         discountAmount: totalPotongan,
         discountPercentTotal: effectivePct,
         isTiered: true,
-        breakdownText: `${steps.join(' → ')} (Total Hemat: ${effectivePct}%)`
+        breakdownText: `${steps.join(' â†’ ')} (Total Hemat: ${effectivePct}%)`
       };
     }
 
@@ -927,16 +927,16 @@ create policy "Users can manage own history" on shopping_history for all using (
   getNutriScoreGrade(nutritionTag) {
     switch (nutritionTag) {
       case 'Tinggi Protein':
-        return { grade: 'A', class: 'grade-green', label: 'Nutri-Score A • Sangat Sehat', icon: '🍗' };
+        return { grade: 'A', class: 'grade-green', label: 'Nutri-Score A â€¢ Sangat Sehat', icon: 'ðŸ—' };
       case 'Tinggi Serat':
-        return { grade: 'A', class: 'grade-green', label: 'Nutri-Score A • Sangat Sehat', icon: '🥬' };
+        return { grade: 'A', class: 'grade-green', label: 'Nutri-Score A â€¢ Sangat Sehat', icon: 'ðŸ¥¬' };
       case 'Rendah Gula':
-        return { grade: 'B', class: 'grade-lime', label: 'Nutri-Score B • Sehat', icon: '💧' };
+        return { grade: 'B', class: 'grade-lime', label: 'Nutri-Score B â€¢ Sehat', icon: 'ðŸ’§' };
       case 'Ultra-Processed / Batasi':
-        return { grade: 'E', class: 'grade-red', label: 'Nutri-Score E • Batasi', icon: '⚠️' };
+        return { grade: 'E', class: 'grade-red', label: 'Nutri-Score E â€¢ Batasi', icon: 'âš ï¸' };
       case 'Standar / Netral':
       default:
-        return { grade: 'C', class: 'grade-yellow', label: 'Nutri-Score C • Sedang', icon: '⚖️' };
+        return { grade: 'C', class: 'grade-yellow', label: 'Nutri-Score C â€¢ Sedang', icon: 'âš–ï¸' };
     }
   }
 
@@ -952,14 +952,14 @@ create policy "Users can manage own history" on shopping_history for all using (
       return {
         type: 'up',
         badgeClass: 'price-up',
-        text: `↑ Naik Rp ${diff.toLocaleString('id-ID')} (+${diffPct}%)`,
+        text: `â†‘ Naik Rp ${diff.toLocaleString('id-ID')} (+${diffPct}%)`,
         diff
       };
     } else if (diff < 0) {
       return {
         type: 'down',
         badgeClass: 'price-down',
-        text: `↓ Turun Rp ${Math.abs(diff).toLocaleString('id-ID')} (-${diffPct}%)`,
+        text: `â†“ Turun Rp ${Math.abs(diff).toLocaleString('id-ID')} (-${diffPct}%)`,
         diff
       };
     } else {
@@ -1022,7 +1022,7 @@ create policy "Users can manage own history" on shopping_history for all using (
               <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
             </svg>
           </div>
-          <h3 style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px;">Tidak Ada Barang</h3>
+          <h3 style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Tidak Ada Barang</h3>
           <p style="font-size: 11px; color: var(--text-muted);">
             ${this.cart.length === 0 ? 'Keranjang masih kosong. Tekan tombol + di bawah atau gunakan preset belanja anak kos.' : 'Tidak ada barang yang cocok dengan filter yang dipilih.'}
           </p>
@@ -1061,7 +1061,7 @@ create policy "Users can manage own history" on shopping_history for all using (
               </div>
               ${disc.discountAmount > 0 ? `
                 <div style="margin-top: 2px;">
-                  <span class="discount-tag-badge">🏷️ ${disc.isTiered ? 'Bertingkat ' : ''}${this.escapeHtml(item.discountStr)}</span>
+                  <span class="discount-tag-badge">ðŸ·ï¸ ${disc.isTiered ? 'Bertingkat ' : ''}${this.escapeHtml(item.discountStr)}</span>
                 </div>
               ` : ''}
             </div>
@@ -1080,7 +1080,7 @@ create policy "Users can manage own history" on shopping_history for all using (
               </span>
               ${pVal.isBestValue ? `
                 <span class="best-protein-value-badge">
-                  🔥 Best Protein Value!
+                  ðŸ”¥ Best Protein Value!
                 </span>
               ` : ''}
             </div>
@@ -1267,11 +1267,11 @@ create policy "Users can manage own history" on shopping_history for all using (
 
     if (tipEl) {
       if (freshPct >= 70) {
-        tipEl.innerHTML = '🏆 <strong>Keranjang Super Sehat!</strong> Alokasi belanja sangat bergizi (tinggi protein alami & serat), optimal menjaga daya tahan tubuh anak kos.';
+        tipEl.innerHTML = 'ðŸ† <strong>Keranjang Super Sehat!</strong> Alokasi belanja sangat bergizi (tinggi protein alami & serat), optimal menjaga daya tahan tubuh anak kos.';
       } else if (freshPct >= 45) {
-        tipEl.innerHTML = '⚖️ <strong>Komposisi Cukup Seimbang.</strong> Tambahkan sedikit porsi tempe, tahu, atau sayur hijau untuk meningkatkan nilai protein hemat.';
+        tipEl.innerHTML = 'âš–ï¸ <strong>Komposisi Cukup Seimbang.</strong> Tambahkan sedikit porsi tempe, tahu, atau sayur hijau untuk meningkatkan nilai protein hemat.';
       } else {
-        tipEl.innerHTML = '⚠️ <strong>Didominasi Makanan Olahan!</strong> Terlalu banyak belanja makanan instan dapat menguras dompet dan menurunkan kualitas gizi harian.';
+        tipEl.innerHTML = 'âš ï¸ <strong>Didominasi Makanan Olahan!</strong> Terlalu banyak belanja makanan instan dapat menguras dompet dan menurunkan kualitas gizi harian.';
       }
     }
   }
@@ -1320,7 +1320,7 @@ create policy "Users can manage own history" on shopping_history for all using (
         <tr class="${isTop ? 'best-rank-row' : ''}">
           <td>
             <strong>${idx + 1}. ${this.escapeHtml(p.name)}</strong>
-            ${isTop ? '<span class="best-protein-value-badge" style="margin-left: 4px;">🔥 Best Value</span>' : ''}
+            ${isTop ? '<span class="best-protein-value-badge" style="margin-left: 4px;">ðŸ”¥ Best Value</span>' : ''}
           </td>
           <td>${p.proteinGrams}g</td>
           <td>Rp ${p.finalUnitPrice.toLocaleString('id-ID')}</td>
@@ -1354,8 +1354,8 @@ create policy "Users can manage own history" on shopping_history for all using (
       resultBox.innerHTML = `
         Hasil: <strong>${val.label}</strong> &bull; 
         ${val.isBestValue 
-          ? '<span class="best-protein-value-badge">🔥 Best Protein Value! (Sangat Hemat)</span>' 
-          : '<span style="color: #fbbf24; font-weight: 700;">⚖️ Nilai Wajar / Kurang Efisien</span>'
+          ? '<span class="best-protein-value-badge">ðŸ”¥ Best Protein Value! (Sangat Hemat)</span>' 
+          : '<span style="color: #fbbf24; font-weight: 700;">âš–ï¸ Nilai Wajar / Kurang Efisien</span>'
         }
       `;
     }
@@ -1376,7 +1376,7 @@ create policy "Users can manage own history" on shopping_history for all using (
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             </svg>
           </div>
-          <h4 style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;">Belum Ada Riwayat Struk</h4>
+          <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Belum Ada Riwayat Struk</h4>
           <p style="font-size: 11px; color: var(--text-muted);">
             Setelah selesai berbelanja di kasir, tekan "Selesaikan Belanja & Simpan Struk" untuk mengarsipkan belanjaan bulanan.
           </p>
@@ -1443,7 +1443,7 @@ create policy "Users can manage own history" on shopping_history for all using (
     });
 
     const now = new Date();
-    const formattedDate = `${now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} • ${now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+    const formattedDate = `${now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} â€¢ ${now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
 
     const newSession = {
       id: 'session_' + Date.now(),
@@ -1742,7 +1742,7 @@ create policy "Users can manage own history" on shopping_history for all using (
         proteinBox.classList.remove('hidden');
         proteinBox.innerHTML = `
           <strong>Kalkulator Protein:</strong> ${pVal.label} &bull; 
-          ${pVal.isBestValue ? '<span class="best-protein-value-badge">🔥 Best Protein Value!</span>' : '<span>(Standar)</span>'}
+          ${pVal.isBestValue ? '<span class="best-protein-value-badge">ðŸ”¥ Best Protein Value!</span>' : '<span>(Standar)</span>'}
         `;
       }
     } else {
@@ -1879,7 +1879,7 @@ create policy "Users can manage own history" on shopping_history for all using (
     }
   }
 
-  showToast(message, icon = '✅') {
+  showToast(message, icon = 'âœ…') {
     const toast = document.getElementById('appToast');
     const msgEl = document.getElementById('toastMessage');
     const iconEl = document.getElementById('toastIcon');

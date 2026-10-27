@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -7,7 +7,7 @@
   
   <!-- SEO & PWA Meta Tags -->
   <meta name="description" content="Aplikasi Mobile PWA Smart Grocery, Budget Safety Cap & Smart Nutrition Value Tracker untuk Siswa Rantau.">
-  <meta name="theme-color" content="#0d9488">
+  <meta name="theme-color" content="#ec4899">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SmartGrocery">
@@ -35,11 +35,11 @@
         <span id="liveClockDisplay">09:41</span>
         <div class="notch-pill">
           <div class="notch-dot"></div>
-          <span style="font-size: 9px; color: #a7f3d0; font-weight: 700;">SMART PWA</span>
+          <span style="font-size: 9px; color: #f472b6; font-weight: 700;">SMART PWA</span>
         </div>
         <div class="status-right">
-          <span id="onlineStatusBadge">● 4G</span>
-          <span id="soundToggleIcon" style="cursor: pointer;" title="Toggle Suara Efek">🔊</span>
+          <span id="onlineStatusBadge">â— 4G</span>
+          <span id="soundToggleIcon" style="cursor: pointer;" title="Toggle Suara Efek">ðŸ”Š</span>
         </div>
       </div>
 
@@ -177,18 +177,18 @@
             </div>
 
             <div class="healthy-cart-tip" id="healthyCartTipText">
-              💡 Komposisi seimbang! Prioritaskan protein bernilai tinggi (telur, tempe, dada ayam) agar uang saku hemat &amp; stamina fit.
+              ðŸ’¡ Komposisi seimbang! Prioritaskan protein bernilai tinggi (telur, tempe, dada ayam) agar uang saku hemat &amp; stamina fit.
             </div>
           </div>
 
           <!-- Quick Anak Kos Preset Chips -->
           <div class="quick-preset-container">
-            <button class="preset-chip" onclick="app.addQuickPreset('telur')">🥚 Telur 1kg</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('tempe')">🥢 Tempe 2 papan</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('ayam')">🍗 Dada Ayam 500g</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('bayam')">🥬 Bayam Segar</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('tahu')">🧊 Tahu Putih</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('mie')">🍜 Mie Instan</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('telur')">ðŸ¥š Telur 1kg</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('tempe')">ðŸ¥¢ Tempe 2 papan</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('ayam')">ðŸ— Dada Ayam 500g</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('bayam')">ðŸ¥¬ Bayam Segar</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('tahu')">ðŸ§Š Tahu Putih</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('mie')">ðŸœ Mie Instan</button>
           </div>
 
           <!-- Section Headline Bar with Category Filter -->
@@ -200,11 +200,11 @@
             <div class="cart-controls-row">
               <select class="filter-pill-select" id="cartCategoryFilter" onchange="app.renderCart()">
                 <option value="all">Semua Kategori</option>
-                <option value="healthy">🌱 Hanya Sehat (Grade A/B)</option>
-                <option value="protein_value">🔥 Best Protein Value</option>
-                <option value="ultra_processed">⚠️ Ultra-Processed</option>
-                <option value="Makanan">🍲 Makanan Saja</option>
-                <option value="Non-Makanan">🧼 Kebutuhan Rumah</option>
+                <option value="healthy">ðŸŒ± Hanya Sehat (Grade A/B)</option>
+                <option value="protein_value">ðŸ”¥ Best Protein Value</option>
+                <option value="ultra_processed">âš ï¸ Ultra-Processed</option>
+                <option value="Makanan">ðŸ² Makanan Saja</option>
+                <option value="Non-Makanan">ðŸ§¼ Kebutuhan Rumah</option>
               </select>
             </div>
           </div>
@@ -231,13 +231,13 @@
              ========================================== -->
         <section id="tab-protein" class="tab-view-content hidden">
           <div class="protein-hero-banner">
-            <h3>🥩 Kalkulator Protein-per-Rupiah</h3>
+            <h3>ðŸ¥© Kalkulator Protein-per-Rupiah</h3>
             <p>Bagi anak rantau dengan uang saku terbatas, hitung berapa Rupiah yang kamu bayar untuk 1 gram protein murni. Targetkan di bawah <strong>Rp 600 / gram protein</strong> untuk penghematan maksimal!</p>
           </div>
 
           <!-- Interactive Custom Food Test Calculator -->
           <div class="protein-view-card">
-            <h4 style="font-size: 12.5px; font-weight: 700; color: #fff; margin-bottom: 8px;">Uji Nilai Makanan Baru</h4>
+            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Uji Nilai Makanan Baru</h4>
             <div class="form-grid-two-col">
               <div class="form-input-group">
                 <label class="form-label-title">Harga Makanan (Rp)</label>
@@ -252,13 +252,13 @@
               Hitung Nilai Protein
             </button>
             <div id="quickCalcResultBox" class="live-calc-box" style="margin-top: 10px;">
-              Hasil: <strong>Rp 215 / gram protein</strong> &bull; <span class="best-protein-value-badge">🔥 Best Protein Value!</span>
+              Hasil: <strong>Rp 215 / gram protein</strong> &bull; <span class="best-protein-value-badge">ðŸ”¥ Best Protein Value!</span>
             </div>
           </div>
 
           <!-- Ranking Table of User Cart Items by Protein Efficiency -->
           <div class="protein-view-card">
-            <h4 style="font-size: 12.5px; font-weight: 700; color: #fff; margin-bottom: 8px;">Peringkat Nilai Protein Keranjangmu</h4>
+            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Peringkat Nilai Protein Keranjangmu</h4>
             <div style="overflow-x: auto;">
               <table class="protein-ranking-table">
                 <thead>
@@ -278,7 +278,7 @@
 
           <!-- Standard Indonesian Student Benchmark Guide -->
           <div class="protein-view-card">
-            <h4 style="font-size: 12.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">Panduan Harga Protein Anak Kos</h4>
+            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Panduan Harga Protein Anak Kos</h4>
             <table class="protein-ranking-table">
               <thead>
                 <tr>
@@ -291,32 +291,32 @@
                 <tr class="best-rank-row">
                   <td><strong>Tempe (1 papan / ~38g protein)</strong></td>
                   <td>Rp 130 - Rp 160 / g</td>
-                  <td><span class="best-protein-value-badge">🔥 Juara Hemat</span></td>
+                  <td><span class="best-protein-value-badge">ðŸ”¥ Juara Hemat</span></td>
                 </tr>
                 <tr class="best-rank-row">
                   <td><strong>Telur Ayam (1 kg / ~130g protein)</strong></td>
                   <td>Rp 210 - Rp 230 / g</td>
-                  <td><span class="best-protein-value-badge">🔥 Super Value</span></td>
+                  <td><span class="best-protein-value-badge">ðŸ”¥ Super Value</span></td>
                 </tr>
                 <tr class="best-rank-row">
                   <td><strong>Tahu Putih (1 kantong / ~30g)</strong></td>
                   <td>Rp 230 - Rp 260 / g</td>
-                  <td><span class="best-protein-value-badge">🔥 Super Value</span></td>
+                  <td><span class="best-protein-value-badge">ðŸ”¥ Super Value</span></td>
                 </tr>
                 <tr class="best-rank-row">
                   <td><strong>Dada Ayam (500g / ~115g)</strong></td>
                   <td>Rp 260 - Rp 310 / g</td>
-                  <td><span class="best-protein-value-badge">🔥 Nilai Tinggi</span></td>
+                  <td><span class="best-protein-value-badge">ðŸ”¥ Nilai Tinggi</span></td>
                 </tr>
                 <tr>
                   <td>Ikan Sarden Kaleng</td>
                   <td>Rp 500 - Rp 650 / g</td>
-                  <td>⚖️ Sedang</td>
+                  <td>âš–ï¸ Sedang</td>
                 </tr>
                 <tr>
                   <td>Sosis Olahan Instan</td>
                   <td>Rp 1.200 - Rp 1.600 / g</td>
-                  <td>⚠️ Boros Gizi</td>
+                  <td>âš ï¸ Boros Gizi</td>
                 </tr>
               </tbody>
             </table>
@@ -348,7 +348,7 @@
 
           <!-- Form Edit Anggaran -->
           <div class="protein-view-card">
-            <h4 style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 8px;">Pengaturan Uang Tunai di Dompet</h4>
+            <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Pengaturan Uang Tunai di Dompet</h4>
             <div class="form-input-group">
               <label class="form-label-title">Nominal Anggaran Belanja (Rp)</label>
               <input type="number" class="form-input-control" id="customBudgetInput" value="250000" step="10000">
@@ -358,7 +358,7 @@
 
           <!-- Tips Pencegahan Kasir -->
           <div class="protein-view-card" style="border-left: 3px solid #14b8a6;">
-            <h4 style="font-size: 12.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">💡 Tips Anti Panik di Depan Kasir</h4>
+            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">ðŸ’¡ Tips Anti Panik di Depan Kasir</h4>
             <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
               1. Selalu cek status <strong>Budget Safety Cap</strong> sebelum memasuki antrean kasir.<br>
               2. Jika bar menyala merah, batalkan barang sekunder (camilan/minuman bersoda) terlebih dahulu.<br>
@@ -459,15 +459,15 @@
               <div class="form-input-group">
                 <label class="form-label-title" for="selectKategori">Kategori Barang *</label>
                 <select class="form-select-control" id="selectKategori" required>
-                  <option value="Daging, Ayam & Telur">🥩 Daging, Ayam & Telur</option>
-                  <option value="Tahu, Tempe & Nabati">🥢 Tahu, Tempe & Nabati</option>
-                  <option value="Sayur & Buah Segar">🥬 Sayur & Buah Segar</option>
-                  <option value="Beras & Makanan Pokok">🌾 Beras & Makanan Pokok</option>
-                  <option value="Susu & Olahan">🥛 Susu & Olahan</option>
-                  <option value="Makanan Instan & Camilan">🍜 Makanan Instan & Camilan</option>
-                  <option value="Bumbu & Minyak Masak">🧂 Bumbu & Minyak</option>
-                  <option value="Perawatan & Pembersih">🧼 Perawatan & Pembersih</option>
-                  <option value="Lainnya">📦 Lainnya</option>
+                  <option value="Daging, Ayam & Telur">ðŸ¥© Daging, Ayam & Telur</option>
+                  <option value="Tahu, Tempe & Nabati">ðŸ¥¢ Tahu, Tempe & Nabati</option>
+                  <option value="Sayur & Buah Segar">ðŸ¥¬ Sayur & Buah Segar</option>
+                  <option value="Beras & Makanan Pokok">ðŸŒ¾ Beras & Makanan Pokok</option>
+                  <option value="Susu & Olahan">ðŸ¥› Susu & Olahan</option>
+                  <option value="Makanan Instan & Camilan">ðŸœ Makanan Instan & Camilan</option>
+                  <option value="Bumbu & Minyak Masak">ðŸ§‚ Bumbu & Minyak</option>
+                  <option value="Perawatan & Pembersih">ðŸ§¼ Perawatan & Pembersih</option>
+                  <option value="Lainnya">ðŸ“¦ Lainnya</option>
                 </select>
               </div>
 
@@ -544,19 +544,19 @@
               </label>
               <div class="nutrition-tag-selector-grid">
                 <button type="button" class="nutrition-tag-option-btn selected" data-nutri="Tinggi Protein" onclick="app.selectNutritionTag('Tinggi Protein')">
-                  <span>🍗</span> Tinggi Protein
+                  <span>ðŸ—</span> Tinggi Protein
                 </button>
                 <button type="button" class="nutrition-tag-option-btn" data-nutri="Tinggi Serat" onclick="app.selectNutritionTag('Tinggi Serat')">
-                  <span>🥬</span> Tinggi Serat
+                  <span>ðŸ¥¬</span> Tinggi Serat
                 </button>
                 <button type="button" class="nutrition-tag-option-btn" data-nutri="Rendah Gula" onclick="app.selectNutritionTag('Rendah Gula')">
-                  <span>💧</span> Rendah Gula
+                  <span>ðŸ’§</span> Rendah Gula
                 </button>
                 <button type="button" class="nutrition-tag-option-btn" data-nutri="Ultra-Processed / Batasi" onclick="app.selectNutritionTag('Ultra-Processed / Batasi')">
-                  <span>⚠️</span> Ultra-Processed / Batasi
+                  <span>âš ï¸</span> Ultra-Processed / Batasi
                 </button>
                 <button type="button" class="nutrition-tag-option-btn" data-nutri="Standar / Netral" onclick="app.selectNutritionTag('Standar / Netral')">
-                  <span>⚖️</span> Standar / Netral
+                  <span>âš–ï¸</span> Standar / Netral
                 </button>
               </div>
               <input type="hidden" id="selectedNutritionTag" value="Tinggi Protein">
@@ -630,7 +630,7 @@
           <!-- Section 2: Supabase Credentials -->
           <div class="protein-view-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <h4 style="font-size: 12px; font-weight: 700; color: #fff; margin: 0;">Koneksi Project Supabase</h4>
+              <h4 style="font-size: 12px; font-weight: 700; color: var(--text-main); margin: 0;">Koneksi Project Supabase</h4>
               <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: #34d399; font-weight: 600; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 999px; padding: 2px 7px;">
                 <span class="cloud-dot"></span> Terhubung
               </span>
@@ -662,8 +662,8 @@
           <!-- Section 3: 1-Click SQL Schema Copier -->
           <div class="protein-view-card" style="margin-top: 10px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <h4 style="font-size: 12px; font-weight: 700; color: #fff;">Skrip SQL Tabel Supabase</h4>
-              <button class="preset-chip" onclick="app.copySupabaseSQL()">📋 Salin SQL</button>
+              <h4 style="font-size: 12px; font-weight: 700; color: var(--text-main);">Skrip SQL Tabel Supabase</h4>
+              <button class="preset-chip" onclick="app.copySupabaseSQL()">ðŸ“‹ Salin SQL</button>
             </div>
             <p style="font-size: 10px; color: var(--text-muted); margin-bottom: 8px;">
               Jalankan sekali di <strong>Supabase SQL Editor</strong> untuk membuat tabel <code>shopping_items</code> &amp; <code>shopping_history</code>:
@@ -695,8 +695,8 @@ create table if not exists shopping_history (
   created_at timestamp with time zone default timezone('utc'::text, now())
 );</div>
 
-            <button class="btn-primary-block" style="margin-top: 10px; background: linear-gradient(135deg, #059669, #10b981); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="app.copyAndOpenSQLEditor()">
-              🚀 Buka Supabase SQL Editor (Salin &amp; Buka 1-Klik)
+            <button class="btn-primary-block" style="margin-top: 10px; background: linear-gradient(135deg, #ec4899, #db2777); color: var(--text-main); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="app.copyAndOpenSQLEditor()">
+              ðŸš€ Buka Supabase SQL Editor (Salin &amp; Buka 1-Klik)
             </button>
           </div>
 
@@ -705,7 +705,7 @@ create table if not exists shopping_history (
 
       <!-- Toast Notification Alert -->
       <div class="toast-notification-toast" id="appToast">
-        <span id="toastIcon">🔔</span>
+        <span id="toastIcon">ðŸ””</span>
         <span id="toastMessage">Notifikasi sistem</span>
       </div>
 
