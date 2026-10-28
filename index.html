@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -57,6 +57,10 @@
           <div class="brand-titles">
             <h1>Smart Grocery &amp; Value</h1>
             <p>Studi Kasus Rian &bull; Nutrition &amp; Safety Cap</p>
+            <div class="realtime-status-pill" id="realtimeStatusPill" title="Status Sinkronisasi Multi-Device">
+              <span class="realtime-dot"></span>
+              <span id="realtimeStatusText">🟢 Cloud Realtime Sync Aktif (Live Multi-Device)</span>
+            </div>
           </div>
         </div>
         
@@ -99,6 +103,30 @@
              TAB 1: KERANJANG BELANJA (HOME / SHOPPING)
              ========================================== -->
         <section id="tab-cart" class="tab-view-content">
+
+          <!-- FEATURE F-01: STORE LOCATION & SHOPPING DATE SESSION -->
+          <div class="store-session-card">
+            <div class="session-field-row">
+              <div class="session-field-group">
+                <label class="session-label" for="storeLocationSelect">🏪 Lokasi Toko</label>
+                <select id="storeLocationSelect" class="session-select-control" onchange="app.updateStoreLocation(this.value)">
+                  <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart Grocery - Puri Indah</option>
+                  <option value="Superindo - Meruya">Superindo - Meruya</option>
+                  <option value="Hypermart - Puri">Hypermart - Puri</option>
+                  <option value="Pasar Tradisional / Pasar Puri">Pasar Tradisional / Pasar Puri</option>
+                  <option value="Indomaret / Alfamart">Indomaret / Alfamart</option>
+                </select>
+              </div>
+              <div class="session-field-group">
+                <label class="session-label" for="shoppingDateInput">📅 Tanggal Belanja</label>
+                <input type="date" id="shoppingDateInput" class="session-date-control" onchange="app.updateShoppingDate(this.value)">
+              </div>
+            </div>
+            <div class="session-history-compare-info" id="sessionDateComparisonBadge">
+              <span class="compare-icon">📊</span>
+              <span id="sessionDateComparisonText">Histori Pembanding: Dibanding 28 September 2026</span>
+            </div>
+          </div>
           
           <!-- FEATURE F-05: BUDGET SAFETY CAP (Pengendali Anggaran Dompet Rian) -->
           <div class="budget-safety-card" id="budgetSafetyCard">
@@ -133,6 +161,15 @@
             <!-- Dynamic Progress Bar -->
             <div class="budget-progress-bar-bg">
               <div class="budget-progress-fill" id="budgetProgressBarFill" style="width: 0%;"></div>
+            </div>
+
+            <!-- Quick Budget Limit Presets (Skenario Uji 5) -->
+            <div class="budget-preset-chips">
+              <span style="font-size: 10px; color: var(--text-dim); margin-right: 2px;">Limit Cepat:</span>
+              <button type="button" class="budget-chip" onclick="app.setQuickBudget(100000)">Rp 100rb</button>
+              <button type="button" class="budget-chip" onclick="app.setQuickBudget(150000)">Rp 150rb</button>
+              <button type="button" class="budget-chip" onclick="app.setQuickBudget(250000)">Rp 250rb</button>
+              <button type="button" class="budget-chip" onclick="app.setQuickBudget(350000)">Rp 350rb</button>
             </div>
 
             <!-- Cashier Over-budget Warning (SRS Titik Kritis Kasir) -->
@@ -186,9 +223,7 @@
             <button class="preset-chip" onclick="app.addQuickPreset('telur')">ðŸ¥š Telur 1kg</button>
             <button class="preset-chip" onclick="app.addQuickPreset('tempe')">ðŸ¥¢ Tempe 2 papan</button>
             <button class="preset-chip" onclick="app.addQuickPreset('ayam')">ðŸ— Dada Ayam 500g</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('bayam')">ðŸ¥¬ Bayam Segar</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('tahu')">ðŸ§Š Tahu Putih</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('mie')">ðŸœ Mie Instan</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('mie')">🍜 Mie Instan</button>
           </div>
 
           <!-- Section Headline Bar with Category Filter -->
@@ -200,12 +235,18 @@
             <div class="cart-controls-row">
               <select class="filter-pill-select" id="cartCategoryFilter" onchange="app.renderCart()">
                 <option value="all">Semua Kategori</option>
-                <option value="healthy">ðŸŒ± Hanya Sehat (Grade A/B)</option>
-                <option value="protein_value">ðŸ”¥ Best Protein Value</option>
-                <option value="ultra_processed">âš ï¸ Ultra-Processed</option>
-                <option value="Makanan">ðŸ² Makanan Saja</option>
-                <option value="Non-Makanan">ðŸ§¼ Kebutuhan Rumah</option>
+                <option value="Bahan Pokok">🌾 Bahan Pokok</option>
+                <option value="Makanan">🍲 Makanan</option>
+                <option value="Non-Makanan">🧼 Non-Makanan</option>
+                <option value="Protein Tinggi">🍗 Protein Tinggi</option>
+                <option value="Ultra-Processed">⚠️ Ultra-Processed</option>
+                <option value="healthy">🌱 Hanya Sehat (Grade A/B)</option>
+                <option value="protein_value">🔥 Best Protein Value</option>
               </select>
+              <button type="button" class="quick-clean-btn" onclick="app.openClearCartModal()" title="Kosongkan Keranjang Belanja Saat Ini">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Kosongkan
+              </button>
             </div>
           </div>
 
@@ -231,7 +272,7 @@
              ========================================== -->
         <section id="tab-protein" class="tab-view-content hidden">
           <div class="protein-hero-banner">
-            <h3>ðŸ¥© Kalkulator Protein-per-Rupiah</h3>
+            <h3>🥩 Kalkulator Protein-per-Rupiah</h3>
             <p>Bagi anak rantau dengan uang saku terbatas, hitung berapa Rupiah yang kamu bayar untuk 1 gram protein murni. Targetkan di bawah <strong>Rp 600 / gram protein</strong> untuk penghematan maksimal!</p>
           </div>
 
@@ -241,18 +282,18 @@
             <div class="form-grid-two-col">
               <div class="form-input-group">
                 <label class="form-label-title">Harga Makanan (Rp)</label>
-                <input type="number" class="form-input-control" id="calcTestPrice" placeholder="Misal: 28000" value="28000">
+                <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="calcTestPrice" placeholder="Misal: 28000" value="28000">
               </div>
               <div class="form-input-group">
                 <label class="form-label-title">Total Protein (gram)</label>
-                <input type="number" class="form-input-control" id="calcTestProtein" placeholder="Misal: 130" value="130">
+                <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="calcTestProtein" placeholder="Misal: 130" value="130">
               </div>
             </div>
             <button class="btn-primary-block" style="margin-top: 4px;" onclick="app.calculateQuickProteinValue()">
               Hitung Nilai Protein
             </button>
             <div id="quickCalcResultBox" class="live-calc-box" style="margin-top: 10px;">
-              Hasil: <strong>Rp 215 / gram protein</strong> &bull; <span class="best-protein-value-badge">ðŸ”¥ Best Protein Value!</span>
+              Hasil: <strong>Rp 215 / gram protein</strong> &bull; <span class="best-protein-value-badge">🔥 Best Protein Value!</span>
             </div>
           </div>
 
@@ -291,32 +332,32 @@
                 <tr class="best-rank-row">
                   <td><strong>Tempe (1 papan / ~38g protein)</strong></td>
                   <td>Rp 130 - Rp 160 / g</td>
-                  <td><span class="best-protein-value-badge">ðŸ”¥ Juara Hemat</span></td>
+                  <td><span class="best-protein-value-badge">🔥 Juara Hemat</span></td>
                 </tr>
                 <tr class="best-rank-row">
                   <td><strong>Telur Ayam (1 kg / ~130g protein)</strong></td>
                   <td>Rp 210 - Rp 230 / g</td>
-                  <td><span class="best-protein-value-badge">ðŸ”¥ Super Value</span></td>
+                  <td><span class="best-protein-value-badge">🔥 Super Value</span></td>
                 </tr>
                 <tr class="best-rank-row">
                   <td><strong>Tahu Putih (1 kantong / ~30g)</strong></td>
                   <td>Rp 230 - Rp 260 / g</td>
-                  <td><span class="best-protein-value-badge">ðŸ”¥ Super Value</span></td>
+                  <td><span class="best-protein-value-badge">🔥 Super Value</span></td>
                 </tr>
                 <tr class="best-rank-row">
                   <td><strong>Dada Ayam (500g / ~115g)</strong></td>
                   <td>Rp 260 - Rp 310 / g</td>
-                  <td><span class="best-protein-value-badge">ðŸ”¥ Nilai Tinggi</span></td>
+                  <td><span class="best-protein-value-badge">🔥 Nilai Tinggi</span></td>
                 </tr>
                 <tr>
                   <td>Ikan Sarden Kaleng</td>
                   <td>Rp 500 - Rp 650 / g</td>
-                  <td>âš–ï¸ Sedang</td>
+                  <td>⚖️ Sedang</td>
                 </tr>
                 <tr>
                   <td>Sosis Olahan Instan</td>
                   <td>Rp 1.200 - Rp 1.600 / g</td>
-                  <td>âš ï¸ Boros Gizi</td>
+                  <td>⚠️ Boros Gizi</td>
                 </tr>
               </tbody>
             </table>
@@ -351,14 +392,20 @@
             <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Pengaturan Uang Tunai di Dompet</h4>
             <div class="form-input-group">
               <label class="form-label-title">Nominal Anggaran Belanja (Rp)</label>
-              <input type="number" class="form-input-control" id="customBudgetInput" value="250000" step="10000">
+              <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="customBudgetInput" value="250000" step="10000">
+            </div>
+            <div class="budget-preset-chips" style="margin-bottom: 12px;">
+              <button type="button" class="budget-chip" onclick="app.setQuickBudget(100000)">Rp 100rb</button>
+              <button type="button" class="budget-chip" onclick="app.setQuickBudget(150000)">Rp 150rb</button>
+              <button type="button" class="budget-chip" onclick="app.setQuickBudget(250000)">Rp 250rb</button>
+              <button type="button" class="budget-chip" onclick="app.setQuickBudget(350000)">Rp 350rb</button>
             </div>
             <button class="btn-primary-block" onclick="app.updateBudgetCap()">Simpan Anggaran Baru</button>
           </div>
 
           <!-- Tips Pencegahan Kasir -->
           <div class="protein-view-card" style="border-left: 3px solid #14b8a6;">
-            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">ðŸ’¡ Tips Anti Panik di Depan Kasir</h4>
+            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">💡 Tips Anti Panik di Depan Kasir</h4>
             <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
               1. Selalu cek status <strong>Budget Safety Cap</strong> sebelum memasuki antrean kasir.<br>
               2. Jika bar menyala merah, batalkan barang sekunder (camilan/minuman bersoda) terlebih dahulu.<br>
@@ -372,7 +419,10 @@
              ========================================== -->
         <section id="tab-history" class="tab-view-content hidden">
           <div class="section-headline-bar">
-            <h2>Arsip Struk Belanja</h2>
+            <div>
+              <h2 style="margin-bottom: 3px;">Arsip Struk Belanja</h2>
+              <span class="permanent-archive-badge">🔒 Arsip Struk Permanen (Tidak Dapat Dihapus)</span>
+            </div>
             <button class="quick-clean-btn" onclick="app.exportDataJSON()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Ekspor JSON
@@ -420,7 +470,7 @@
           <span>Anggaran</span>
         </button>
 
-        <button class="nav-tab-btn" data-tab="tab-history">
+        <button class="nav-tab-btn" data-tab="tab-history" id="navTabHistoryBtn" onclick="app.handleHistoryTabClick()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
@@ -448,43 +498,46 @@
           <form id="itemForm" onsubmit="event.preventDefault(); app.saveItemForm();">
             <input type="hidden" id="formItemId">
 
+            <!-- Non-blocking Form Validation Alert Banner (Skenario Uji 1) -->
+            <div id="formValidationErrorBanner" class="form-error-banner hidden">
+              Input tidak valid! Nama barang wajib diisi dan harga tidak boleh kosong atau negatif.
+            </div>
+
             <!-- F-01: Nama Produk -->
             <div class="form-input-group">
               <label class="form-label-title" for="inputNamaProduk">Nama Produk *</label>
-              <input type="text" class="form-input-control" id="inputNamaProduk" placeholder="Contoh: Dada Ayam Fillet / Telur Ayam" required>
+              <input type="text" class="form-input-control" id="inputNamaProduk" placeholder="Contoh: Beras Rojolele" required oninput="app.onProductNameInput(this.value)">
             </div>
 
-            <!-- F-01: Kategori & Satuan -->
+            <!-- F-01: Kategori & Satuan (Fleksibel ComboBox) -->
             <div class="form-grid-two-col">
               <div class="form-input-group">
                 <label class="form-label-title" for="selectKategori">Kategori Barang *</label>
                 <select class="form-select-control" id="selectKategori" required>
-                  <option value="Daging, Ayam & Telur">ðŸ¥© Daging, Ayam & Telur</option>
-                  <option value="Tahu, Tempe & Nabati">ðŸ¥¢ Tahu, Tempe & Nabati</option>
-                  <option value="Sayur & Buah Segar">ðŸ¥¬ Sayur & Buah Segar</option>
-                  <option value="Beras & Makanan Pokok">ðŸŒ¾ Beras & Makanan Pokok</option>
-                  <option value="Susu & Olahan">ðŸ¥› Susu & Olahan</option>
-                  <option value="Makanan Instan & Camilan">ðŸœ Makanan Instan & Camilan</option>
-                  <option value="Bumbu & Minyak Masak">ðŸ§‚ Bumbu & Minyak</option>
-                  <option value="Perawatan & Pembersih">ðŸ§¼ Perawatan & Pembersih</option>
-                  <option value="Lainnya">ðŸ“¦ Lainnya</option>
+                  <option value="Bahan Pokok" selected>🌾 Bahan Pokok</option>
+                  <option value="Makanan">🍲 Makanan</option>
+                  <option value="Non-Makanan">🧼 Non-Makanan</option>
+                  <option value="Protein Tinggi">🍗 Protein Tinggi</option>
+                  <option value="Ultra-Processed">⚠️ Ultra-Processed</option>
                 </select>
               </div>
 
               <div class="form-input-group">
-                <label class="form-label-title" for="selectSatuan">Satuan Ukuran *</label>
-                <select class="form-select-control" id="selectSatuan" required>
-                  <option value="kg">kg (Kilogram)</option>
-                  <option value="gram">gram</option>
-                  <option value="liter">liter</option>
-                  <option value="pcs">pcs / buah</option>
-                  <option value="pack">pack / bungkus</option>
-                  <option value="papan">papan (tempe)</option>
-                  <option value="butir">butir</option>
-                  <option value="botol">botol</option>
-                  <option value="kaleng">kaleng</option>
-                  <option value="ikat">ikat (sayur)</option>
-                </select>
+                <label class="form-label-title" for="inputSatuan">Satuan Ukuran *</label>
+                <input type="text" list="satuanDatalist" class="form-input-control" id="inputSatuan" placeholder="cth: karung/5kg, kg, 2L, pcs..." value="kg" required>
+                <datalist id="satuanDatalist">
+                  <option value="kg">
+                  <option value="karung/5kg">
+                  <option value="2L">
+                  <option value="500g">
+                  <option value="pcs">
+                  <option value="pack">
+                  <option value="papan">
+                  <option value="botol">
+                  <option value="liter">
+                  <option value="gram">
+                  <option value="ikat">
+                </datalist>
               </div>
             </div>
 
@@ -492,12 +545,12 @@
             <div class="form-grid-two-col">
               <div class="form-input-group">
                 <label class="form-label-title" for="inputQty">Kuantitas (Qty) *</label>
-                <input type="number" class="form-input-control" id="inputQty" value="1" min="1" max="999" required oninput="app.updateFormCalculationsPreview()">
+                <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="inputQty" value="1" min="1" max="999" required oninput="app.updateFormCalculationsPreview()">
               </div>
 
               <div class="form-input-group">
                 <label class="form-label-title" for="inputHargaSatuan">Harga Satuan (Rp) *</label>
-                <input type="number" class="form-input-control" id="inputHargaSatuan" placeholder="Misal: 35000" min="0" required oninput="app.updateFormCalculationsPreview()">
+                <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="inputHargaSatuan" placeholder="Misal: 74000" min="0" required oninput="app.updateFormCalculationsPreview()">
               </div>
             </div>
 
@@ -506,7 +559,7 @@
               <label class="form-label-title" for="inputDiskon">
                 Diskon Promo (Tunggal / Bertingkat / Nominal)
               </label>
-              <input type="text" class="form-input-control" id="inputDiskon" placeholder="Contoh: 20%, 50%+20%, atau 15000" oninput="app.updateFormCalculationsPreview()">
+              <input type="text" class="form-input-control" id="inputDiskon" placeholder="25% atau 50%+20% atau 15000" oninput="app.updateFormCalculationsPreview()">
               
               <!-- Quick Preset Discount Pills -->
               <div class="discount-preset-pills">
@@ -526,9 +579,9 @@
             <!-- F-04: KOMPARATOR HARGA BULAN LALU -->
             <div class="form-input-group">
               <label class="form-label-title" for="inputHargaBulanLalu">
-                Harga Bulan Lalu (Rp) <span style="font-size: 10px; color: var(--text-dim);">(Opsional untuk Komparasi Fluktuasi)</span>
+                Harga Bulan Lalu di Toko Ini (Rp) <span style="font-size: 10px; color: var(--text-dim);">(Otomatis/Manual)</span>
               </label>
-              <input type="number" class="form-input-control" id="inputHargaBulanLalu" placeholder="Misal: 32000" min="0" oninput="app.updateFormCalculationsPreview()">
+              <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="inputHargaBulanLalu" placeholder="Misal: 68000" min="0" oninput="app.onLastMonthPriceInput(this.value)">
               
               <div id="formPriceComparePreviewBox" class="live-calc-box hidden">
                 <!-- Preview fluktuasi naik/turun/sama -->
@@ -569,7 +622,7 @@
               <label class="form-label-title" for="inputProteinGrams">
                 Total Protein per Kemasan (gram) <span style="font-size: 10px; color: #38bdf8;">(Opsional - Value for Health)</span>
               </label>
-              <input type="number" class="form-input-control" id="inputProteinGrams" placeholder="Contoh: 115 (Dada Ayam 500g) atau 130 (Telur 1kg)" min="0" step="0.5" oninput="app.updateFormCalculationsPreview()">
+              <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="inputProteinGrams" placeholder="Contoh: 115 (Dada Ayam 500g) atau 130 (Telur 1kg)" min="0" step="0.5" oninput="app.updateFormCalculationsPreview()">
               
               <div id="formProteinCalcPreviewBox" class="live-calc-box hidden">
                 <!-- Preview biaya per gram protein -->
@@ -599,7 +652,7 @@
           </div>
           <div class="form-input-group">
             <label class="form-label-title">Batas Maksimal Uang Saku (Rp)</label>
-            <input type="number" class="form-input-control" id="modalBudgetLimitInput" value="250000" step="10000">
+            <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="modalBudgetLimitInput" value="250000" step="10000">
           </div>
           <button class="btn-primary-block" onclick="app.saveBudgetModal()">Simpan Batas Anggaran</button>
         </div>
@@ -696,11 +749,67 @@ create table if not exists shopping_history (
 );</div>
 
             <button class="btn-primary-block" style="margin-top: 10px; background: linear-gradient(135deg, #ec4899, #db2777); color: var(--text-main); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="app.copyAndOpenSQLEditor()">
-              ðŸš€ Buka Supabase SQL Editor (Salin &amp; Buka 1-Klik)
+              🚀 Buka Supabase SQL Editor (Salin &amp; Buka 1-Klik)
             </button>
           </div>
 
         </div>
+      </div>
+      <!-- ==========================================
+           MODAL: KONFIRMASI KOSONGKAN KERANJANG (Skenario Uji 8)
+           ========================================== -->
+      <div class="modal-backdrop-layer" id="confirmClearModalBackdrop">
+        <div class="modal-bottom-sheet" style="max-height: 40vh; text-align: center;">
+          <div class="modal-handle-bar"></div>
+          <div class="confirm-modal-icon">🗑️</div>
+          <h3 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Konfirmasi Kosongkan Keranjang</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.4;">
+            Apakah kamu yakin ingin mengosongkan keranjang belanja saat ini?
+          </p>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-secondary-block" style="flex: 1; margin-top: 0; min-height: 44px;" onclick="app.closeClearCartModal()">Batal</button>
+            <button class="btn-primary-block" style="flex: 1; background: #ef4444; border-color: #ef4444; margin-top: 0; min-height: 44px;" onclick="app.confirmClearCart()">Ya, Kosongkan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           MODAL RAHASIA: EASTER EGG TERMINAL (Fitur 10)
+           ========================================== -->
+      <div class="modal-backdrop-layer" id="secretEasterEggModalBackdrop">
+        <div class="secret-terminal-modal">
+          <div class="terminal-header">
+            <span class="terminal-dot red"></span>
+            <span class="terminal-dot yellow"></span>
+            <span class="terminal-dot green"></span>
+            <span class="terminal-title">TERMINAL // CLASSIFIED ACCESS</span>
+            <button type="button" class="terminal-close-btn" onclick="app.closeSecretModal()">&times;</button>
+          </div>
+          <div class="terminal-body">
+            <p class="terminal-prompt">&gt; SECURITY PROTOCOL INITIALIZED.</p>
+            <p class="terminal-text">Masukkan sandi otentikasi untuk membuka arsip terenkripsi:</p>
+            <form onsubmit="event.preventDefault(); app.submitSecretPassword();">
+              <div class="terminal-input-wrapper">
+                <span class="terminal-arrow">&gt;</span>
+                <input type="password" id="secretEasterEggPassword" class="terminal-input" placeholder="Ketik sandi..." autocomplete="off">
+              </div>
+              <div id="terminalFeedbackMsg" style="font-size: 10px; color: #f87171; margin-top: 6px;" class="hidden">ACCESS DENIED: Password salah!</div>
+              <div style="display: flex; gap: 8px; margin-top: 14px;">
+                <button type="submit" class="terminal-btn-submit" id="secretUnlockBtn">Unlock / Masuk</button>
+                <button type="button" class="terminal-btn-cancel" onclick="app.closeSecretModal()">Batal</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           FULLSCREEN JUMPSCARE OVERLAY (Fitur 10)
+           ========================================== -->
+      <div id="jumpscareOverlay" class="jumpscare-overlay hidden" onclick="app.closeJumpscare()">
+        <div class="jumpscare-flash"></div>
+        <img src="jumpscare.jpg" alt="Jumpscare" class="jumpscare-image" id="jumpscareImage">
+        <button type="button" class="jumpscare-close-btn" onclick="event.stopPropagation(); app.closeJumpscare();" title="Tutup Jumpscare">&times;</button>
       </div>
 
       <!-- Toast Notification Alert -->

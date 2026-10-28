@@ -1,5 +1,5 @@
 // Service Worker for Smart Grocery & Nutrition Tracker PWA
-const CACHE_NAME = 'smart-grocery-v5';
+const CACHE_NAME = 'smart-grocery-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -9,7 +9,8 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './favicon.svg',
   './icon-192.svg',
-  './icon-512.svg'
+  './icon-512.svg',
+  './jumpscare.jpg'
 ];
 
 self.addEventListener('install', (event) => {
