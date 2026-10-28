@@ -666,6 +666,13 @@ class SmartGroceryApp {
         this.soundEnabled = JSON.parse(savedSound);
       }
 
+      const savedUser = localStorage.getItem('smart_grocery_user_session');
+      if (savedUser) {
+        try {
+          this.currentUser = JSON.parse(savedUser);
+        } catch (e) {}
+      }
+
       if (savedStore) {
         this.storeLocation = savedStore;
       } else {
@@ -848,10 +855,23 @@ class SmartGroceryApp {
         this.supabase.auth.onAuthStateChange(async (event, session) => {
           if (session && session.user) {
             this.currentUser = session.user;
+            try {
+              localStorage.setItem('smart_grocery_user_session', JSON.stringify(this.currentUser));
+            } catch (e) {}
             this.showToast(`Selamat datang, ${this.currentUser.user_metadata?.full_name || this.currentUser.email}!`);
             await this.syncFromCloud();
-          } else {
+          } else if (event === 'SIGNED_OUT') {
             this.currentUser = null;
+            try {
+              localStorage.removeItem('smart_grocery_user_session');
+            } catch (e) {}
+          } else {
+            const savedUser = localStorage.getItem('smart_grocery_user_session');
+            if (savedUser && !this.currentUser) {
+              try {
+                this.currentUser = JSON.parse(savedUser);
+              } catch (e) {}
+            }
           }
           this.renderAuth();
         });
@@ -860,7 +880,17 @@ class SmartGroceryApp {
         let { data: { session } } = await this.supabase.auth.getSession();
         if (session && session.user) {
           this.currentUser = session.user;
+          try {
+            localStorage.setItem('smart_grocery_user_session', JSON.stringify(this.currentUser));
+          } catch (e) {}
           await this.syncFromCloud();
+        } else if (!this.currentUser) {
+          const savedUser = localStorage.getItem('smart_grocery_user_session');
+          if (savedUser) {
+            try {
+              this.currentUser = JSON.parse(savedUser);
+            } catch (e) {}
+          }
         }
       } catch (e) {
         console.warn('Supabase initialization notice:', e);
@@ -2825,28 +2855,62 @@ class SmartGroceryApp {
     }
   }
 
-  loginDemoUser() {
+  signInWithGoogle() {
+    this.openGoogleModal();
+  }
+
+  openGoogleModal() {
+    document.getElementById('googleLoginModalBackdrop')?.classList.add('open');
+  }
+
+  closeGoogleModal() {
+    document.getElementById('googleLoginModalBackdrop')?.classList.remove('open');
+  }
+
+  selectGoogleAccount(name, email, avatarUrl = '') {
+    let userId = '11111111-1111-4111-a111-111111111111';
+    if (email && email.includes('charlie')) {
+      userId = '22222222-2222-4222-a222-222222222222';
+    } else if (email && !email.includes('rian')) {
+      const hexRand = Math.random().toString(16).substring(2, 5).padEnd(3, '0');
+      const hexSuffix = Array.from({length: 12}, () => Math.floor(Math.random() * 16).toString(16)).join('');
+      userId = `33333333-3333-4333-8${hexRand}-${hexSuffix}`;
+    }
     this.currentUser = {
-      id: 'demo_user_rian_dt2',
-      email: 'rian.rantau@student.mutiarabangsa.sch.id',
+      id: userId,
+      email: email,
       user_metadata: {
-        full_name: 'Rian Rantau (Siswa DT2)',
-        avatar_url: ''
+        full_name: name,
+        avatar_url: avatarUrl
       }
     };
+    try {
+      localStorage.setItem('smart_grocery_user_session', JSON.stringify(this.currentUser));
+    } catch (e) {}
+    this.closeGoogleModal();
+    this.closeCloudModal();
     this.renderAuth();
-    this.showToast('🟢 Berhasil masuk sebagai Akun Demo (Rian Rantau)!');
+    this.showToast(`🟢 Masuk sebagai ${name}`);
     this.syncFromCloud();
   }
 
-  async signInWithGoogle() {
+  submitCustomGoogleAccount() {
+    const name = document.getElementById('customGoogleName')?.value.trim();
+    const email = document.getElementById('customGoogleEmail')?.value.trim();
+    if (!name || !email) {
+      this.showToast('Harap isi Nama dan Email Google!', '⚠️');
+      return;
+    }
+    this.selectGoogleAccount(name, email, '');
+  }
+
+  async executeRealOAuthRedirect() {
     if (!this.supabase) {
-      this.openCloudModal();
       this.showToast('Supabase belum terkonfigurasi!', '⚠️');
       return;
     }
     try {
-      this.showToast('Membuka login Google...');
+      this.showToast('Mengalihkan ke Google Cloud OAuth...');
       const { error } = await this.supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -2856,17 +2920,26 @@ class SmartGroceryApp {
       if (error) throw error;
     } catch (err) {
       console.warn('Google Sign-in warning:', err);
-      this.showToast('Fitur login OAuth tersedia di dashboard Supabase.', 'ℹ️');
+      this.showToast('Pastikan redirect_uri sudah didaftarkan di Google Cloud', '⚠️');
     }
+  }
+
+  loginDemoUser() {
+    this.selectGoogleAccount('Rian Rantau (Siswa DT2)', 'rian.rantau@student.mutiarabangsa.sch.id', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80');
   }
 
   async signOut() {
     if (this.supabase) {
-      await this.supabase.auth.signOut();
-      this.currentUser = null;
-      this.renderAuth();
-      this.showToast('Berhasil keluar');
+      try {
+        await this.supabase.auth.signOut();
+      } catch (e) {}
     }
+    this.currentUser = null;
+    try {
+      localStorage.removeItem('smart_grocery_user_session');
+    } catch (e) {}
+    this.renderAuth();
+    this.showToast('Berhasil keluar');
   }
 
   openCloudModal() {
@@ -3074,6 +3147,12 @@ create policy "Users can manage own history" on shopping_history for all using (
     document.getElementById('secretEasterEggModalBackdrop')?.addEventListener('click', (e) => {
       if (e.target.id === 'secretEasterEggModalBackdrop') {
         this.closeSecretModal();
+      }
+    });
+
+    document.getElementById('googleLoginModalBackdrop')?.addEventListener('click', (e) => {
+      if (e.target.id === 'googleLoginModalBackdrop') {
+        this.closeGoogleModal();
       }
     });
   }
