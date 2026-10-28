@@ -19,6 +19,568 @@
 // Konstanta URL/Path Gambar Jumpscare (Mudah diubah)
 const JUMPSCARE_IMAGE_URL = 'jumpscare.jpg';
 
+// =========================================================================
+// DATABASE KATALOG PRODUK INDOMARET, ALFAMART & LOTTE MART (35+ BARANG)
+// Urutan 1-7 WAJIB Barang Ujian DT2
+// =========================================================================
+const PRODUCT_CATALOG = [
+  // 1. Beras Rojolele (karung/5kg) - Rp 74.000 (Bulan lalu: Rp 68.000) [Bahan Pokok]
+  {
+    id: 'cat_dt2_1',
+    name: 'Beras Rojolele',
+    store: 'Lotte Mart',
+    category: 'Bahan Pokok',
+    unit: 'karung/5kg',
+    price: 74000,
+    lastMonthPrice: 68000,
+    discount: '',
+    protein: 35,
+    nutritionTag: 'Standar / Netral',
+    icon: '🌾'
+  },
+  // 2. Minyak Goreng 2L (pouch/2L) - Rp 43.000 (Bulan lalu: Rp 45.000) [Bahan Pokok]
+  {
+    id: 'cat_dt2_2',
+    name: 'Minyak Goreng 2L',
+    store: 'Lotte Mart',
+    category: 'Bahan Pokok',
+    unit: 'pouch/2L',
+    price: 43000,
+    lastMonthPrice: 45000,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Standar / Netral',
+    icon: '🌻'
+  },
+  // 3. Telur Ayam 1kg (kg) - Rp 28.000 (Bulan lalu: Rp 32.000) [Protein Tinggi]
+  {
+    id: 'cat_dt2_3',
+    name: 'Telur Ayam 1kg',
+    store: 'Lotte Mart',
+    category: 'Protein Tinggi',
+    unit: 'kg',
+    price: 28000,
+    lastMonthPrice: 32000,
+    discount: '',
+    protein: 130,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🥚'
+  },
+  // 4. Garam 500g (bungkus/500g) - Rp 5.000 (Bulan lalu: Rp 5.000) [Bahan Pokok]
+  {
+    id: 'cat_dt2_4',
+    name: 'Garam 500g',
+    store: 'Lotte Mart',
+    category: 'Bahan Pokok',
+    unit: 'bungkus/500g',
+    price: 5000,
+    lastMonthPrice: 5000,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Standar / Netral',
+    icon: '🧂'
+  },
+  // 5. Sabun Cuci (pcs) - Rp 20.000, Diskon: "25%" (Bulan lalu: Rp 20.000) [Kebutuhan Rumah]
+  {
+    id: 'cat_dt2_5',
+    name: 'Sabun Cuci',
+    store: 'Lotte Mart',
+    category: 'Kebutuhan Rumah',
+    unit: 'pcs',
+    price: 20000,
+    lastMonthPrice: 20000,
+    discount: '25%',
+    protein: 0,
+    nutritionTag: 'Non-Makanan',
+    icon: '🧼'
+  },
+  // 6. Wajan Anti Lengket (pcs) - Rp 100.000, Diskon: "50%+20%" (Bulan lalu: Rp 100.000) [Kebutuhan Rumah]
+  {
+    id: 'cat_dt2_6',
+    name: 'Wajan Anti Lengket',
+    store: 'Lotte Mart',
+    category: 'Kebutuhan Rumah',
+    unit: 'pcs',
+    price: 100000,
+    lastMonthPrice: 100000,
+    discount: '50%+20%',
+    protein: 0,
+    nutritionTag: 'Non-Makanan',
+    icon: '🍳'
+  },
+  // 7. Sabun Mandi (pcs) - Rp 15.000 (Bulan lalu: Rp 16.000) [Kebutuhan Rumah]
+  {
+    id: 'cat_dt2_7',
+    name: 'Sabun Mandi',
+    store: 'Lotte Mart',
+    category: 'Kebutuhan Rumah',
+    unit: 'pcs',
+    price: 15000,
+    lastMonthPrice: 16000,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Non-Makanan',
+    icon: '🧴'
+  },
+
+  // URUTAN 8-42: 35+ BARANG POPULER LAINNYA DARI INDOMARET, ALFAMART & LOTTE MART
+  {
+    id: 'cat_pop_8',
+    name: 'Indomie Goreng Special',
+    store: 'Indomaret',
+    category: 'Ultra-Processed',
+    unit: 'bungkus',
+    price: 3100,
+    lastMonthPrice: 3000,
+    discount: '',
+    protein: 8,
+    nutritionTag: 'Ultra-Processed / Batasi',
+    icon: '🍜'
+  },
+  {
+    id: 'cat_pop_9',
+    name: 'Mie Sedaap Goreng',
+    store: 'Alfamart',
+    category: 'Ultra-Processed',
+    unit: 'bungkus',
+    price: 3000,
+    lastMonthPrice: 3000,
+    discount: '',
+    protein: 7,
+    nutritionTag: 'Ultra-Processed / Batasi',
+    icon: '🍜'
+  },
+  {
+    id: 'cat_pop_10',
+    name: 'Susu Ultra Milk 1L',
+    store: 'Indomaret',
+    category: 'Minuman',
+    unit: 'kotak/1L',
+    price: 19500,
+    lastMonthPrice: 19000,
+    discount: '',
+    protein: 32,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🥛'
+  },
+  {
+    id: 'cat_pop_11',
+    name: 'Susu Steril Bear Brand',
+    store: 'Alfamart',
+    category: 'Minuman',
+    unit: 'kaleng/189ml',
+    price: 10500,
+    lastMonthPrice: 10000,
+    discount: '',
+    protein: 7,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🐻'
+  },
+  {
+    id: 'cat_pop_12',
+    name: 'Sari Roti Tawar Spesial',
+    store: 'Indomaret',
+    category: 'Makanan',
+    unit: 'bungkus',
+    price: 15000,
+    lastMonthPrice: 15000,
+    discount: '',
+    protein: 18,
+    nutritionTag: 'Standar / Netral',
+    icon: '🍞'
+  },
+  {
+    id: 'cat_pop_13',
+    name: 'Dada Ayam Fillet 500g',
+    store: 'Lotte Mart',
+    category: 'Protein Tinggi',
+    unit: 'pack/500g',
+    price: 38000,
+    lastMonthPrice: 40000,
+    discount: '',
+    protein: 150,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🍗'
+  },
+  {
+    id: 'cat_pop_14',
+    name: 'Tempe Papan Kedelai Murni',
+    store: 'Lotte Mart',
+    category: 'Protein Tinggi',
+    unit: 'papan',
+    price: 8000,
+    lastMonthPrice: 8000,
+    discount: '',
+    protein: 55,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🥢'
+  },
+  {
+    id: 'cat_pop_15',
+    name: 'Tahu Putih Sutra',
+    store: 'Indomaret',
+    category: 'Protein Tinggi',
+    unit: 'bungkus',
+    price: 7000,
+    lastMonthPrice: 7000,
+    discount: '',
+    protein: 40,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🧊'
+  },
+  {
+    id: 'cat_pop_16',
+    name: 'Sosis Kanzler Singles',
+    store: 'Alfamart',
+    category: 'Makanan',
+    unit: 'pcs',
+    price: 9000,
+    lastMonthPrice: 9500,
+    discount: '10%',
+    protein: 9,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🌭'
+  },
+  {
+    id: 'cat_pop_17',
+    name: 'Sarden ABC Saus Tomat',
+    store: 'Indomaret',
+    category: 'Makanan',
+    unit: 'kaleng/425g',
+    price: 24000,
+    lastMonthPrice: 23000,
+    discount: '',
+    protein: 45,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🥫'
+  },
+  {
+    id: 'cat_pop_18',
+    name: 'Tuna Kaleng Ayam Brand',
+    store: 'Lotte Mart',
+    category: 'Makanan',
+    unit: 'kaleng/185g',
+    price: 26000,
+    lastMonthPrice: 25000,
+    discount: '',
+    protein: 35,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🐟'
+  },
+  {
+    id: 'cat_pop_19',
+    name: 'Gula Pasir Gulaku 1kg',
+    store: 'Indomaret',
+    category: 'Bahan Pokok',
+    unit: 'kg',
+    price: 17500,
+    lastMonthPrice: 17000,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Standar / Netral',
+    icon: '🍬'
+  },
+  {
+    id: 'cat_pop_20',
+    name: 'Kecap Manis Bango 520ml',
+    store: 'Alfamart',
+    category: 'Bahan Pokok',
+    unit: 'pouch/520ml',
+    price: 23000,
+    lastMonthPrice: 22000,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Standar / Netral',
+    icon: '🍶'
+  },
+  {
+    id: 'cat_pop_21',
+    name: 'Saus Sambal ABC 335ml',
+    store: 'Indomaret',
+    category: 'Makanan',
+    unit: 'botol/335ml',
+    price: 16500,
+    lastMonthPrice: 16000,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Standar / Netral',
+    icon: '🌶️'
+  },
+  {
+    id: 'cat_pop_22',
+    name: 'Kopi Kapal Api Special Mix',
+    store: 'Alfamart',
+    category: 'Minuman',
+    unit: 'pack/10sct',
+    price: 15000,
+    lastMonthPrice: 14500,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Standar / Netral',
+    icon: '☕'
+  },
+  {
+    id: 'cat_pop_23',
+    name: 'Teh Pucuk Harum 350ml',
+    store: 'Indomaret',
+    category: 'Minuman',
+    unit: 'botol/350ml',
+    price: 4000,
+    lastMonthPrice: 4000,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Standar / Netral',
+    icon: '🍵'
+  },
+  {
+    id: 'cat_pop_24',
+    name: 'Le Minerale 1.5L',
+    store: 'Alfamart',
+    category: 'Minuman',
+    unit: 'botol/1.5L',
+    price: 6500,
+    lastMonthPrice: 6500,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Rendah Gula',
+    icon: '💧'
+  },
+  {
+    id: 'cat_pop_25',
+    name: 'Aqua Air Mineral 600ml',
+    store: 'Indomaret',
+    category: 'Minuman',
+    unit: 'botol/600ml',
+    price: 3500,
+    lastMonthPrice: 3500,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Rendah Gula',
+    icon: '💧'
+  },
+  {
+    id: 'cat_pop_26',
+    name: 'Quaker Oatmeal Merah 800g',
+    store: 'Lotte Mart',
+    category: 'Makanan',
+    unit: 'pack/800g',
+    price: 48000,
+    lastMonthPrice: 46000,
+    discount: '',
+    protein: 88,
+    nutritionTag: 'Tinggi Serat',
+    icon: '🥣'
+  },
+  {
+    id: 'cat_pop_27',
+    name: 'Keju Prochiz Cheddar 160g',
+    store: 'Alfamart',
+    category: 'Makanan',
+    unit: 'kotak/160g',
+    price: 14500,
+    lastMonthPrice: 15000,
+    discount: '',
+    protein: 25,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🧀'
+  },
+  {
+    id: 'cat_pop_28',
+    name: 'Margarin Blue Band 200g',
+    store: 'Indomaret',
+    category: 'Bahan Pokok',
+    unit: 'sachet/200g',
+    price: 9500,
+    lastMonthPrice: 9000,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Standar / Netral',
+    icon: '🧈'
+  },
+  {
+    id: 'cat_pop_29',
+    name: 'Pepsodent Pencegah Gigi 190g',
+    store: 'Alfamart',
+    category: 'Kebutuhan Rumah',
+    unit: 'tube',
+    price: 14000,
+    lastMonthPrice: 14000,
+    discount: '15%',
+    protein: 0,
+    nutritionTag: 'Non-Makanan',
+    icon: '🪥'
+  },
+  {
+    id: 'cat_pop_30',
+    name: 'Shampoo Clear Anti Ketombe 160ml',
+    store: 'Indomaret',
+    category: 'Kebutuhan Rumah',
+    unit: 'botol',
+    price: 27000,
+    lastMonthPrice: 26500,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Non-Makanan',
+    icon: '🧴'
+  },
+  {
+    id: 'cat_pop_31',
+    name: 'Deterjen SoKlin Bio-Matic 750g',
+    store: 'Alfamart',
+    category: 'Kebutuhan Rumah',
+    unit: 'pack',
+    price: 22000,
+    lastMonthPrice: 21000,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Non-Makanan',
+    icon: '🧺'
+  },
+  {
+    id: 'cat_pop_32',
+    name: 'Tisu Wajah Paseo 250s',
+    store: 'Indomaret',
+    category: 'Kebutuhan Rumah',
+    unit: 'pack',
+    price: 18000,
+    lastMonthPrice: 18000,
+    discount: '20%',
+    protein: 0,
+    nutritionTag: 'Non-Makanan',
+    icon: '🧻'
+  },
+  {
+    id: 'cat_pop_33',
+    name: 'Sabun Cuci Piring Mama Lemon 680ml',
+    store: 'Alfamart',
+    category: 'Kebutuhan Rumah',
+    unit: 'pouch',
+    price: 10500,
+    lastMonthPrice: 11000,
+    discount: '',
+    protein: 0,
+    nutritionTag: 'Non-Makanan',
+    icon: '🍋'
+  },
+  {
+    id: 'cat_pop_34',
+    name: 'Pisang Sunpride Cavendish 1 Sisir',
+    store: 'Lotte Mart',
+    category: 'Makanan',
+    unit: 'sisir',
+    price: 25000,
+    lastMonthPrice: 24000,
+    discount: '',
+    protein: 4,
+    nutritionTag: 'Tinggi Serat',
+    icon: '🍌'
+  },
+  {
+    id: 'cat_pop_35',
+    name: 'Chitato Sapi Panggang 68g',
+    store: 'Indomaret',
+    category: 'Ultra-Processed',
+    unit: 'bungkus',
+    price: 11500,
+    lastMonthPrice: 11000,
+    discount: '',
+    protein: 4,
+    nutritionTag: 'Ultra-Processed / Batasi',
+    icon: '🥔'
+  },
+  {
+    id: 'cat_pop_36',
+    name: 'Cokelat SilverQueen Cashew 58g',
+    store: 'Alfamart',
+    category: 'Makanan',
+    unit: 'batang',
+    price: 16000,
+    lastMonthPrice: 16500,
+    discount: '10%',
+    protein: 5,
+    nutritionTag: 'Standar / Netral',
+    icon: '🍫'
+  },
+  {
+    id: 'cat_pop_37',
+    name: 'Yoghurt Cimory Squeeze 120g',
+    store: 'Indomaret',
+    category: 'Minuman',
+    unit: 'pouch',
+    price: 10000,
+    lastMonthPrice: 10000,
+    discount: '',
+    protein: 3,
+    nutritionTag: 'Rendah Gula',
+    icon: '🍶'
+  },
+  {
+    id: 'cat_pop_38',
+    name: 'Biskuit Roma Kelapa 300g',
+    store: 'Alfamart',
+    category: 'Makanan',
+    unit: 'bungkus',
+    price: 12000,
+    lastMonthPrice: 12000,
+    discount: '',
+    protein: 6,
+    nutritionTag: 'Standar / Netral',
+    icon: '🍪'
+  },
+  {
+    id: 'cat_pop_39',
+    name: 'Biskuit Oreo Vanilla 120g',
+    store: 'Indomaret',
+    category: 'Ultra-Processed',
+    unit: 'bungkus',
+    price: 9500,
+    lastMonthPrice: 9500,
+    discount: '',
+    protein: 4,
+    nutritionTag: 'Ultra-Processed / Batasi',
+    icon: '🍪'
+  },
+  {
+    id: 'cat_pop_40',
+    name: 'Daging Sapi Cincang 500g',
+    store: 'Lotte Mart',
+    category: 'Protein Tinggi',
+    unit: 'pack/500g',
+    price: 65000,
+    lastMonthPrice: 62000,
+    discount: '',
+    protein: 100,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🥩'
+  },
+  {
+    id: 'cat_pop_41',
+    name: 'Ikan Kembung Segar 1kg',
+    store: 'Lotte Mart',
+    category: 'Protein Tinggi',
+    unit: 'kg',
+    price: 42000,
+    lastMonthPrice: 45000,
+    discount: '',
+    protein: 190,
+    nutritionTag: 'Tinggi Protein',
+    icon: '🐟'
+  },
+  {
+    id: 'cat_pop_42',
+    name: 'Bayam Segar 1 Ikat',
+    store: 'Lotte Mart',
+    category: 'Bahan Pokok',
+    unit: 'ikat',
+    price: 4000,
+    lastMonthPrice: 4000,
+    discount: '',
+    protein: 5,
+    nutritionTag: 'Tinggi Serat',
+    icon: '🥬'
+  }
+];
+
 class SmartGroceryApp {
   constructor() {
     // LocalStorage Keys
@@ -56,6 +618,13 @@ class SmartGroceryApp {
     this.audioCtx = null;
     this.editingItemId = null;
     this.lastMonthManuallyEdited = false;
+
+    // Product Catalog State
+    this.catalogVisibleCount = 6;
+    this.catalogCategoryFilter = 'all';
+    this.catalogStoreFilter = 'all';
+    this.catalogSearchQuery = '';
+    this.catalogShowAll = false;
 
     // Easter egg click counter
     this.historyClickCount = 0;
@@ -749,6 +1318,7 @@ class SmartGroceryApp {
   // RENDERING ENGINE
   // =========================================================================
   renderAll() {
+    this.renderCatalog();
     this.renderCart();
     this.renderBudgetAndSafetyCap();
     this.renderHealthyCartMeter();
@@ -765,6 +1335,240 @@ class SmartGroceryApp {
     if (dateInput && dateInput.value !== this.shoppingDate) {
       dateInput.value = this.shoppingDate;
     }
+  }
+
+  // =========================================================================
+  // KATALOG PRODUK INDOMARET, ALFAMART & LOTTE MART (GRID 2-KOLOM 375px)
+  // =========================================================================
+  renderCatalog() {
+    const container = document.getElementById('catalogGridContainer');
+    const countPill = document.getElementById('catalogCountPill');
+    const btnExpand = document.getElementById('btnCatalogExpandMore');
+    const btnToggleAll = document.getElementById('btnCatalogToggleAll');
+
+    if (!container) return;
+
+    // Filter items
+    let filtered = PRODUCT_CATALOG.filter(prod => {
+      // 1. Store Filter
+      if (this.catalogStoreFilter !== 'all') {
+        if (prod.store !== this.catalogStoreFilter) return false;
+      }
+
+      // 2. Category Filter
+      if (this.catalogCategoryFilter !== 'all') {
+        if (this.catalogCategoryFilter === 'Makanan') {
+          if (prod.category !== 'Makanan' && prod.category !== 'Bahan Pokok' && prod.category !== 'Protein Tinggi') return false;
+        } else if (this.catalogCategoryFilter === 'Kebutuhan Rumah') {
+          if (prod.category !== 'Kebutuhan Rumah' && prod.category !== 'Non-Makanan') return false;
+        } else {
+          if (prod.category !== this.catalogCategoryFilter) return false;
+        }
+      }
+
+      // 3. Search Query
+      if (this.catalogSearchQuery) {
+        const q = this.catalogSearchQuery;
+        const matchName = prod.name.toLowerCase().includes(q);
+        const matchCat = prod.category.toLowerCase().includes(q);
+        const matchStore = prod.store.toLowerCase().includes(q);
+        if (!matchName && !matchCat && !matchStore) return false;
+      }
+
+      return true;
+    });
+
+    if (countPill) {
+      countPill.textContent = `${filtered.length} Pilihan`;
+    }
+
+    const itemsToRender = this.catalogShowAll ? filtered : filtered.slice(0, this.catalogVisibleCount);
+
+    if (itemsToRender.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;">
+          🔍 Tidak ada barang yang cocok dengan pencarian atau filter.
+        </div>
+      `;
+      if (btnExpand) btnExpand.style.display = 'none';
+      if (btnToggleAll) btnToggleAll.style.display = 'none';
+      return;
+    }
+
+    if (btnToggleAll) {
+      btnToggleAll.style.display = 'flex';
+      btnToggleAll.textContent = this.catalogShowAll ? 'Sembunyikan (6)' : `Lihat Semua (${filtered.length})`;
+    }
+
+    if (btnExpand) {
+      if (this.catalogShowAll || itemsToRender.length >= filtered.length) {
+        btnExpand.style.display = 'none';
+      } else {
+        btnExpand.style.display = 'flex';
+        btnExpand.innerHTML = `<span>➕ Lihat Lebih Banyak (+6)</span> <span style="font-size: 10px; opacity: 0.7;">(${itemsToRender.length}/${filtered.length})</span>`;
+      }
+    }
+
+    let html = '';
+    itemsToRender.forEach(prod => {
+      const disc = this.calculateDiscount(prod.price, prod.discount);
+      const fluc = this.calculatePriceFluctuation(disc.finalUnitPrice, prod.lastMonthPrice);
+
+      let storeClass = 'lotte';
+      if (prod.store === 'Indomaret') storeClass = 'indomaret';
+      else if (prod.store === 'Alfamart') storeClass = 'alfamart';
+
+      html += `
+        <div class="catalog-product-card" data-catalog-id="${prod.id}">
+          <div>
+            <div class="catalog-card-header">
+              <span class="catalog-store-tag ${storeClass}">${prod.store}</span>
+              <span class="catalog-cat-tag">${prod.icon || '📦'} ${this.escapeHtml(prod.category)}</span>
+            </div>
+            
+            <div class="catalog-card-name" title="${this.escapeHtml(prod.name)}">${this.escapeHtml(prod.name)}</div>
+            <div class="catalog-card-unit">${this.escapeHtml(prod.unit)} ${prod.protein > 0 ? `&bull; ${prod.protein}g prot` : ''}</div>
+          </div>
+
+          <div class="catalog-pricing-block">
+            <div>
+              <span class="catalog-current-price">Rp ${disc.finalUnitPrice.toLocaleString('id-ID')}</span>
+              ${disc.discountAmount > 0 ? `<span class="catalog-striked-price">Rp ${prod.price.toLocaleString('id-ID')}</span>` : ''}
+            </div>
+
+            ${disc.discountAmount > 0 ? `
+              <div>
+                <span class="catalog-promo-badge">Promo ${this.escapeHtml(prod.discount)}</span>
+              </div>
+            ` : ''}
+
+            <div>
+              <span class="catalog-fluc-badge ${fluc.type}">
+                ${fluc.text}
+              </span>
+            </div>
+          </div>
+
+          <div class="catalog-card-actions">
+            <button type="button" class="catalog-btn-add" onclick="app.addCatalogItemToCart('${prod.id}')" title="Langsung masukkan ke keranjang">
+              <span>+ Keranjang</span>
+            </button>
+            <button type="button" class="catalog-btn-fill" onclick="app.fillFormFromCatalog('${prod.id}')" title="Kustomisasi di form">
+              <span>Isi Form</span>
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  onCatalogSearch(val) {
+    this.catalogSearchQuery = (val || '').trim().toLowerCase();
+    this.renderCatalog();
+  }
+
+  setCatalogCategoryFilter(cat) {
+    this.catalogCategoryFilter = cat;
+    const chips = document.querySelectorAll('#catalogCategoryFilters .catalog-filter-chip');
+    chips.forEach(c => {
+      c.classList.toggle('active', c.getAttribute('data-cat') === cat);
+    });
+    this.renderCatalog();
+  }
+
+  setCatalogStoreFilter(store) {
+    this.catalogStoreFilter = store;
+    const chips = document.querySelectorAll('#catalogStoreFilters .catalog-filter-chip');
+    chips.forEach(c => {
+      c.classList.toggle('active', c.getAttribute('data-store') === store);
+    });
+    this.renderCatalog();
+  }
+
+  expandCatalogMore() {
+    this.catalogVisibleCount += 6;
+    this.renderCatalog();
+  }
+
+  toggleCatalogAll() {
+    this.catalogShowAll = !this.catalogShowAll;
+    this.renderCatalog();
+  }
+
+  addCatalogItemToCart(catalogId) {
+    const prod = PRODUCT_CATALOG.find(p => p.id === catalogId);
+    if (!prod) return;
+
+    // Check if product with same name already exists in cart -> increase qty
+    const existing = this.cart.find(it => it.name.toLowerCase() === prod.name.toLowerCase());
+    if (existing) {
+      existing.qty += 1;
+      this.showToast(`Kuantitas ${prod.name} bertambah jadi ${existing.qty}`);
+    } else {
+      const newItem = {
+        id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+        name: prod.name,
+        category: prod.category,
+        unit: prod.unit,
+        qty: 1,
+        originalPrice: prod.price,
+        discountStr: prod.discount || '',
+        lastMonthPrice: prod.lastMonthPrice || prod.price,
+        nutritionTag: prod.nutritionTag || 'Standar / Netral',
+        proteinGrams: prod.protein || 0
+      };
+      this.cart.unshift(newItem);
+      this.showToast(`+ ${prod.name} masuk keranjang!`);
+    }
+
+    this.saveState();
+    this.renderAll();
+    this.playBeep('success');
+    this.broadcastState();
+
+    if (existing) {
+      this.syncItemToCloud(existing, 'upsert');
+    } else {
+      this.syncItemToCloud(this.cart[0], 'upsert');
+    }
+  }
+
+  fillFormFromCatalog(catalogId) {
+    const prod = PRODUCT_CATALOG.find(p => p.id === catalogId);
+    if (!prod) return;
+
+    this.editingItemId = null;
+    document.getElementById('itemModalTitle').textContent = 'Tambah Item Belanja';
+    document.getElementById('formItemId').value = '';
+
+    const nameInput = document.getElementById('inputNamaProduk');
+    const catInput = document.getElementById('selectKategori');
+    const unitInput = document.getElementById('inputSatuan');
+    const qtyInput = document.getElementById('inputQty');
+    const priceInput = document.getElementById('inputHargaSatuan');
+    const discInput = document.getElementById('inputDiskon');
+    const lastMonthInput = document.getElementById('inputHargaBulanLalu');
+    const proteinInput = document.getElementById('inputProteinGrams');
+    const nutriTag = document.getElementById('selectedNutritionTag');
+
+    if (nameInput) nameInput.value = prod.name;
+    if (catInput) catInput.value = prod.category;
+    if (unitInput) unitInput.value = prod.unit;
+    if (qtyInput) qtyInput.value = 1;
+    if (priceInput) priceInput.value = prod.price;
+    if (discInput) discInput.value = prod.discount || '';
+    if (lastMonthInput) {
+      lastMonthInput.value = prod.lastMonthPrice || '';
+      this.lastMonthManuallyEdited = true;
+    }
+    if (proteinInput) proteinInput.value = prod.protein || '';
+    if (nutriTag) nutriTag.value = prod.nutritionTag || 'Standar / Netral';
+
+    this.updateFormCalculationsPreview();
+    this.openItemModal();
+    this.showToast(`Data katalog ${prod.name} dimasukkan ke form`);
   }
 
   renderCart() {
@@ -790,9 +1594,13 @@ class SmartGroceryApp {
     } else if (filterVal === 'Protein Tinggi') {
       filteredItems = this.cart.filter(item => item.category === 'Protein Tinggi');
     } else if (filterVal === 'Makanan') {
-      filteredItems = this.cart.filter(item => item.category === 'Makanan' || item.category === 'Bahan Pokok' || item.category === 'Protein Tinggi');
+      filteredItems = this.cart.filter(item => item.category === 'Makanan');
+    } else if (filterVal === 'Minuman') {
+      filteredItems = this.cart.filter(item => item.category === 'Minuman');
+    } else if (filterVal === 'Kebutuhan Rumah') {
+      filteredItems = this.cart.filter(item => item.category === 'Kebutuhan Rumah' || item.category === 'Non-Makanan');
     } else if (filterVal === 'Non-Makanan') {
-      filteredItems = this.cart.filter(item => item.category === 'Non-Makanan');
+      filteredItems = this.cart.filter(item => item.category === 'Non-Makanan' || item.category === 'Kebutuhan Rumah');
     }
 
     if (counterBadge) {
@@ -1034,13 +1842,6 @@ class SmartGroceryApp {
     });
 
     const totalFood = freshSpend + processedSpend;
-    let freshPct = 70;
-    let processedPct = 30;
-
-    if (totalFood > 0) {
-      freshPct = Math.round((freshSpend / totalFood) * 100);
-      processedPct = 100 - freshPct;
-    }
 
     const pillEl = document.getElementById('healthyScorePill');
     const barFresh = document.getElementById('barSegmentFresh');
@@ -1048,6 +1849,26 @@ class SmartGroceryApp {
     const legendFresh = document.getElementById('legendFreshText');
     const legendProcessed = document.getElementById('legendProcessedText');
     const tipEl = document.getElementById('healthyCartTipText');
+
+    // 0% jika keranjang kosong atau belum ada makanan
+    if (this.cart.length === 0 || totalFood <= 0) {
+      if (barFresh) barFresh.style.width = '0%';
+      if (barProcessed) barProcessed.style.width = '0%';
+      if (pillEl) {
+        pillEl.textContent = '0% Sehat';
+        pillEl.style.color = '#94a3b8';
+        pillEl.style.background = 'rgba(148, 163, 184, 0.18)';
+      }
+      if (legendFresh) legendFresh.textContent = 'Segar / Bergizi: 0%';
+      if (legendProcessed) legendProcessed.textContent = 'Olahan / Instan: 0%';
+      if (tipEl) {
+        tipEl.innerHTML = '💡 Keranjang belanja masih kosong, silakan scan atau tambahkan kebutuhan pokok pertamamu.';
+      }
+      return;
+    }
+
+    let freshPct = Math.round((freshSpend / totalFood) * 100);
+    let processedPct = 100 - freshPct;
 
     if (barFresh) barFresh.style.width = `${freshPct}%`;
     if (barProcessed) barProcessed.style.width = `${processedPct}%`;
@@ -1921,15 +2742,20 @@ class SmartGroceryApp {
         `;
       } else {
         headerContainer.innerHTML = `
-          <button class="btn-google-oauth" onclick="app.signInWithGoogle()" title="Masuk dengan Akun Google">
-            <svg width="14" height="14" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            <span>Masuk Google</span>
-          </button>
+          <div style="display: flex; gap: 4px; align-items: center;">
+            <button class="btn-google-oauth" onclick="app.signInWithGoogle()" title="Masuk dengan Akun Google">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Masuk Google</span>
+            </button>
+            <button type="button" class="btn-google-oauth" style="border-color: rgba(16, 185, 129, 0.4); color: #065f46; font-size: 10px; padding: 4px 7px;" onclick="app.loginDemoUser()" title="Login Cepat Akun Demo">
+              ⚡ Demo
+            </button>
+          </div>
         `;
       }
     }
@@ -1981,10 +2807,36 @@ class SmartGroceryApp {
               </svg>
               <span>Lanjutkan dengan Akun Google</span>
             </button>
+
+            <!-- 1-Click Instant Demo User -->
+            <button type="button" class="btn-primary-block" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff; font-weight: 700; margin-bottom: 12px; border: none; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="app.loginDemoUser()">
+              <span>⚡ 1-Klik Masuk Akun Demo (Rian Rantau)</span>
+            </button>
+
+            <!-- Google Cloud OAuth Callback Configuration Helper -->
+            <div style="font-size: 10px; color: var(--text-muted); background: #fff5f8; border: 1px dashed rgba(244, 114, 182, 0.45); border-radius: 8px; padding: 10px; line-height: 1.5; text-align: left;">
+              <strong style="color: var(--primary-dark); font-size: 10.5px;">💡 Panduan Error 400 redirect_uri_mismatch:</strong><br>
+              Jika Google menolak login, daftarkan callback URI berikut di <strong>Google Cloud Console</strong> &gt; <em>APIs &amp; Services</em> &gt; <em>Credentials</em> &gt; <em>OAuth 2.0 Client IDs</em> &gt; <strong>Authorized redirect URIs</strong>:<br>
+              <code style="word-break: break-all; color: var(--primary-dark); font-weight: 700; background: #ffffff; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; border: 1px solid rgba(244,114,182,0.35);">https://jnluauwepczsglnzckdw.supabase.co/auth/v1/callback</code>
+            </div>
           </div>
         `;
       }
     }
+  }
+
+  loginDemoUser() {
+    this.currentUser = {
+      id: 'demo_user_rian_dt2',
+      email: 'rian.rantau@student.mutiarabangsa.sch.id',
+      user_metadata: {
+        full_name: 'Rian Rantau (Siswa DT2)',
+        avatar_url: ''
+      }
+    };
+    this.renderAuth();
+    this.showToast('🟢 Berhasil masuk sebagai Akun Demo (Rian Rantau)!');
+    this.syncFromCloud();
   }
 
   async signInWithGoogle() {

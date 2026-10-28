@@ -111,10 +111,11 @@
                 <label class="session-label" for="storeLocationSelect">🏪 Lokasi Toko</label>
                 <select id="storeLocationSelect" class="session-select-control" onchange="app.updateStoreLocation(this.value)">
                   <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart Grocery - Puri Indah</option>
+                  <option value="Indomaret - Puri / Meruya">Indomaret - Puri / Meruya</option>
+                  <option value="Alfamart - Meruya Ilir">Alfamart - Meruya Ilir</option>
                   <option value="Superindo - Meruya">Superindo - Meruya</option>
                   <option value="Hypermart - Puri">Hypermart - Puri</option>
                   <option value="Pasar Tradisional / Pasar Puri">Pasar Tradisional / Pasar Puri</option>
-                  <option value="Indomaret / Alfamart">Indomaret / Alfamart</option>
                 </select>
               </div>
               <div class="session-field-group">
@@ -214,17 +215,69 @@
             </div>
 
             <div class="healthy-cart-tip" id="healthyCartTipText">
-              ðŸ’¡ Komposisi seimbang! Prioritaskan protein bernilai tinggi (telur, tempe, dada ayam) agar uang saku hemat &amp; stamina fit.
+              💡 Komposisi seimbang! Prioritaskan protein bernilai tinggi (telur, tempe, dada ayam) agar uang saku hemat &amp; stamina fit.
             </div>
           </div>
 
           <!-- Quick Anak Kos Preset Chips -->
           <div class="quick-preset-container">
-            <button class="preset-chip" onclick="app.addQuickPreset('telur')">ðŸ¥š Telur 1kg</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('tempe')">ðŸ¥¢ Tempe 2 papan</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('ayam')">ðŸ— Dada Ayam 500g</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('telur')">🥚 Telur 1kg</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('tempe')">🥢 Tempe 2 papan</button>
+            <button class="preset-chip" onclick="app.addQuickPreset('ayam')">🍗 Dada Ayam 500g</button>
             <button class="preset-chip" onclick="app.addQuickPreset('mie')">🍜 Mie Instan</button>
           </div>
+
+          <!-- =====================================================================
+               KATALOG PRODUK INDOMARET, ALFAMART & LOTTE MART (GRID 2-KOLOM 375px)
+               ===================================================================== -->
+          <section class="store-catalog-section" id="storeCatalogSection">
+            <div class="catalog-section-header">
+              <div class="catalog-title-wrap">
+                <h3>🏪 Katalog Toko (Indomaret, Alfamart, Lotte Mart)</h3>
+                <span class="catalog-count-pill" id="catalogCountPill">35+ Pilihan</span>
+              </div>
+            </div>
+
+            <!-- Search Bar Realtime -->
+            <div class="catalog-search-wrap">
+              <span class="catalog-search-icon">🔍</span>
+              <input type="text" id="catalogSearchInput" class="catalog-search-input" placeholder="Cari barang Indomaret, Alfamart, Lotte Mart..." oninput="app.onCatalogSearch(this.value)">
+            </div>
+
+            <!-- Filter Kategori -->
+            <div class="catalog-filter-scroll" id="catalogCategoryFilters">
+              <button type="button" class="catalog-filter-chip active" data-cat="all" onclick="app.setCatalogCategoryFilter('all')">Semua</button>
+              <button type="button" class="catalog-filter-chip" data-cat="Bahan Pokok" onclick="app.setCatalogCategoryFilter('Bahan Pokok')">🌾 Bahan Pokok</button>
+              <button type="button" class="catalog-filter-chip" data-cat="Protein Tinggi" onclick="app.setCatalogCategoryFilter('Protein Tinggi')">🍗 Protein Tinggi</button>
+              <button type="button" class="catalog-filter-chip" data-cat="Makanan" onclick="app.setCatalogCategoryFilter('Makanan')">🍲 Makanan</button>
+              <button type="button" class="catalog-filter-chip" data-cat="Minuman" onclick="app.setCatalogCategoryFilter('Minuman')">🥤 Minuman</button>
+              <button type="button" class="catalog-filter-chip" data-cat="Kebutuhan Rumah" onclick="app.setCatalogCategoryFilter('Kebutuhan Rumah')">🧼 Kebutuhan Rumah</button>
+              <button type="button" class="catalog-filter-chip" data-cat="Ultra-Processed" onclick="app.setCatalogCategoryFilter('Ultra-Processed')">⚠️ Ultra-Processed</button>
+            </div>
+
+            <!-- Filter Toko -->
+            <div class="catalog-filter-scroll" id="catalogStoreFilters">
+              <button type="button" class="catalog-filter-chip active" data-store="all" onclick="app.setCatalogStoreFilter('all')">Semua Toko</button>
+              <button type="button" class="catalog-filter-chip" data-store="Lotte Mart" onclick="app.setCatalogStoreFilter('Lotte Mart')">🏢 Lotte Mart</button>
+              <button type="button" class="catalog-filter-chip" data-store="Indomaret" onclick="app.setCatalogStoreFilter('Indomaret')">🔵 Indomaret</button>
+              <button type="button" class="catalog-filter-chip" data-store="Alfamart" onclick="app.setCatalogStoreFilter('Alfamart')">🔴 Alfamart</button>
+            </div>
+
+            <!-- Grid 2-Kolom Produk (Default 6 item) -->
+            <div class="catalog-grid-2col" id="catalogGridContainer">
+              <!-- Rendered dynamically by app.renderCatalog() -->
+            </div>
+
+            <!-- Expand & Toggle Controls -->
+            <div class="catalog-expand-row">
+              <button type="button" class="catalog-btn-more" id="btnCatalogExpandMore" onclick="app.expandCatalogMore()">
+                <span>➕ Lihat Lebih Banyak (+6 Barang)</span>
+              </button>
+              <button type="button" class="catalog-btn-toggle-all" id="btnCatalogToggleAll" onclick="app.toggleCatalogAll()">
+                Lihat Semua
+              </button>
+            </div>
+          </section>
 
           <!-- Section Headline Bar with Category Filter -->
           <div class="section-headline-bar">
@@ -237,8 +290,10 @@
                 <option value="all">Semua Kategori</option>
                 <option value="Bahan Pokok">🌾 Bahan Pokok</option>
                 <option value="Makanan">🍲 Makanan</option>
-                <option value="Non-Makanan">🧼 Non-Makanan</option>
+                <option value="Minuman">🥤 Minuman</option>
                 <option value="Protein Tinggi">🍗 Protein Tinggi</option>
+                <option value="Kebutuhan Rumah">🧼 Kebutuhan Rumah</option>
+                <option value="Non-Makanan">📦 Non-Makanan</option>
                 <option value="Ultra-Processed">⚠️ Ultra-Processed</option>
                 <option value="healthy">🌱 Hanya Sehat (Grade A/B)</option>
                 <option value="protein_value">🔥 Best Protein Value</option>
@@ -516,8 +571,10 @@
                 <select class="form-select-control" id="selectKategori" required>
                   <option value="Bahan Pokok" selected>🌾 Bahan Pokok</option>
                   <option value="Makanan">🍲 Makanan</option>
-                  <option value="Non-Makanan">🧼 Non-Makanan</option>
+                  <option value="Minuman">🥤 Minuman</option>
                   <option value="Protein Tinggi">🍗 Protein Tinggi</option>
+                  <option value="Kebutuhan Rumah">🧼 Kebutuhan Rumah</option>
+                  <option value="Non-Makanan">📦 Non-Makanan</option>
                   <option value="Ultra-Processed">⚠️ Ultra-Processed</option>
                 </select>
               </div>
