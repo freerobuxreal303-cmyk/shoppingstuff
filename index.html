@@ -3,29 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Smart Grocery &amp; Nutrition Tracker - Mobile PWA</title>
+  <title>Smart Grocery &amp; Budget Tracker - Rian</title>
   
-  <!-- SEO & PWA Meta Tags -->
-  <meta name="description" content="Aplikasi Mobile PWA Smart Grocery, Budget Safety Cap & Smart Nutrition Value Tracker untuk Siswa Rantau.">
+  <!-- PWA & Meta Tags -->
+  <meta name="description" content="Mobile PWA Smart Grocery, Realtime Price Comparator &amp; Budget Safety Cap untuk Studi Kasus Rian.">
   <meta name="theme-color" content="#ec4899">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="SmartGrocery">
   
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="apple-touch-icon" href="icon-192.svg">
   
-  <!-- Google Fonts: Inter -->
+  <!-- Typography & Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css">
+  <!-- Tailwind CSS CDN with Pink & White Design Tokens -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#ec4899',
+            'primary-dark': '#db2777',
+            'primary-light': '#f472b6',
+            'primary-container': '#fdf2f8',
+            'on-primary': '#ffffff',
+            secondary: '#f43f5e',
+            'secondary-container': '#ffe4e6',
+            surface: '#ffffff',
+            'surface-alt': '#fff5f7',
+            'surface-card': '#ffffff',
+            background: '#fff0f5',
+            'outline-pink': '#fce7f3',
+            'outline-pink-strong': '#fbcfe8',
+            ink: '#1e293b',
+            'ink-muted': '#64748b',
+            'citrus-warning': '#f59e0b',
+            'error-danger': '#ef4444'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+  
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- Desktop Viewport Wrapper (Enforces max 430px smartphone canvas) -->
+  <!-- Desktop Viewport Wrapper (Enforces Mobile Smartphone Canvas) -->
   <div class="desktop-viewport-wrapper">
     
     <div class="mobile-app-container" id="mobileAppContainer">
@@ -35,920 +72,570 @@
         <span id="liveClockDisplay">09:41</span>
         <div class="notch-pill">
           <div class="notch-dot"></div>
-          <span style="font-size: 9px; color: #f472b6; font-weight: 700;">SMART PWA</span>
+          <span style="font-size: 9px; color: #db2777; font-weight: 800; letter-spacing: 0.5px;">SMART PWA</span>
         </div>
-        <div class="status-right">
-          <span id="onlineStatusBadge">â— 4G</span>
-          <span id="soundToggleIcon" style="cursor: pointer;" title="Toggle Suara Efek">ðŸ”Š</span>
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-600 font-mono text-[10px] font-bold">● 4G</span>
+          <span id="soundToggleBtn" class="cursor-pointer text-sm" title="Toggle Efek Suara">🔊</span>
         </div>
       </div>
 
       <!-- App Header -->
-      <header class="app-header">
-        <div class="brand-badge">
-          <div class="brand-logo-icon">
-            <!-- Shopping Cart SVG -->
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="8" cy="21" r="1"></circle>
-              <circle cx="19" cy="21" r="1"></circle>
-              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
-            </svg>
-          </div>
-          <div class="brand-titles">
-            <h1>Smart Grocery &amp; Value</h1>
-            <p>Studi Kasus Rian &bull; Nutrition &amp; Safety Cap</p>
-            <div class="realtime-status-pill" id="realtimeStatusPill" title="Status Sinkronisasi Multi-Device">
-              <span class="realtime-dot"></span>
-              <span id="realtimeStatusText">🟢 Cloud Realtime Sync Aktif (Live Multi-Device)</span>
+      <header class="bg-white border-b border-[#fce7f3] px-4 py-3 shrink-0">
+        <div class="flex items-center justify-between mb-2">
+          <!-- Logo & Title -->
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center shadow-sm">
+              <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+            </div>
+            <div>
+              <h1 class="font-display text-[16px] font-black text-ink leading-tight">Smart Grocery</h1>
+              <p class="text-[11px] font-semibold text-pink-600">Studi Kasus Rian • DT2 Lab</p>
             </div>
           </div>
+
+          <!-- Profile / Google Account Badge -->
+          <button type="button" id="headerProfileBtn" class="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-pink-50 border border-pink-200 hover:bg-pink-100 transition-all cursor-pointer">
+            <span class="w-6 h-6 rounded-full bg-pink-500 text-white font-bold text-xs flex items-center justify-center" id="headerUserAvatar">R</span>
+            <span class="text-xs font-bold text-pink-900 max-w-[80px] truncate" id="headerUserName">Rian</span>
+          </button>
         </div>
+
+        <!-- Store Location (SRS F-01) & Date Selector -->
+        <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-pink-100/80">
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-pink-700 mb-0.5">Lokasi Toko</label>
+            <div class="relative">
+              <select id="storeLocationSelect" class="w-full text-xs font-bold text-ink bg-pink-50/60 border border-pink-200 rounded-xl px-2.5 py-1.5 appearance-none focus:outline-none focus:border-pink-500 transition-colors">
+                <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart - Puri Indah</option>
+                <option value="Indomaret Fresh">Indomaret Fresh</option>
+                <option value="Alfamart Super">Alfamart Super</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-pink-500 text-[16px] pointer-events-none">expand_more</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-pink-700 mb-0.5">Tanggal Belanja</label>
+            <input type="date" id="shoppingDateInput" class="w-full text-xs font-bold text-ink bg-pink-50/60 border border-pink-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-pink-500 transition-colors">
+          </div>
+        </div>
+
+        <!-- Realtime Multi-Device Cloud Sync Status Bar (SRS F-06B) -->
+        <div class="mt-2.5 flex items-center justify-between py-1 px-2.5 rounded-lg bg-pink-50/80 border border-pink-200/80 text-[10px] font-semibold">
+          <div class="flex items-center gap-1.5 text-pink-800" id="realtimeStatusBadge">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="realtimeStatusText">🟢 Cloud Realtime Sync Aktif (Live Multi-Device)</span>
+          </div>
+          <button type="button" id="btnTestCloudPing" class="text-pink-600 hover:text-pink-800 font-bold underline cursor-pointer text-[10px]">Ping</button>
+        </div>
+      </header>
+
+      <!-- SRS F-05: SAFETY CAP BUDGET WARNING TOP BANNER -->
+      <div id="budgetAlertBanner" class="hidden px-4 pt-3">
+        <!-- Injected via JS when >= 90% (yellow) or > 100% (bold red) -->
+      </div>
+
+      <!-- MAIN TAB CONTENT AREA -->
+      <main class="flex-1 overflow-y-auto pb-24 p-4 space-y-4">
         
-        <div class="header-actions">
-          <!-- Google Auth / User Badge Container -->
-          <div id="headerAuthContainer">
-            <button class="btn-google-oauth" id="googleSignInHeaderBtn" onclick="app.signInWithGoogle()" title="Masuk dengan Akun Google">
-              <svg width="14" height="14" viewBox="0 0 24 24">
+        <!-- ==============================================================
+             TAB 1: TROLI BELANJA (CART) - SRS F-01, F-02, F-03, F-04, F-06A
+             ============================================================== -->
+        <section id="tabCart" class="tab-pane active flex-col w-full gap-3">
+          
+          <!-- Financial HUD / Budget Progress Card -->
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-pink-700 flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>
+                <span>Saldo Belanja Rian</span>
+              </span>
+              <span id="budgetHealthPill" class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                ● AMAN
+              </span>
+            </div>
+
+            <!-- Numbers Grid -->
+            <div class="grid grid-cols-3 gap-2 my-2 text-center">
+              <div class="bg-pink-50/60 rounded-xl p-2 border border-pink-100">
+                <span class="block text-[10px] font-bold text-slate-500 uppercase">Batas Pagu</span>
+                <strong class="font-mono text-xs sm:text-sm font-extrabold text-ink cursor-pointer hover:text-pink-600" id="hudBudgetLimit" title="Klik untuk ubah limit">Rp 100.000</strong>
+              </div>
+              <div class="bg-pink-50/60 rounded-xl p-2 border border-pink-100">
+                <span class="block text-[10px] font-bold text-slate-500 uppercase">Total Troli</span>
+                <strong class="font-mono text-xs sm:text-sm font-extrabold text-pink-600" id="hudTotalSpend">Rp 0</strong>
+              </div>
+              <div class="bg-pink-50/60 rounded-xl p-2 border border-pink-100">
+                <span class="block text-[10px] font-bold text-slate-500 uppercase">Sisa Dompet</span>
+                <strong class="font-mono text-xs sm:text-sm font-extrabold text-emerald-600" id="hudRemaining">Rp 100.000</strong>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mt-3 border border-slate-200/50">
+              <div id="budgetProgressBar" class="h-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full transition-all duration-300" style="width: 0%;"></div>
+            </div>
+            <div class="flex items-center justify-between mt-1 text-[10px] font-semibold text-slate-500">
+              <span id="budgetUsagePercentText">0% Terpakai</span>
+              <span id="budgetHematText">Total Hemat Promo: Rp 0</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons Bar -->
+          <div class="flex items-center gap-2">
+            <button type="button" id="btnOpenAddModal" class="flex-1 py-3 px-4 rounded-xl bg-pink-500 hover:bg-pink-600 active:scale-98 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer">
+              <span class="material-symbols-outlined text-[18px]">add_circle</span>
+              <span>+ Tambah Barang Baru</span>
+            </button>
+            <button type="button" id="btnOpenClearCartModal" class="py-3 px-3.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 font-bold text-xs border border-pink-200 active:scale-98 transition-all cursor-pointer" title="Kosongkan Troli">
+              <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+            </button>
+          </div>
+
+          <!-- Cart Items Container -->
+          <div class="space-y-2.5" id="cartItemsList">
+            <!-- Dynamic Rendered via JS -->
+          </div>
+
+          <!-- Checkout / Selesaikan Belanja -->
+          <div class="pt-2">
+            <button type="button" id="btnCheckoutTrigger" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-display text-sm font-bold shadow-md hover:shadow-lg active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+              <span>Arsipkan &amp; Simpan Struk Belanja</span>
+            </button>
+          </div>
+
+        </section>
+
+        <!-- ==============================================================
+             TAB 2: RENCANA & KATALOG (MASTER REFERENCE LOTTE MART)
+             ============================================================== -->
+        <section id="tabBudget" class="tab-pane flex-col w-full gap-3">
+          
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
+            <h2 class="font-display text-sm font-bold text-ink flex items-center gap-1.5 mb-1">
+              <span class="material-symbols-outlined text-pink-500 text-[18px]">checklist</span>
+              <span>Katalog Ujian DT2 &bull; Lotte Mart Puri Indah</span>
+            </h2>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Klik tombol tambah (<span class="text-pink-600 font-bold">+</span>) pada produk untuk simulasi uji skenario F-01 s/d F-04 secara instan!
+            </p>
+          </div>
+
+          <!-- Catalog List Container -->
+          <div class="space-y-2.5" id="masterCatalogList">
+            <!-- Dynamically populated via JS -->
+          </div>
+
+        </section>
+
+        <!-- ==============================================================
+             TAB 3: RIWAYAT & STRUK BELANJA
+             ============================================================== -->
+        <section id="tabHistory" class="tab-pane flex-col w-full gap-3">
+          
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
+            <h2 class="font-display text-sm font-bold text-ink flex items-center gap-1.5 mb-1">
+              <span class="material-symbols-outlined text-pink-500 text-[18px]">history</span>
+              <span>Riwayat Transaksi Belanja</span>
+            </h2>
+            <p class="text-xs text-slate-500">
+              Daftar struk belanja yang telah diarsipkan dan tersinkronisasi ke cloud database.
+            </p>
+          </div>
+
+          <!-- History Items Container -->
+          <div class="space-y-2.5" id="historySessionsList">
+            <!-- Dynamically populated via JS -->
+          </div>
+
+        </section>
+
+        <!-- ==============================================================
+             TAB 4: KENDALI ANGGARAN & AKUN (DOMPET & GOOGLE OAUTH)
+             ============================================================== -->
+        <section id="tabDompet" class="tab-pane flex-col w-full gap-3">
+          
+          <!-- User Profile & Google Sign In Card -->
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
+            <div class="flex items-center justify-between mb-3 pb-3 border-b border-pink-100">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-pink-500 text-white font-bold text-lg flex items-center justify-center shadow-sm" id="dompetUserAvatar">
+                  R
+                </div>
+                <div>
+                  <h3 class="font-display text-sm font-black text-ink" id="dompetUserName">Rian Pratama</h3>
+                  <p class="text-xs text-pink-600 font-medium" id="dompetUserEmail">rian.smartgrocery@gmail.com</p>
+                  <span class="inline-block mt-0.5 px-2 py-0.5 rounded-md bg-pink-100 text-pink-800 text-[9px] font-extrabold uppercase">
+                    Google OAuth Terverifikasi
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" id="btnSwitchGoogleAccount" class="w-full py-2.5 px-4 rounded-xl bg-white border border-pink-200 hover:border-pink-500 text-pink-700 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer">
+              <!-- Google G Logo SVG -->
+              <svg class="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
               </svg>
-              <span>Masuk Google</span>
+              <span>Ganti Akun Google / Masuk Akun Lain</span>
             </button>
           </div>
 
-          <!-- Supabase Cloud Settings Modal Trigger -->
-          <button class="icon-btn-round" id="openCloudModalBtn" title="Supabase Cloud Database & Auth">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
-            </svg>
-          </button>
+          <!-- Budget Limit Setting Card (SRS F-05) -->
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100 space-y-3">
+            <h3 class="font-display text-sm font-bold text-ink flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-pink-500 text-[18px]">tune</span>
+              <span>Atur Limit Dompet Belanja (Safety Cap)</span>
+            </h3>
 
-          <button class="icon-btn-round" id="resetSampleDataBtn" title="Muat Ulang Data Sampel Rian">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-              <path d="M21 3v5h-5"></path>
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-              <path d="M8 16H3v5"></path>
-            </svg>
-          </button>
-        </div>
-      </header>
-
-      <!-- Main Scrollable Content Area -->
-      <main class="app-main-content">
-        
-        <!-- ==========================================
-             TAB 1: KERANJANG BELANJA (HOME / SHOPPING)
-             ========================================== -->
-        <section id="tab-cart" class="tab-view-content">
-
-          <!-- FEATURE F-01: STORE LOCATION & SHOPPING DATE SESSION -->
-          <div class="store-session-card">
-            <div class="session-field-row">
-              <div class="session-field-group">
-                <label class="session-label" for="storeLocationSelect">🏪 Lokasi Toko</label>
-                <select id="storeLocationSelect" class="session-select-control" onchange="app.updateStoreLocation(this.value)">
-                  <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart Grocery - Puri Indah</option>
-                  <option value="Indomaret - Puri / Meruya">Indomaret - Puri / Meruya</option>
-                  <option value="Alfamart - Meruya Ilir">Alfamart - Meruya Ilir</option>
-                  <option value="Superindo - Meruya">Superindo - Meruya</option>
-                  <option value="Hypermart - Puri">Hypermart - Puri</option>
-                  <option value="Pasar Tradisional / Pasar Puri">Pasar Tradisional / Pasar Puri</option>
-                </select>
-              </div>
-              <div class="session-field-group">
-                <label class="session-label" for="shoppingDateInput">📅 Tanggal Belanja</label>
-                <input type="date" id="shoppingDateInput" class="session-date-control" onchange="app.updateShoppingDate(this.value)">
-              </div>
-            </div>
-            <div class="session-history-compare-info" id="sessionDateComparisonBadge">
-              <span class="compare-icon">📊</span>
-              <span id="sessionDateComparisonText">Histori Pembanding: Dibanding 28 September 2026</span>
-            </div>
-          </div>
-          
-          <!-- FEATURE F-05: BUDGET SAFETY CAP (Pengendali Anggaran Dompet Rian) -->
-          <div class="budget-safety-card" id="budgetSafetyCard">
-            <div class="budget-header-row">
-              <div class="budget-title-label">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                  <line x1="2" y1="10" x2="22" y2="10"></line>
-                </svg>
-                Budget Safety Cap
-              </div>
-              <button class="budget-limit-btn" id="editBudgetLimitBtn">
-                Ubah Limit
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
-              </button>
-            </div>
-
-            <div class="budget-amount-row">
-              <div>
-                <div class="total-spent-big" id="totalCartCostDisplay">Rp 0</div>
-                <div style="font-size: 10px; color: var(--text-dim);">Total Belanja Saat Ini</div>
-              </div>
-              <div style="text-align: right;">
-                <div class="budget-cap-target" id="budgetLimitDisplay">Limit: Rp 250.000</div>
-                <div class="remaining-status" id="remainingCashStatus">
-                  <span class="status-indicator-dot" id="budgetStatusDot"></span>
-                  <span id="remainingCashText">Sisa: Rp 250.000</span>
-                </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Batas Maksimal Pengeluaran (Rp):</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-xs text-slate-400">Rp</span>
+                <input type="number" id="inputSettingBudget" inputmode="numeric" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-pink-200 font-mono font-bold text-sm text-ink focus:outline-none focus:border-pink-500" value="100000">
               </div>
             </div>
 
-            <!-- Dynamic Progress Bar -->
-            <div class="budget-progress-bar-bg">
-              <div class="budget-progress-fill" id="budgetProgressBarFill" style="width: 0%;"></div>
+            <!-- Quick Presets -->
+            <div class="flex items-center gap-2 pt-1">
+              <button type="button" class="btn-preset-budget flex-1 py-1.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold border border-pink-200 transition-colors" data-preset="100000">Rp 100k</button>
+              <button type="button" class="btn-preset-budget flex-1 py-1.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold border border-pink-200 transition-colors" data-preset="250000">Rp 250k</button>
+              <button type="button" class="btn-preset-budget flex-1 py-1.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold border border-pink-200 transition-colors" data-preset="350000">Rp 350k</button>
             </div>
 
-            <!-- Quick Budget Limit Presets (Skenario Uji 5) -->
-            <div class="budget-preset-chips">
-              <span style="font-size: 10px; color: var(--text-dim); margin-right: 2px;">Limit Cepat:</span>
-              <button type="button" class="budget-chip" onclick="app.setQuickBudget(100000)">Rp 100rb</button>
-              <button type="button" class="budget-chip" onclick="app.setQuickBudget(150000)">Rp 150rb</button>
-              <button type="button" class="budget-chip" onclick="app.setQuickBudget(250000)">Rp 250rb</button>
-              <button type="button" class="budget-chip" onclick="app.setQuickBudget(350000)">Rp 350rb</button>
-            </div>
-
-            <!-- Cashier Over-budget Warning (SRS Titik Kritis Kasir) -->
-            <div class="cashier-alert-banner hidden" id="cashierAlertBanner">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
-                <line x1="12" y1="9" x2="12" y2="13"></line>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-              </svg>
-              <span id="cashierAlertText">PERINGATAN KASIR: Melebihi uang tunai di dompet!</span>
-            </div>
-          </div>
-
-          <!-- FEATURE 3: RINGKASAN KERANJANG SEHAT (Healthy Cart Meter) -->
-          <div class="healthy-cart-meter-card">
-            <div class="healthy-meter-header">
-              <div class="healthy-meter-title">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12A10 10 0 0 1 12 2Z"></path>
-                  <path d="M12 6v6l4 2"></path>
-                </svg>
-                Healthy Cart Meter
-              </div>
-              <div class="healthy-score-pill" id="healthyScorePill">75% Sehat</div>
-            </div>
-
-            <!-- Mini-bar komposisi keranjang -->
-            <div class="cart-composition-bar" title="Proporsi Anggaran Sehat vs Makanan Instan/Olahan">
-              <div class="bar-segment-fresh" id="barSegmentFresh" style="width: 75%;"></div>
-              <div class="bar-segment-processed" id="barSegmentProcessed" style="width: 25%;"></div>
-            </div>
-
-            <div class="healthy-meter-legend">
-              <div class="legend-item">
-                <span class="legend-dot fresh"></span>
-                <span id="legendFreshText">Segar / Tinggi Gizi: 75%</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-dot processed"></span>
-                <span id="legendProcessedText">Instan / Olahan: 25%</span>
-              </div>
-            </div>
-
-            <div class="healthy-cart-tip" id="healthyCartTipText">
-              💡 Komposisi seimbang! Prioritaskan protein bernilai tinggi (telur, tempe, dada ayam) agar uang saku hemat &amp; stamina fit.
-            </div>
-          </div>
-
-          <!-- Quick Anak Kos Preset Chips -->
-          <div class="quick-preset-container">
-            <button class="preset-chip" onclick="app.addQuickPreset('telur')">🥚 Telur 1kg</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('tempe')">🥢 Tempe 2 papan</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('ayam')">🍗 Dada Ayam 500g</button>
-            <button class="preset-chip" onclick="app.addQuickPreset('mie')">🍜 Mie Instan</button>
-          </div>
-
-          <!-- =====================================================================
-               KATALOG PRODUK INDOMARET, ALFAMART & LOTTE MART (GRID 2-KOLOM 375px)
-               ===================================================================== -->
-          <section class="store-catalog-section" id="storeCatalogSection">
-            <div class="catalog-section-header">
-              <div class="catalog-title-wrap">
-                <h3>🏪 Katalog Toko (Indomaret, Alfamart, Lotte Mart)</h3>
-                <span class="catalog-count-pill" id="catalogCountPill">35+ Pilihan</span>
-              </div>
-            </div>
-
-            <!-- Search Bar Realtime -->
-            <div class="catalog-search-wrap">
-              <span class="catalog-search-icon">🔍</span>
-              <input type="text" id="catalogSearchInput" class="catalog-search-input" placeholder="Cari barang Indomaret, Alfamart, Lotte Mart..." oninput="app.onCatalogSearch(this.value)">
-            </div>
-
-            <!-- Filter Kategori -->
-            <div class="catalog-filter-scroll" id="catalogCategoryFilters">
-              <button type="button" class="catalog-filter-chip active" data-cat="all" onclick="app.setCatalogCategoryFilter('all')">Semua</button>
-              <button type="button" class="catalog-filter-chip" data-cat="Bahan Pokok" onclick="app.setCatalogCategoryFilter('Bahan Pokok')">🌾 Bahan Pokok</button>
-              <button type="button" class="catalog-filter-chip" data-cat="Protein Tinggi" onclick="app.setCatalogCategoryFilter('Protein Tinggi')">🍗 Protein Tinggi</button>
-              <button type="button" class="catalog-filter-chip" data-cat="Makanan" onclick="app.setCatalogCategoryFilter('Makanan')">🍲 Makanan</button>
-              <button type="button" class="catalog-filter-chip" data-cat="Minuman" onclick="app.setCatalogCategoryFilter('Minuman')">🥤 Minuman</button>
-              <button type="button" class="catalog-filter-chip" data-cat="Kebutuhan Rumah" onclick="app.setCatalogCategoryFilter('Kebutuhan Rumah')">🧼 Kebutuhan Rumah</button>
-              <button type="button" class="catalog-filter-chip" data-cat="Ultra-Processed" onclick="app.setCatalogCategoryFilter('Ultra-Processed')">⚠️ Ultra-Processed</button>
-            </div>
-
-            <!-- Filter Toko -->
-            <div class="catalog-filter-scroll" id="catalogStoreFilters">
-              <button type="button" class="catalog-filter-chip active" data-store="all" onclick="app.setCatalogStoreFilter('all')">Semua Toko</button>
-              <button type="button" class="catalog-filter-chip" data-store="Lotte Mart" onclick="app.setCatalogStoreFilter('Lotte Mart')">🏢 Lotte Mart</button>
-              <button type="button" class="catalog-filter-chip" data-store="Indomaret" onclick="app.setCatalogStoreFilter('Indomaret')">🔵 Indomaret</button>
-              <button type="button" class="catalog-filter-chip" data-store="Alfamart" onclick="app.setCatalogStoreFilter('Alfamart')">🔴 Alfamart</button>
-            </div>
-
-            <!-- Grid 2-Kolom Produk (Default 6 item) -->
-            <div class="catalog-grid-2col" id="catalogGridContainer">
-              <!-- Rendered dynamically by app.renderCatalog() -->
-            </div>
-
-            <!-- Expand & Toggle Controls -->
-            <div class="catalog-expand-row">
-              <button type="button" class="catalog-btn-more" id="btnCatalogExpandMore" onclick="app.expandCatalogMore()">
-                <span>➕ Lihat Lebih Banyak (+6 Barang)</span>
-              </button>
-              <button type="button" class="catalog-btn-toggle-all" id="btnCatalogToggleAll" onclick="app.toggleCatalogAll()">
-                Lihat Semua
-              </button>
-            </div>
-          </section>
-
-          <!-- Section Headline Bar with Category Filter -->
-          <div class="section-headline-bar">
-            <h2>
-              Keranjang Belanja
-              <span class="item-counter-badge" id="cartItemCounter">0 item</span>
-            </h2>
-            <div class="cart-controls-row">
-              <select class="filter-pill-select" id="cartCategoryFilter" onchange="app.renderCart()">
-                <option value="all">Semua Kategori</option>
-                <option value="Bahan Pokok">🌾 Bahan Pokok</option>
-                <option value="Makanan">🍲 Makanan</option>
-                <option value="Minuman">🥤 Minuman</option>
-                <option value="Protein Tinggi">🍗 Protein Tinggi</option>
-                <option value="Kebutuhan Rumah">🧼 Kebutuhan Rumah</option>
-                <option value="Non-Makanan">📦 Non-Makanan</option>
-                <option value="Ultra-Processed">⚠️ Ultra-Processed</option>
-                <option value="healthy">🌱 Hanya Sehat (Grade A/B)</option>
-                <option value="protein_value">🔥 Best Protein Value</option>
-              </select>
-              <button type="button" class="quick-clean-btn" onclick="app.openClearCartModal()" title="Kosongkan Keranjang Belanja Saat Ini">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                Kosongkan
-              </button>
-            </div>
-          </div>
-
-          <!-- Cart Items Container -->
-          <div class="cart-items-list" id="cartItemsContainer">
-            <!-- Dynamic items rendered here -->
-          </div>
-
-          <!-- Checkout & Finish Action Button (F-06 Struk Belanja) -->
-          <div style="margin-top: 18px; margin-bottom: 24px;">
-            <button class="btn-primary-block" id="finishShoppingBtn" onclick="app.finishShoppingSession()">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              Selesaikan Belanja &amp; Simpan Struk
+            <button type="button" id="btnSaveSettingBudget" class="w-full py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs transition-colors">
+              Simpan Limit Anggaran
             </button>
           </div>
 
-        </section>
-
-        <!-- ==========================================
-             TAB 2: NILAI PROTEIN PER RUPIAH (FEATURE 2)
-             ========================================== -->
-        <section id="tab-protein" class="tab-view-content hidden">
-          <div class="protein-hero-banner">
-            <h3>🥩 Kalkulator Protein-per-Rupiah</h3>
-            <p>Bagi anak rantau dengan uang saku terbatas, hitung berapa Rupiah yang kamu bayar untuk 1 gram protein murni. Targetkan di bawah <strong>Rp 600 / gram protein</strong> untuk penghematan maksimal!</p>
-          </div>
-
-          <!-- Interactive Custom Food Test Calculator -->
-          <div class="protein-view-card">
-            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Uji Nilai Makanan Baru</h4>
-            <div class="form-grid-two-col">
-              <div class="form-input-group">
-                <label class="form-label-title">Harga Makanan (Rp)</label>
-                <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="calcTestPrice" placeholder="Misal: 28000" value="28000">
-              </div>
-              <div class="form-input-group">
-                <label class="form-label-title">Total Protein (gram)</label>
-                <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="calcTestProtein" placeholder="Misal: 130" value="130">
-              </div>
-            </div>
-            <button class="btn-primary-block" style="margin-top: 4px;" onclick="app.calculateQuickProteinValue()">
-              Hitung Nilai Protein
-            </button>
-            <div id="quickCalcResultBox" class="live-calc-box" style="margin-top: 10px;">
-              Hasil: <strong>Rp 215 / gram protein</strong> &bull; <span class="best-protein-value-badge">🔥 Best Protein Value!</span>
-            </div>
-          </div>
-
-          <!-- Ranking Table of User Cart Items by Protein Efficiency -->
-          <div class="protein-view-card">
-            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Peringkat Nilai Protein Keranjangmu</h4>
-            <div style="overflow-x: auto;">
-              <table class="protein-ranking-table">
-                <thead>
-                  <tr>
-                    <th>Item Belanja</th>
-                    <th>Gram Protein</th>
-                    <th>Harga Bersih</th>
-                    <th>Rp / Gram</th>
-                  </tr>
-                </thead>
-                <tbody id="proteinCartRankingBody">
-                  <!-- Rendered dynamically -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Standard Indonesian Student Benchmark Guide -->
-          <div class="protein-view-card">
-            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Panduan Harga Protein Anak Kos</h4>
-            <table class="protein-ranking-table">
-              <thead>
-                <tr>
-                  <th>Sumber Protein</th>
-                  <th>Kisaran Biaya</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="best-rank-row">
-                  <td><strong>Tempe (1 papan / ~38g protein)</strong></td>
-                  <td>Rp 130 - Rp 160 / g</td>
-                  <td><span class="best-protein-value-badge">🔥 Juara Hemat</span></td>
-                </tr>
-                <tr class="best-rank-row">
-                  <td><strong>Telur Ayam (1 kg / ~130g protein)</strong></td>
-                  <td>Rp 210 - Rp 230 / g</td>
-                  <td><span class="best-protein-value-badge">🔥 Super Value</span></td>
-                </tr>
-                <tr class="best-rank-row">
-                  <td><strong>Tahu Putih (1 kantong / ~30g)</strong></td>
-                  <td>Rp 230 - Rp 260 / g</td>
-                  <td><span class="best-protein-value-badge">🔥 Super Value</span></td>
-                </tr>
-                <tr class="best-rank-row">
-                  <td><strong>Dada Ayam (500g / ~115g)</strong></td>
-                  <td>Rp 260 - Rp 310 / g</td>
-                  <td><span class="best-protein-value-badge">🔥 Nilai Tinggi</span></td>
-                </tr>
-                <tr>
-                  <td>Ikan Sarden Kaleng</td>
-                  <td>Rp 500 - Rp 650 / g</td>
-                  <td>⚖️ Sedang</td>
-                </tr>
-                <tr>
-                  <td>Sosis Olahan Instan</td>
-                  <td>Rp 1.200 - Rp 1.600 / g</td>
-                  <td>⚠️ Boros Gizi</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- ==========================================
-             TAB 3: ANALISIS ANGGARAN & KASIR (SRS F-05)
-             ========================================== -->
-        <section id="tab-budget" class="tab-view-content hidden">
-          <div class="metric-summary-grid">
-            <div class="metric-stat-card">
-              <div class="metric-stat-label">Batas Anggaran</div>
-              <div class="metric-stat-value" id="statsBudgetLimit">Rp 250.000</div>
-            </div>
-            <div class="metric-stat-card">
-              <div class="metric-stat-label">Total Belanja</div>
-              <div class="metric-stat-value text-success" id="statsTotalSpent">Rp 0</div>
-            </div>
-            <div class="metric-stat-card">
-              <div class="metric-stat-label">Sisa Dompet</div>
-              <div class="metric-stat-value" id="statsRemainingMoney">Rp 250.000</div>
-            </div>
-            <div class="metric-stat-card">
-              <div class="metric-stat-label">Total Hemat Diskon</div>
-              <div class="metric-stat-value text-warning" id="statsTotalDiscountSaved">Rp 0</div>
-            </div>
-          </div>
-
-          <!-- Form Edit Anggaran -->
-          <div class="protein-view-card">
-            <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Pengaturan Uang Tunai di Dompet</h4>
-            <div class="form-input-group">
-              <label class="form-label-title">Nominal Anggaran Belanja (Rp)</label>
-              <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="customBudgetInput" value="250000" step="10000">
-            </div>
-            <div class="budget-preset-chips" style="margin-bottom: 12px;">
-              <button type="button" class="budget-chip" onclick="app.setQuickBudget(100000)">Rp 100rb</button>
-              <button type="button" class="budget-chip" onclick="app.setQuickBudget(150000)">Rp 150rb</button>
-              <button type="button" class="budget-chip" onclick="app.setQuickBudget(250000)">Rp 250rb</button>
-              <button type="button" class="budget-chip" onclick="app.setQuickBudget(350000)">Rp 350rb</button>
-            </div>
-            <button class="btn-primary-block" onclick="app.updateBudgetCap()">Simpan Anggaran Baru</button>
-          </div>
-
-          <!-- Tips Pencegahan Kasir -->
-          <div class="protein-view-card" style="border-left: 3px solid #14b8a6;">
-            <h4 style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">💡 Tips Anti Panik di Depan Kasir</h4>
-            <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
-              1. Selalu cek status <strong>Budget Safety Cap</strong> sebelum memasuki antrean kasir.<br>
-              2. Jika bar menyala merah, batalkan barang sekunder (camilan/minuman bersoda) terlebih dahulu.<br>
-              3. Waspadai diskon bertingkat <code>50% + 20%</code> yang sering menjebak; pastikan harga akhirnya benar-benar lebih murah dari produk alternatif.
+          <!-- Cloud Diagnostics Card -->
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100 space-y-2">
+            <h3 class="font-display text-sm font-bold text-ink flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-pink-500 text-[18px]">cloud</span>
+              <span>Integrasi Cloud &amp; Realtime Lab</span>
+            </h3>
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+              Sistem tersambung ke Supabase WebSocket Broadcast channel <code class="font-mono text-pink-700 bg-pink-50 px-1 py-0.5 rounded">dt2_rian_live_sync</code>. Setiap aksi penambahan di HP akan langsung muncul di PC tanpa reload F5 (≤ 2s).
             </p>
           </div>
-        </section>
 
-        <!-- ==========================================
-             TAB 4: RIWAYAT & DATABASE BELANJA (SRS F-06)
-             ========================================== -->
-        <section id="tab-history" class="tab-view-content hidden">
-          <div class="section-headline-bar">
-            <div>
-              <h2 style="margin-bottom: 3px;">Arsip Struk Belanja</h2>
-              <span class="permanent-archive-badge">🔒 Arsip Struk Permanen (Tidak Dapat Dihapus)</span>
-            </div>
-            <button class="quick-clean-btn" onclick="app.exportDataJSON()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Ekspor JSON
-            </button>
-          </div>
-
-          <div id="historySessionsContainer">
-            <!-- Dynamic history list rendered here -->
-          </div>
         </section>
 
       </main>
 
-      <!-- Floating Action Button (FAB) to Add Item -->
-      <button class="fab-add-button" id="openAddItemModalBtn" title="Tambah Barang Belanja Baru">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-      </button>
+      <!-- BOTTOM NAVIGATION DOCK (4 Clean Tabs - Min 44px Touch Targets) -->
+      <nav class="dock-nav-bar">
+        <div class="grid grid-cols-4 gap-1">
+          
+          <!-- 1. Troli Belanja -->
+          <button type="button" class="dock-tab active" data-tab="tabCart" id="navBtnCart">
+            <div class="relative">
+              <span class="material-symbols-outlined text-[22px]">shopping_cart</span>
+              <span id="navCartBadge" class="absolute -top-1 -right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-pink-500 text-white font-mono text-[9px] font-black flex items-center justify-center leading-none">0</span>
+            </div>
+            <span class="text-[10px] mt-0.5 font-bold">Troli</span>
+          </button>
 
-      <!-- Bottom Navigation Bar (Ergonomis Ramah Jempol) -->
-      <nav class="bottom-nav-bar">
-        <button class="nav-tab-btn active" data-tab="tab-cart">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="8" cy="21" r="1"></circle>
-            <circle cx="19" cy="21" r="1"></circle>
-            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
-          </svg>
-          <span>Keranjang</span>
-        </button>
+          <!-- 2. Rencana & Katalog -->
+          <button type="button" class="dock-tab" data-tab="tabBudget" id="navBtnBudget">
+            <span class="material-symbols-outlined text-[22px]">checklist</span>
+            <span class="text-[10px] mt-0.5 font-bold">Katalog</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="tab-protein">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-          </svg>
-          <span>Nilai Gizi</span>
-        </button>
+          <!-- 3. Struk & Riwayat -->
+          <button type="button" class="dock-tab" data-tab="tabHistory" id="navBtnHistory">
+            <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+            <span class="text-[10px] mt-0.5 font-bold">Struk</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="tab-budget">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-            <line x1="2" y1="10" x2="22" y2="10"></line>
-          </svg>
-          <span>Anggaran</span>
-        </button>
+          <!-- 4. Dompet & Akun -->
+          <button type="button" class="dock-tab" data-tab="tabDompet" id="navBtnDompet">
+            <span class="material-symbols-outlined text-[22px]">account_balance_wallet</span>
+            <span class="text-[10px] mt-0.5 font-bold">Dompet</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="tab-history" id="navTabHistoryBtn" onclick="app.handleHistoryTabClick()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
-          </svg>
-          <span>Riwayat</span>
-        </button>
+        </div>
       </nav>
 
-      <!-- ==========================================
-           MODAL BOTTOM SHEET: INPUT / EDIT ITEM
-           (SRS F-01 s/d F-04, Fitur 1 Nutrisi, Fitur 2 Protein)
-           ========================================== -->
-      <div class="modal-backdrop-layer" id="itemModalBackdrop">
-        <div class="modal-bottom-sheet" id="itemModalSheet">
-          <div class="modal-handle-bar"></div>
-          
-          <div class="modal-header-row">
-            <h3 id="itemModalTitle">Tambah Item Belanja</h3>
-            <button class="modal-close-btn" id="closeItemModalBtn">&times;</button>
+      <!-- ==============================================================
+           MODAL: INPUT ITEM BELANJA MANUAL (SRS F-01 & F-03)
+           ============================================================== -->
+      <div id="modalItemBackdrop" class="modal-backdrop">
+        <div class="modal-sheet">
+          <div class="flex items-center justify-between mb-4 pb-2 border-b border-pink-100">
+            <h3 class="font-display text-base font-bold text-ink flex items-center gap-2" id="modalItemHeaderTitle">
+              <span class="material-symbols-outlined text-pink-500">add_shopping_cart</span>
+              <span>Input Barang Belanjaan</span>
+            </h3>
+            <button type="button" class="w-8 h-8 rounded-full bg-pink-50 text-slate-500 hover:text-ink flex items-center justify-center cursor-pointer" onclick="app.closeItemModal()">
+              &times;
+            </button>
           </div>
 
-          <form id="itemForm" onsubmit="event.preventDefault(); app.saveItemForm();">
-            <input type="hidden" id="formItemId">
+          <form id="formInputItem" onsubmit="event.preventDefault(); app.submitItemForm();" class="space-y-3">
+            <input type="hidden" id="inputItemId">
 
-            <!-- Non-blocking Form Validation Alert Banner (Skenario Uji 1) -->
-            <div id="formValidationErrorBanner" class="form-error-banner hidden">
-              Input tidak valid! Nama barang wajib diisi dan harga tidak boleh kosong atau negatif.
+            <!-- Nama Barang -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Nama Barang <span class="text-rose-500">*</span></label>
+              <input type="text" id="inputItemName" placeholder="Contoh: Beras Rojolele" required class="w-full px-3.5 py-2.5 rounded-xl border border-pink-200 text-sm font-semibold text-ink focus:outline-none focus:border-pink-500">
             </div>
 
-            <!-- F-01: Nama Produk -->
-            <div class="form-input-group">
-              <label class="form-label-title" for="inputNamaProduk">Nama Produk *</label>
-              <input type="text" class="form-input-control" id="inputNamaProduk" placeholder="Contoh: Beras Rojolele" required oninput="app.onProductNameInput(this.value)">
-            </div>
-
-            <!-- F-01: Kategori & Satuan (Fleksibel ComboBox) -->
-            <div class="form-grid-two-col">
-              <div class="form-input-group">
-                <label class="form-label-title" for="selectKategori">Kategori Barang *</label>
-                <select class="form-select-control" id="selectKategori" required>
-                  <option value="Bahan Pokok" selected>🌾 Bahan Pokok</option>
-                  <option value="Makanan">🍲 Makanan</option>
-                  <option value="Minuman">🥤 Minuman</option>
-                  <option value="Protein Tinggi">🍗 Protein Tinggi</option>
-                  <option value="Kebutuhan Rumah">🧼 Kebutuhan Rumah</option>
-                  <option value="Non-Makanan">📦 Non-Makanan</option>
-                  <option value="Ultra-Processed">⚠️ Ultra-Processed</option>
+            <!-- Kategori & Satuan -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Kategori</label>
+                <select id="inputItemCategory" class="w-full px-3 py-2.5 rounded-xl border border-pink-200 text-xs font-semibold text-ink focus:outline-none focus:border-pink-500">
+                  <option value="Bahan Pokok">Bahan Pokok</option>
+                  <option value="Protein Tinggi">Protein Tinggi</option>
+                  <option value="Kebutuhan Rumah">Kebutuhan Rumah</option>
+                  <option value="Minuman">Minuman</option>
+                  <option value="Lainnya">Lainnya</option>
                 </select>
               </div>
 
-              <div class="form-input-group">
-                <label class="form-label-title" for="inputSatuan">Satuan Ukuran *</label>
-                <input type="text" list="satuanDatalist" class="form-input-control" id="inputSatuan" placeholder="cth: karung/5kg, kg, 2L, pcs..." value="kg" required>
-                <datalist id="satuanDatalist">
-                  <option value="kg">
-                  <option value="karung/5kg">
-                  <option value="2L">
-                  <option value="500g">
-                  <option value="pcs">
-                  <option value="pack">
-                  <option value="papan">
-                  <option value="botol">
-                  <option value="liter">
-                  <option value="gram">
-                  <option value="ikat">
-                </datalist>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Satuan</label>
+                <select id="inputItemUnit" class="w-full px-3 py-2.5 rounded-xl border border-pink-200 text-xs font-semibold text-ink focus:outline-none focus:border-pink-500">
+                  <option value="karung/5kg">karung/5kg</option>
+                  <option value="pouch/2L">pouch/2L</option>
+                  <option value="kg">kg</option>
+                  <option value="pcs">pcs</option>
+                  <option value="pack">pack</option>
+                  <option value="liter">liter</option>
+                  <option value="botol">botol</option>
+                </select>
               </div>
             </div>
 
-            <!-- F-01 & F-02: Kuantitas & Harga Satuan -->
-            <div class="form-grid-two-col">
-              <div class="form-input-group">
-                <label class="form-label-title" for="inputQty">Kuantitas (Qty) *</label>
-                <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="inputQty" value="1" min="1" max="999" required oninput="app.updateFormCalculationsPreview()">
+            <!-- Harga Satuan & Qty Stepper (SRS F-02) -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Harga Satuan (Rp) <span class="text-rose-500">*</span></label>
+                <input type="number" id="inputItemPrice" inputmode="numeric" placeholder="74000" required class="w-full px-3.5 py-2.5 rounded-xl border border-pink-200 font-mono text-sm font-bold text-ink focus:outline-none focus:border-pink-500">
               </div>
 
-              <div class="form-input-group">
-                <label class="form-label-title" for="inputHargaSatuan">Harga Satuan (Rp) *</label>
-                <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="inputHargaSatuan" placeholder="Misal: 74000" min="0" required oninput="app.updateFormCalculationsPreview()">
-              </div>
-            </div>
-
-            <!-- F-03: KALKULATOR DISKON BERTINGKAT -->
-            <div class="form-input-group">
-              <label class="form-label-title" for="inputDiskon">
-                Diskon Promo (Tunggal / Bertingkat / Nominal)
-              </label>
-              <input type="text" class="form-input-control" id="inputDiskon" placeholder="25% atau 50%+20% atau 15000" oninput="app.updateFormCalculationsPreview()">
-              
-              <!-- Quick Preset Discount Pills -->
-              <div class="discount-preset-pills">
-                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('')">Tanpa Diskon</button>
-                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('10%')">10%</button>
-                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('25%')">25%</button>
-                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('50%')">50%</button>
-                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('50%+20%')">50%+20%</button>
-                <button type="button" class="discount-pill-btn" onclick="app.setFormDiscount('15000')">Potong 15rb</button>
-              </div>
-
-              <div id="formDiscountPreviewBox" class="live-calc-box hidden">
-                <!-- Preview rincian matematis diskon bertingkat -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Kuantitas (Qty)</label>
+                <div class="flex items-center gap-1">
+                  <button type="button" class="stepper-btn shrink-0" onclick="app.adjustModalQty(-1)">&minus;</button>
+                  <input type="number" id="inputItemQty" inputmode="numeric" value="1" min="1" class="w-full text-center py-2 rounded-xl border border-pink-200 font-mono font-bold text-sm text-ink focus:outline-none focus:border-pink-500">
+                  <button type="button" class="stepper-btn shrink-0" onclick="app.adjustModalQty(1)">&plus;</button>
+                </div>
               </div>
             </div>
 
-            <!-- F-04: KOMPARATOR HARGA BULAN LALU -->
-            <div class="form-input-group">
-              <label class="form-label-title" for="inputHargaBulanLalu">
-                Harga Bulan Lalu di Toko Ini (Rp) <span style="font-size: 10px; color: var(--text-dim);">(Otomatis/Manual)</span>
-              </label>
-              <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="inputHargaBulanLalu" placeholder="Misal: 68000" min="0" oninput="app.onLastMonthPriceInput(this.value)">
-              
-              <div id="formPriceComparePreviewBox" class="live-calc-box hidden">
-                <!-- Preview fluktuasi naik/turun/sama -->
+            <!-- Promo Diskon (SRS F-03) & Harga Bulan Lalu (SRS F-04) -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">
+                  Diskon / Promo
+                  <span class="text-[10px] text-pink-600 font-normal">(50%+20% / 25%)</span>
+                </label>
+                <input type="text" id="inputItemDiscount" placeholder="Contoh: 50%+20%" class="w-full px-3 py-2 rounded-xl border border-pink-200 font-mono text-xs font-bold text-ink focus:outline-none focus:border-pink-500">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">
+                  Harga Bulan Lalu
+                  <span class="text-[10px] text-pink-600 font-normal">(SRS F-04)</span>
+                </label>
+                <input type="number" id="inputItemLastMonthPrice" inputmode="numeric" placeholder="68000" class="w-full px-3 py-2 rounded-xl border border-pink-200 font-mono text-xs font-bold text-ink focus:outline-none focus:border-pink-500">
               </div>
             </div>
 
-            <!-- ==============================================
-                 FITUR 1: TAG NUTRISI CEPAT (HEALTHY GRADE BADGE)
-                 ============================================== -->
-            <div class="form-input-group">
-              <label class="form-label-title">
-                Tag Nutrisi Cepat (Nutri-Score Grade)
-              </label>
-              <div class="nutrition-tag-selector-grid">
-                <button type="button" class="nutrition-tag-option-btn selected" data-nutri="Tinggi Protein" onclick="app.selectNutritionTag('Tinggi Protein')">
-                  <span>ðŸ—</span> Tinggi Protein
-                </button>
-                <button type="button" class="nutrition-tag-option-btn" data-nutri="Tinggi Serat" onclick="app.selectNutritionTag('Tinggi Serat')">
-                  <span>ðŸ¥¬</span> Tinggi Serat
-                </button>
-                <button type="button" class="nutrition-tag-option-btn" data-nutri="Rendah Gula" onclick="app.selectNutritionTag('Rendah Gula')">
-                  <span>ðŸ’§</span> Rendah Gula
-                </button>
-                <button type="button" class="nutrition-tag-option-btn" data-nutri="Ultra-Processed / Batasi" onclick="app.selectNutritionTag('Ultra-Processed / Batasi')">
-                  <span>âš ï¸</span> Ultra-Processed / Batasi
-                </button>
-                <button type="button" class="nutrition-tag-option-btn" data-nutri="Standar / Netral" onclick="app.selectNutritionTag('Standar / Netral')">
-                  <span>âš–ï¸</span> Standar / Netral
-                </button>
+            <!-- Live Calculation Preview Card -->
+            <div id="modalLiveCalculationBox" class="p-3 rounded-xl bg-pink-50/70 border border-pink-200 text-xs space-y-1">
+              <div class="flex justify-between text-slate-600">
+                <span>Rincian Diskon:</span>
+                <span id="previewDiscountText" class="font-semibold text-pink-700">Tanpa Diskon</span>
               </div>
-              <input type="hidden" id="selectedNutritionTag" value="Tinggi Protein">
-            </div>
-
-            <!-- ==============================================
-                 FITUR 2: KALKULATOR PROTEIN-PER-RUPIAH
-                 ============================================== -->
-            <div class="form-input-group">
-              <label class="form-label-title" for="inputProteinGrams">
-                Total Protein per Kemasan (gram) <span style="font-size: 10px; color: #38bdf8;">(Opsional - Value for Health)</span>
-              </label>
-              <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="inputProteinGrams" placeholder="Contoh: 115 (Dada Ayam 500g) atau 130 (Telur 1kg)" min="0" step="0.5" oninput="app.updateFormCalculationsPreview()">
-              
-              <div id="formProteinCalcPreviewBox" class="live-calc-box hidden">
-                <!-- Preview biaya per gram protein -->
+              <div class="flex justify-between text-slate-600">
+                <span>Harga Akhir per Satuan:</span>
+                <span id="previewFinalUnitPrice" class="font-mono font-bold text-ink">Rp 0</span>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span>Komparasi Bulan Lalu:</span>
+                <span id="previewFluctuationText" class="font-mono font-semibold">✨ Barang Baru</span>
+              </div>
+              <div class="flex justify-between pt-1 border-t border-pink-200 font-bold text-ink text-sm">
+                <span>Estimasi Subtotal:</span>
+                <span id="previewSubtotal" class="font-mono text-pink-600">Rp 0</span>
               </div>
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="btn-primary-block" id="saveItemSubmitBtn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              Simpan ke Keranjang
-            </button>
-            <button type="button" class="btn-secondary-block" onclick="app.closeItemModal()">Batal</button>
+            <!-- Submit Buttons -->
+            <div class="flex items-center gap-2 pt-2">
+              <button type="button" class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer" onclick="app.closeItemModal()">
+                Batal
+              </button>
+              <button type="submit" class="flex-1 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs shadow-sm transition-all cursor-pointer">
+                Simpan ke Keranjang
+              </button>
+            </div>
           </form>
-
         </div>
       </div>
 
-      <!-- ==========================================
-           MODAL EDIT BUDGET CAP
-           ========================================== -->
-      <div class="modal-backdrop-layer" id="budgetModalBackdrop">
-        <div class="modal-bottom-sheet" style="max-height: 50vh;">
-          <div class="modal-handle-bar"></div>
-          <div class="modal-header-row">
-            <h3>Ubah Batas Anggaran (Dompet)</h3>
-            <button class="modal-close-btn" onclick="app.closeBudgetModal()">&times;</button>
-          </div>
-          <div class="form-input-group">
-            <label class="form-label-title">Batas Maksimal Uang Saku (Rp)</label>
-            <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-input-control" id="modalBudgetLimitInput" value="250000" step="10000">
-          </div>
-          <button class="btn-primary-block" onclick="app.saveBudgetModal()">Simpan Batas Anggaran</button>
-        </div>
-      </div>
-
-      <!-- ==========================================
-           MODAL: SUPABASE CLOUD & GOOGLE OAUTH SETTINGS
-           ========================================== -->
-      <div class="modal-backdrop-layer" id="cloudModalBackdrop">
-        <div class="modal-bottom-sheet" style="max-height: 85vh;">
-          <div class="modal-handle-bar"></div>
-          
-          <div class="modal-header-row">
-            <h3 style="display: flex; align-items: center; gap: 8px;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
-              Supabase Cloud &amp; Google OAuth
-            </h3>
-            <button class="modal-close-btn" onclick="app.closeCloudModal()">&times;</button>
-          </div>
-
-          <!-- Section 1: User Account & Google OAuth -->
-          <div class="protein-view-card" style="margin-bottom: 12px;">
-            <div id="modalUserAuthSection">
-              <!-- Rendered dynamically by app.renderAuth() -->
-            </div>
-          </div>
-
-          <!-- Section 2: Supabase Credentials -->
-          <div class="protein-view-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <h4 style="font-size: 12px; font-weight: 700; color: var(--text-main); margin: 0;">Koneksi Project Supabase</h4>
-              <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: #34d399; font-weight: 600; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 999px; padding: 2px 7px;">
-                <span class="cloud-dot"></span> Terhubung
-              </span>
-            </div>
-            <p style="font-size: 10.5px; color: var(--text-muted); margin-bottom: 8px;">
-              Project: <strong>freerobuxreal303-cmyk</strong> (<code>jnluauwepczsglnzckdw</code>)
-            </p>
-
-            <div class="form-input-group">
-              <label class="form-label-title">Supabase Project URL</label>
-              <input type="text" class="form-input-control" id="supabaseUrlInput" value="https://jnluauwepczsglnzckdw.supabase.co" placeholder="https://xyzcompany.supabase.co">
-            </div>
-
-            <div class="form-input-group">
-              <label class="form-label-title">Supabase Anon Public Key</label>
-              <input type="text" class="form-input-control" id="supabaseAnonKeyInput" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpubHVhdXdlcGN6c2dsbnpja2R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NDM1MDEsImV4cCI6MjEwODExOTUwMX0.VK1Qo2I3ePs_lhtnY08rRm7WEJd1tco7HSEagoUPmF8" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
-            </div>
-
-            <div style="display: flex; gap: 8px; margin-top: 8px;">
-              <button class="btn-primary-block" style="flex: 1; padding: 10px;" onclick="app.saveSupabaseConfig()">
-                Simpan &amp; Hubungkan
-              </button>
-              <button class="btn-secondary-block" style="flex: 1; padding: 10px; margin-top: 0;" onclick="app.testSupabaseConnection()">
-                Uji Koneksi
-              </button>
-            </div>
-          </div>
-
-          <!-- Section 3: 1-Click SQL Schema Copier -->
-          <div class="protein-view-card" style="margin-top: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <h4 style="font-size: 12px; font-weight: 700; color: var(--text-main);">Skrip SQL Tabel Supabase</h4>
-              <button class="preset-chip" onclick="app.copySupabaseSQL()">ðŸ“‹ Salin SQL</button>
-            </div>
-            <p style="font-size: 10px; color: var(--text-muted); margin-bottom: 8px;">
-              Jalankan sekali di <strong>Supabase SQL Editor</strong> untuk membuat tabel <code>shopping_items</code> &amp; <code>shopping_history</code>:
-            </p>
-            <div class="sql-code-box" id="sqlCodeBoxPreview">-- Buat tabel belanja
-create table if not exists shopping_items (
-  id text primary key,
-  user_id uuid references auth.users(id),
-  name text not null,
-  category text,
-  unit text,
-  qty integer default 1,
-  original_price numeric default 0,
-  discount_str text default '',
-  last_month_price numeric default 0,
-  nutrition_tag text,
-  protein_grams numeric default 0,
-  updated_at timestamp with time zone default timezone('utc'::text, now())
-);
-
--- Buat tabel riwayat belanja
-create table if not exists shopping_history (
-  id text primary key,
-  user_id uuid references auth.users(id),
-  date text,
-  total_cost numeric,
-  healthy_percentage numeric,
-  items jsonb,
-  created_at timestamp with time zone default timezone('utc'::text, now())
-);</div>
-
-            <button class="btn-primary-block" style="margin-top: 10px; background: linear-gradient(135deg, #ec4899, #db2777); color: var(--text-main); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="app.copyAndOpenSQLEditor()">
-              🚀 Buka Supabase SQL Editor (Salin &amp; Buka 1-Klik)
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ==========================================
-           MODAL: GOOGLE ACCOUNT CHOOSER (SMART SSO)
-           ========================================== -->
-      <div class="modal-backdrop-layer" id="googleLoginModalBackdrop">
-        <div class="modal-bottom-sheet" style="max-height: 85vh; padding-bottom: 24px;">
-          <div class="modal-handle-bar"></div>
-          
-          <div style="text-align: center; margin-bottom: 14px;">
-            <svg width="32" height="32" viewBox="0 0 24 24" style="margin-bottom: 6px;">
+      <!-- ==============================================================
+           MODAL: OUR OWN WORKING GOOGLE OAUTH MODAL (Clean & Working)
+           ============================================================== -->
+      <div id="modalOurGoogleOAuth" class="modal-backdrop">
+        <div class="modal-sheet">
+          <!-- Google Header -->
+          <div class="text-center mb-5 pb-3 border-b border-slate-100">
+            <svg class="w-8 h-8 mx-auto mb-2" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
-            <h3 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 3px;">Masuk dengan Google</h3>
-            <p style="font-size: 11px; color: var(--text-muted);">Pilih akun Google untuk sinkronisasi belanja otomatis</p>
+            <h3 class="font-display text-lg font-bold text-ink">Sign in with Google</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Pilih akun untuk melanjutkan ke Smart Grocery &bull; Rian</p>
           </div>
 
-          <!-- Account List Items -->
-          <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
-            <!-- Account 1: Rian Rantau -->
-            <div class="google-account-item" onclick="app.selectGoogleAccount('Rian Rantau', 'rian.rantau@student.mutiarabangsa.sch.id', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80')">
-              <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80" alt="Rian" class="google-account-avatar">
-              <div style="flex: 1; text-align: left;">
-                <div style="font-size: 12.5px; font-weight: 700; color: var(--text-main);">Rian Rantau (Siswa Rantau)</div>
-                <div style="font-size: 10.5px; color: var(--text-muted);">rian.rantau@student.mutiarabangsa.sch.id</div>
+          <!-- Account Options List -->
+          <div class="space-y-2 mb-4" id="googleAccountsChooserList">
+            
+            <!-- Account 1: Rian Pratama (Official Case Study Student) -->
+            <div class="google-account-card" onclick="app.selectGoogleAccount('Rian Pratama', 'rian.smartgrocery@gmail.com', 'R', 'pink')">
+              <div class="w-10 h-10 rounded-full bg-pink-500 text-white font-bold flex items-center justify-center shrink-0">
+                R
               </div>
-              <span style="font-size: 10px; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 2px 7px; border-radius: 999px;">Utama</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-ink">Rian Pratama</div>
+                <div class="text-xs text-slate-500 truncate">rian.smartgrocery@gmail.com</div>
+                <div class="text-[10px] text-pink-600 font-semibold">Siswa Rantau • Studi Kasus Utama</div>
+              </div>
+              <span class="material-symbols-outlined text-slate-400 text-[18px]">chevron_right</span>
             </div>
 
-            <!-- Account 2: Charlie Putra -->
-            <div class="google-account-item" onclick="app.selectGoogleAccount('Charlie Putra', 'charlieputra@student.mutiarabangsa.sch.id', '')">
-              <div class="google-account-avatar-placeholder" style="background: #3b82f6;">C</div>
-              <div style="flex: 1; text-align: left;">
-                <div style="font-size: 12.5px; font-weight: 700; color: var(--text-main);">Charlie Putra</div>
-                <div style="font-size: 10.5px; color: var(--text-muted);">charlieputra@student.mutiarabangsa.sch.id</div>
+            <!-- Account 2: Siswa SMA Mutiara Bangsa 2 -->
+            <div class="google-account-card" onclick="app.selectGoogleAccount('Siswa SMA Mutiara Bangsa 2', 'siswa@mutiarabangsa.sch.id', 'S', 'blue')">
+              <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0">
+                S
               </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-ink">Siswa Mutiara Bangsa 2</div>
+                <div class="text-xs text-slate-500 truncate">siswa@mutiarabangsa.sch.id</div>
+                <div class="text-[10px] text-blue-600 font-semibold">Akun Ujian DT2</div>
+              </div>
+              <span class="material-symbols-outlined text-slate-400 text-[18px]">chevron_right</span>
             </div>
 
-            <!-- Custom Account Form -->
-            <div style="background: #fff5f8; border: 1px solid rgba(244, 114, 182, 0.35); border-radius: 12px; padding: 10px; margin-top: 4px;">
-              <div style="font-size: 11.5px; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px;">➕ Masuk dengan Akun Google Lain</div>
-              <div style="display: flex; flex-direction: column; gap: 6px;">
-                <input type="text" class="form-input-control" id="customGoogleName" placeholder="Nama Lengkap Google kamu" style="font-size: 11.5px; padding: 8px 10px;">
-                <input type="email" class="form-input-control" id="customGoogleEmail" placeholder="emailkamu@gmail.com" style="font-size: 11.5px; padding: 8px 10px;">
-                <button type="button" class="btn-primary-block" style="padding: 9px; font-size: 11.5px; margin-top: 2px; min-height: 40px;" onclick="app.submitCustomGoogleAccount()">
-                  Masuk sebagai Akun Ini
+            <!-- Custom Account Input Option -->
+            <div class="pt-2 border-t border-slate-100">
+              <button type="button" id="btnToggleCustomGoogle" onclick="app.toggleCustomGoogleInput()" class="w-full py-2 text-xs font-bold text-pink-600 hover:text-pink-800 flex items-center justify-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-[16px]">person_add</span>
+                <span>Gunakan Akun Google Lain</span>
+              </button>
+
+              <div id="customGoogleInputBox" class="hidden mt-2 p-3 rounded-xl bg-pink-50/60 border border-pink-200 space-y-2">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Nama Lengkap</label>
+                  <input type="text" id="customGoogleName" placeholder="Contoh: Rian Gunawan" class="w-full px-3 py-1.5 rounded-lg border border-pink-200 text-xs font-semibold">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Email Google</label>
+                  <input type="email" id="customGoogleEmail" placeholder="nama@gmail.com" class="w-full px-3 py-1.5 rounded-lg border border-pink-200 text-xs font-semibold">
+                </div>
+                <button type="button" onclick="app.submitCustomGoogleAccount()" class="w-full py-2 rounded-lg bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold">
+                  Masuk dengan Akun Ini
                 </button>
               </div>
             </div>
+
           </div>
 
-          <!-- Explanatory note about Google redirect URI mismatch -->
-          <div style="font-size: 10px; color: var(--text-muted); background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px; line-height: 1.45; text-align: left; margin-bottom: 12px;">
-            <strong style="color: #334155;">ℹ️ Mengapa Google menampilkan Error 400 redirect_uri_mismatch?</strong><br>
-            Google Cloud memerlukan whitelist URL pengalihan di Google Cloud Console &gt; APIs &amp; Services &gt; Credentials &gt; Authorized redirect URIs:<br>
-            <code style="word-break: break-all; color: var(--primary-dark); font-weight: 700; background: #fff; padding: 2px 5px; border-radius: 4px; display: inline-block; margin: 3px 0; border: 1px solid #e2e8f0;">https://jnluauwepczsglnzckdw.supabase.co/auth/v1/callback</code><br>
-            Pilih salah satu akun di atas agar Anda <strong>langsung terotentikasi tanpa error</strong>.
+          <button type="button" onclick="app.closeGoogleOAuthModal()" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer">
+            Batal
+          </button>
+        </div>
+      </div>
+
+      <!-- ==============================================================
+           MODAL: DIGITAL RECEIPT (STRUK BELANJA)
+           ============================================================== -->
+      <div id="modalReceiptBackdrop" class="modal-backdrop">
+        <div class="modal-sheet">
+          <div class="text-center pb-3 border-b border-dashed border-slate-300 mb-3">
+            <span class="inline-block p-2 rounded-full bg-pink-100 text-pink-600 mb-1">
+              <span class="material-symbols-outlined text-[24px]">receipt</span>
+            </span>
+            <h3 class="font-display text-base font-bold text-ink">LOTTE MART GROCERY</h3>
+            <p class="text-xs text-slate-500">Puri Indah &bull; Struk Pembayaran Resmi</p>
+            <p class="font-mono text-[11px] text-slate-400 mt-1" id="receiptTimestampDisplay">26 Okt 2026 • 10:15</p>
           </div>
 
-          <div style="display: flex; gap: 8px;">
-            <button type="button" class="btn-secondary-block" style="flex: 1; margin: 0; min-height: 44px;" onclick="app.closeGoogleModal()">Tutup</button>
-            <button type="button" class="btn-secondary-block" style="flex: 1.2; margin: 0; font-size: 10px; border-color: #94a3b8; min-height: 44px;" onclick="app.executeRealOAuthRedirect()" title="Coba redirect OAuth asli">
-              🌐 Coba OAuth Resmi
+          <div class="space-y-2 max-h-56 overflow-y-auto pr-1" id="receiptItemsContainer">
+            <!-- Dynamic Receipt Items -->
+          </div>
+
+          <div class="pt-3 border-t border-dashed border-slate-300 mt-3 space-y-1.5 font-mono text-xs">
+            <div class="flex justify-between text-slate-600">
+              <span>Batas Pagu:</span>
+              <span id="receiptLimitDisplay">Rp 100.000</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>Total Hemat Diskon:</span>
+              <span id="receiptSavedDisplay" class="text-emerald-600 font-bold">Rp 0</span>
+            </div>
+            <div class="flex justify-between text-sm font-bold text-ink pt-1 border-t border-slate-200">
+              <span>GRAND TOTAL:</span>
+              <span id="receiptGrandTotalDisplay" class="text-pink-600">Rp 0</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 mt-4 pt-2">
+            <button type="button" onclick="app.closeReceiptModal()" class="flex-1 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs shadow-sm cursor-pointer">
+              Selesai &amp; Tutup Struk
             </button>
           </div>
         </div>
       </div>
-      <!-- ==========================================
-           MODAL: KONFIRMASI KOSONGKAN KERANJANG (Skenario Uji 8)
-           ========================================== -->
-      <div class="modal-backdrop-layer" id="confirmClearModalBackdrop">
-        <div class="modal-bottom-sheet" style="max-height: 40vh; text-align: center;">
-          <div class="modal-handle-bar"></div>
-          <div class="confirm-modal-icon">🗑️</div>
-          <h3 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Konfirmasi Kosongkan Keranjang</h3>
-          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.4;">
-            Apakah kamu yakin ingin mengosongkan keranjang belanja saat ini?
-          </p>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn-secondary-block" style="flex: 1; margin-top: 0; min-height: 44px;" onclick="app.closeClearCartModal()">Batal</button>
-            <button class="btn-primary-block" style="flex: 1; background: #ef4444; border-color: #ef4444; margin-top: 0; min-height: 44px;" onclick="app.confirmClearCart()">Ya, Kosongkan</button>
+
+      <!-- ==============================================================
+           MODAL: KONFIRMASI KOSONGKAN KERANJANG (SRS UX)
+           ============================================================== -->
+      <div id="modalConfirmClearCart" class="modal-backdrop">
+        <div class="modal-sheet">
+          <div class="text-center py-2">
+            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center mb-3">
+              <span class="material-symbols-outlined text-[28px]">warning</span>
+            </div>
+            <h3 class="font-display text-base font-bold text-ink">Kosongkan Keranjang Belanja?</h3>
+            <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+              Seluruh barang yang telah Anda masukkan ke troli akan dihapus permanen dari daftar belanjaan sesi ini.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 mt-4">
+            <button type="button" onclick="app.closeClearCartModal()" class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer">
+              Batal
+            </button>
+            <button type="button" onclick="app.confirmClearCart()" class="flex-1 py-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-sm cursor-pointer">
+              Ya, Kosongkan
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- ==========================================
-           MODAL RAHASIA: EASTER EGG TERMINAL (Fitur 10)
-           ========================================== -->
-      <div class="modal-backdrop-layer" id="secretEasterEggModalBackdrop">
-        <div class="secret-terminal-modal">
-          <div class="terminal-header">
-            <span class="terminal-dot red"></span>
-            <span class="terminal-dot yellow"></span>
-            <span class="terminal-dot green"></span>
-            <span class="terminal-title">TERMINAL // CLASSIFIED ACCESS</span>
-            <button type="button" class="terminal-close-btn" onclick="app.closeSecretModal()">&times;</button>
-          </div>
-          <div class="terminal-body">
-            <p class="terminal-prompt">&gt; SECURITY PROTOCOL INITIALIZED.</p>
-            <p class="terminal-text">Masukkan sandi otentikasi untuk membuka arsip terenkripsi:</p>
-            <form onsubmit="event.preventDefault(); app.submitSecretPassword();">
-              <div class="terminal-input-wrapper">
-                <span class="terminal-arrow">&gt;</span>
-                <input type="password" id="secretEasterEggPassword" class="terminal-input" placeholder="Ketik sandi..." autocomplete="off">
-              </div>
-              <div id="terminalFeedbackMsg" style="font-size: 10px; color: #f87171; margin-top: 6px;" class="hidden">ACCESS DENIED: Password salah!</div>
-              <div style="display: flex; gap: 8px; margin-top: 14px;">
-                <button type="submit" class="terminal-btn-submit" id="secretUnlockBtn">Unlock / Masuk</button>
-                <button type="button" class="terminal-btn-cancel" onclick="app.closeSecretModal()">Batal</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- ==========================================
-           FULLSCREEN JUMPSCARE OVERLAY (Fitur 10)
-           ========================================== -->
-      <div id="jumpscareOverlay" class="jumpscare-overlay hidden" onclick="app.closeJumpscare()">
-        <div class="jumpscare-flash"></div>
-        <img src="jumpscare.jpg" alt="Jumpscare" class="jumpscare-image" id="jumpscareImage">
-        <button type="button" class="jumpscare-close-btn" onclick="event.stopPropagation(); app.closeJumpscare();" title="Tutup Jumpscare">&times;</button>
-      </div>
-
-      <!-- Toast Notification Alert -->
-      <div class="toast-notification-toast" id="appToast">
-        <span id="toastIcon">ðŸ””</span>
-        <span id="toastMessage">Notifikasi sistem</span>
+      <!-- Non-blocking Toast Notification (SRS UX) -->
+      <div id="appToast" class="app-toast-container">
+        <span id="toastIcon">🛒</span>
+        <span id="toastMessage">Pemberitahuan sistem</span>
       </div>
 
     </div>
   </div>
 
-  <!-- Supabase JS Client & Main App -->
-  <script src="supabase.js"></script>
+  <!-- Supabase JS Client & Main Application Logic -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
 </body>
 </html>

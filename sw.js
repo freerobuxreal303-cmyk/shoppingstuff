@@ -1,16 +1,14 @@
-// Service Worker for Smart Grocery & Nutrition Tracker PWA
-const CACHE_NAME = 'smart-grocery-v8';
+// Service Worker for Smart Grocery & Budget Tracker PWA (Pink & White Edition)
+const CACHE_NAME = 'smart-grocery-pink-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './style.css',
+  './styles.css',
   './app.js',
-  './supabase.js',
   './manifest.json',
   './favicon.svg',
   './icon-192.svg',
-  './icon-512.svg',
-  './jumpscare.jpg'
+  './icon-512.svg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -35,12 +33,9 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network-First strategy: fetch latest from network, update cache, fallback to cache when offline
+// Network-First with Cache Fallback
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
-
-  // Do not cache Supabase API calls
   if (event.request.url.includes('supabase.co')) return;
 
   event.respondWith(

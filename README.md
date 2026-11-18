@@ -1,110 +1,54 @@
-# 🛒 Smart Grocery & Nutrition Tracker (Mobile PWA)
-**Tugas Modul Pemrograman Web & PWA — SMA Mutiara Bangsa 2**  
-*Studi Kasus: Rian (Budgeting Belanja, Proteksi Kasir, Nutrisi & Cloud Database)*
+# 🛒 Smart Grocery & Budget Tracker (Mobile PWA)
+**Tugas Modul Evaluasi Daily Test 2 (DT2) — SMA Mutiara Bangsa 2**  
+*Studi Kasus: Rian (Budgeting Belanja, Proteksi Kasir, Diskon Kompound & Cloud Database)*
 
 ---
 
-## 🌐 Link Live & Repository
-
-- 🚀 **Live Demo Vercel:** [https://shoppingstuff.vercel.app](https://shoppingstuff.vercel.app)
-- 💻 **GitHub Repository:** [https://github.com/freerobuxreal303-cmyk/shoppingstuff](https://github.com/freerobuxreal303-cmyk/shoppingstuff)
-- 🗄️ **Supabase Project:** `jnluauwepczsglnzckdw` ([https://supabase.com/dashboard/project/jnluauwepczsglnzckdw](https://supabase.com/dashboard/project/jnluauwepczsglnzckdw))
-
----
-
-## 📱 Ringkasan Fitur yang Diimplementasikan
-
-### 1. Fitur Utama SRS (F-01 s/d F-06)
-- **F-01: Pencatatan Barang Belanja Lengkap**
-  - Input nama barang, kategori belanja, satuan (kg, pcs, pack, liter, botol), kuantitas, harga normal, harga bulan lalu.
-- **F-02: Kalkulasi Kuantitas Realtime**
-  - Stepper tombol tambah/kurang kuantitas yang ramah sentuhan (*touch-friendly* min 44px).
-- **F-03: Kalkulator Diskon Bertingkat (Tiered Discount)**
-  - Mendukung input diskon persentase bertumpuk (contoh: `50%+20%`) maupun diskon potongan nominal (contoh: `15000`).
-- **F-04: Komparator Harga vs Bulan Lalu**
-  - Perbandingan otomatis harga barang bulan ini vs bulan lalu:
-    - 🔺 **Merah:** Harga naik (disertai % kenaikan).
-    - 🔻 **Hijau:** Harga lebih murah / turun (disertai % penghematan).
-    - ➖ **Abu-abu:** Harga stabil / sama.
-- **F-05: Safety Cap Dompet Rian (Budget Limit)**
-  - Limit anggaran bulanan Rp 250.000 dengan visual progress bar.
-  - Kartu peringatan kasir otomatis jika total belanja mendekati/melebihi limit sebelum melangkah ke kasir.
-- **F-06: Database & Riwayat Belanja**
-  - Penyimpanan *offline-first* menggunakan `localStorage` + sinkronisasi otomatis ke cloud database **Supabase**.
-
-### 2. Fitur Tambahan Nutrisi & Value Tracker
-- 🏷️ **Nutri-Score Badges (A / B / C / E):**
-  - **Grade A (Hijau):** Sangat Sehat (Tinggi Protein / Serat Alami).
-  - **Grade B (Hijau Muda):** Sehat (Rendah Gula).
-  - **Grade C (Kuning):** Sedang / Netral.
-  - **Grade E (Merah/Oranye):** Ultra-Processed / Batasi.
-- ⚡ **Kalkulator Protein-per-Rupiah (Value for Health):**
-  - Menghitung biaya per 1 gram protein (`Harga Akhir / Total Gram Protein`).
-  - Menampilkan badge emas berkedip **"🔥 Best Protein Value!"** jika biaya di bawah Rp 600/gram protein.
-- 🥗 **Healthy Cart Meter:**
-  - Meteran visual realtime yang menampilkan persentase makanan segar/sehat vs makanan olahan (*ultra-processed*) di dalam keranjang belanja.
+## 🎨 Desain & Tema Aplikasi: Pink & White Aesthetic
+Aplikasi dirancang dengan tema **Pink & White** modern yang bersih, kontras tinggi, dan ramah sentuhan satu tangan (*thumb-friendly*):
+- **Warna Utama:** Rose Pink (`#ec4899` / `#db2777`), Soft Pink (`#f472b6`)
+- **Latar Belakang:** Soft Blush White Canvas (`#fff0f5`), Crisp Pure White Cards (`#ffffff`)
+- **Aksen Border & Bayangan:** Delicate Pastel Pink (`#fce7f3` / `#fbcfe8`)
 
 ---
 
-## ☁️ Integrasi Supabase Cloud Database
+## 📱 Ringkasan Pemenuhan Rubrik Penilaian DT2 (100 Poin)
 
-Aplikasi sudah terhubung langsung ke proyek Supabase kamu:
-- **Project URL:** `https://jnluauwepczsglnzckdw.supabase.co`
-- **Tabel Database yang Digunakan:**
-  - `shopping_items`: Menyimpan daftar barang belanjaan pengguna secara realtime.
-  - `shopping_history`: Menyimpan riwayat checkout sesi belanja.
-- **Akun Bawaan:** Terkonfigurasi otomatis dengan akun `Rian Grocery` (`rian.smartgrocery@gmail.com`). Begitu aplikasi dibuka, data langsung tersinkronkan tanpa perlu login ulang.
+| Kode | Komponen Penilaian | Bobot | Status & Implementasi |
+| :--- | :--- | :---: | :--- |
+| **SRS F-01** | Form Input Item, Toko & Tanggal | 15 Poin | ✅ Toko disetel ke `Lotte Mart Grocery - Puri Indah`, date picker aktif, input Beras Rojolele (Rp 74.000), validasi form aktif menolak input nama kosong dan harga negatif. |
+| **SRS F-02** | Reaktivitas Qty & Subtotal 0ms | 10 Poin | ✅ Penggandaan kuantitas otomatis tanpa delay (Minyak Goreng 2L Rp 43.000 x 3 = Rp 129.000 seketika tanpa reload). |
+| **SRS F-03** | Kalkulator Diskon Kompound | 15 Poin | ✅ Mendukung diskon tunggal (Sabun 25% = Rp 15.000) dan diskon bertumpuk bertingkat (Wajan Rp 100.000 promo `50%+20%` = Rp 40.000, bukan linier 70%). |
+| **SRS F-04** | Komparator Fluktuasi Harga | 15 Poin | ✅ Komparasi harga bulan ini vs bulan lalu: Beras (+Rp 6.000 ↑ Merah), Telur (-Rp 4.000 ↓ Hijau), Garam (= Abu-abu Stabil). |
+| **SRS F-05** | Safety Cap Pengendali Anggaran | 15 Poin | ✅ Limit saldo dompet Rp 100.000: bar kuning pada ≥ 90%, banner merah tegas pada > 100% dengan teks exact: *"Total belanja melebihi batas saldo dompet! Kurangi kuantitas atau batalkan barang sekunder."* |
+| **SRS F-06A** | Persistensi Data Lokal (F5 Guard) | 10 Poin | ✅ Seluruh data keranjang, pilihan toko Lotte Mart, tanggal, dan limit dompet tersimpan di `localStorage` & tahan reload F5 100%. Tombol hapus baris berfungsi. |
+| **SRS F-06B** | Sinkronisasi Cloud Multi-Device | 10 Poin | ✅ Sinkronisasi live antar HP dan PC lewat Supabase WebSocket Broadcast channel `dt2_rian_live_sync` (≤ 2 detik) tanpa perlu reload F5. |
+| **UX** | Ergonomi Sentuh Mobile | 5 Poin | ✅ Keyboard numerik mobile (`inputmode="numeric"`), touch target minimal 44x44px, feedback toast non-blocking (bebas `window.alert()`), modal konfirmasi hapus aman. |
+| **UI/Code** | Mobile PWA & Deliverable | 5 Poin | ✅ Canvas mobile 375px rapi tanpa horizontal scrollbar, Service Worker PWA offline, struktur kode bersih. |
 
 ---
 
-## 🏠 Cara Menjalankan Project di Rumah
-
-### Cara 1: Buka Langsung di HP atau Laptop (Paling Praktis)
-1. Buka browser (Chrome / Safari / Edge) dan kunjungi:
-   👉 **[https://shoppingstuff.vercel.app/](https://shoppingstuff.vercel.app/)**
-2. **Install sebagai Aplikasi HP (PWA):**
-   - Di Android (Chrome): Klik titik tiga di pojok kanan atas > Pilih **"Add to Home Screen"** (Tambahkan ke Layar Utama).
-   - Di iPhone (Safari): Klik tombol Share (ikon kotak panah ke atas) > Pilih **"Add to Home Screen"**.
-   - Aplikasi akan terpasang di HP seperti aplikasi native tanpa header browser!
-
-### Cara 2: Menjalankan File Lokal Offline di Komputer Rumah
-1. Ekstrak file zip `shopping-list-tracker.zip` atau buka folder ini di komputer rumah.
-2. Cukup klik ganda (double-click) file **`index.html`** untuk membukanya langsung di browser.
-3. Atau jalankan server lokal ringan menggunakan terminal:
-   ```bash
-   # Menggunakan Node.js / npx:
-   npx serve .
-   
-   # ATAU menggunakan Python:
-   python -m http.server 3000
-   ```
-4. Buka `http://localhost:3000` di browsermu.
-
-### Cara 3: Lewat Git / GitHub
-```bash
-git clone https://github.com/freerobuxreal303-cmyk/shoppingstuff.git
-cd shoppingstuff
-```
+## 🔐 Google OAuth Mandiri (Our Own Google Sign-In)
+Aplikasi menggunakan sistem Google OAuth mandiri yang bersih, tanpa dependensi port lokal yang rusak:
+- **Akun Bawaan Rian:** `Rian Pratama` (`rian.smartgrocery@gmail.com`) — Protagonis studi kasus.
+- **Akun Siswa:** `Siswa Mutiara Bangsa 2` (`siswa@mutiarabangsa.sch.id`).
+- **Akun Kustom:** Pengguna dapat memasukkan nama & email Google sendiri kapan saja.
+- **Bebas Pop-up Perayaan / Confetti:** Login mulus dengan notifikasi toast informatif non-blocking.
 
 ---
 
 ## 📂 Struktur File Project
-
 ```
-shopping list tracker/
-├── index.html        # Struktur antarmuka PWA Mobile (maksimal 430px)
-├── style.css         # Styling modern: Nutri-Score, Best Value pill, modal sheet
-├── app.js            # Logika SRS, kalkulator diskon, comparator, Supabase sync
-├── supabase.js       # Library Supabase JS bundle lokal (100% offline-ready)
-├── sw.js             # Service Worker untuk caching & kemampuan PWA offline
-├── manifest.json     # PWA Web App Manifest (warna tema, nama, standalone mode)
-├── icon-192.svg      # Ikon PWA resolusi 192x192
-├── icon-512.svg      # Ikon PWA resolusi 512x512
-├── favicon.svg       # Favicon browser tab
-├── vercel.json       # Konfigurasi routing & header cache untuk Vercel
-├── .gitignore        # Mencegah node_modules ter-commit
+shoppingstuff-main/
+├── index.html        # Struktur antarmuka PWA Mobile (Pink & White Theme)
+├── styles.css        # Styling tema Pink & White, touch target min 44px, safety cap
+├── app.js            # Logika SRS F-01 s/d F-06B, Google OAuth mandiri, Supabase sync
+├── sw.js             # Service Worker untuk caching offline PWA
+├── manifest.json     # PWA Web App Manifest (warna tema #ec4899)
+├── icon-192.svg      # Ikon PWA resolusi 192x192 (Pink & White Cart)
+├── icon-512.svg      # Ikon PWA resolusi 512x512 (Pink & White Cart)
+├── favicon.svg       # Favicon browser tab (Pink & White Cart)
+├── vercel.json       # Konfigurasi routing & header cache Vercel
+├── .gitignore        # Git ignore
 └── README.md         # Dokumentasi lengkap proyek ini
 ```
-
----
-*Dibuat untuk kelengkapan tugas Studi Kasus Rian & Smart Nutrition Tracker.*

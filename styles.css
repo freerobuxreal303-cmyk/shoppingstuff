@@ -1,0 +1,419 @@
+/* ==========================================================================
+   SMART GROCERY BUDGET COMPANION - PINK & WHITE AESTHETIC THEME
+   SMA Mutiara Bangsa 2 • Daily Test 2 (DT2) 100% Compliance Suite
+   Theme: Soft Blush White Canvas (#fff0f5), Rose Pink Accents (#ec4899 / #db2777),
+   Crisp Pure White Cards (#ffffff) with Delicate Pastel Pink Borders (#fce7f3)
+   ========================================================================== */
+
+:root {
+  --color-primary: #ec4899;
+  --color-primary-dark: #db2777;
+  --color-primary-light: #f472b6;
+  --color-primary-container: #fdf2f8;
+  --color-secondary: #f43f5e;
+  --color-secondary-container: #ffe4e6;
+  --color-surface: #fff0f5;
+  --color-surface-card: #ffffff;
+  --color-surface-alt: #fff5f7;
+  --color-border-pink: #fce7f3;
+  --color-border-pink-subtle: #fbcfe8;
+  --color-text-dark: #1e293b;
+  --color-text-muted: #64748b;
+  --color-text-pink: #be185d;
+  
+  /* DT2 Status Indicator Colors */
+  --color-status-safe: #10b981;
+  --color-status-warning: #f59e0b;
+  --color-status-danger: #ef4444;
+  
+  --font-display: 'Space Grotesk', -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Base Reset & Setup */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-surface);
+  color: var(--color-text-dark);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Material Symbols configuration */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+  display: inline-block;
+  line-height: 1;
+}
+
+.material-symbols-outlined.fill-1 {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Desktop Viewport Wrapper (375px - 440px smartphone emulation) */
+.desktop-viewport-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  background: radial-gradient(circle at 50% 0%, #ffe4e6 0%, #fff0f5 50%, #fdf2f8 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0;
+}
+
+@media (min-width: 640px) {
+  .desktop-viewport-wrapper {
+    padding: 24px 16px;
+  }
+}
+
+.mobile-app-container {
+  width: 100%;
+  max-width: 440px;
+  min-height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(236, 72, 153, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-left: 1px solid var(--color-border-pink);
+  border-right: 1px solid var(--color-border-pink);
+}
+
+@media (min-width: 640px) {
+  .mobile-app-container {
+    min-height: calc(100vh - 48px);
+    border-radius: 36px;
+    overflow: hidden;
+    border: 2px solid var(--color-border-pink-subtle);
+  }
+}
+
+/* Phone Status Bar (Simulated Mobile Header) */
+.phone-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 6px;
+  background-color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  border-bottom: 1px solid #fdf2f8;
+}
+
+.notch-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #fdf2f8;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  border: 1px solid #fce7f3;
+}
+
+.notch-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: var(--color-primary);
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* Tab Pane Visibility */
+.tab-pane {
+  display: none !important;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tab-pane.active {
+  display: flex !important;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Bottom Tab Navigation Dock */
+.dock-nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 440px;
+  margin: 0 auto;
+  width: 100%;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--color-border-pink);
+  box-shadow: 0 -4px 20px rgba(236, 72, 153, 0.08);
+  padding: 6px 12px calc(6px + env(safe-area-inset-bottom, 0px));
+}
+
+.dock-tab {
+  min-height: 48px; /* Touch target min 44px */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px;
+  border-radius: 16px;
+  color: #64748b;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.dock-tab:hover {
+  color: var(--color-primary);
+  background-color: #fdf2f8;
+}
+
+.dock-tab.active {
+  color: var(--color-primary-dark);
+  font-weight: 800;
+  background-color: #fce7f3;
+}
+
+.dock-tab.active .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+/* DT2 Price Fluctuation Indicators */
+.price-indicator-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.price-up {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.price-down {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.price-same {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+/* Budget Warning Banner (SRS F-05) */
+.budget-warning-banner {
+  padding: 12px 16px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideDown 0.3s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.budget-warning-yellow {
+  background-color: #fef3c7;
+  border: 2px solid #f59e0b;
+  color: #92400e;
+}
+
+.budget-warning-red {
+  background-color: #fee2e2;
+  border: 2px solid #ef4444;
+  color: #991b1b;
+  animation: pulseRedBanner 1.8s infinite alternate;
+}
+
+@keyframes pulseRedBanner {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  100% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.1); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Touch-friendly Stepper Buttons */
+.stepper-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1.5px solid var(--color-border-pink);
+  background-color: #ffffff;
+  color: var(--color-primary-dark);
+  font-weight: 800;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stepper-btn:hover {
+  background-color: #fdf2f8;
+  border-color: var(--color-primary-light);
+}
+
+.stepper-btn:active {
+  transform: scale(0.92);
+  background-color: #fce7f3;
+}
+
+/* Non-blocking Toast Notification */
+.app-toast-container {
+  position: fixed;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 100;
+  max-width: 90%;
+  width: max-content;
+  background: #1e293b;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-toast-container.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Modals & Backdrops */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(30, 41, 59, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .modal-backdrop {
+    align-items: center;
+    padding: 20px;
+  }
+}
+
+.modal-backdrop.show {
+  display: flex;
+}
+
+.modal-sheet {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  padding: 24px 20px 32px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-border-pink);
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  .modal-sheet {
+    border-radius: 28px;
+    padding: 28px 24px;
+    box-shadow: 0 20px 50px rgba(236, 72, 153, 0.2);
+  }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Custom Google OAuth Modal */
+.google-account-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1.5px solid #f1f5f9;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.google-account-card:hover {
+  background-color: #fdf2f8;
+  border-color: #fbcfe8;
+  transform: translateY(-1px);
+}
+
+.google-account-card:active {
+  transform: scale(0.98);
+  background-color: #fce7f3;
+}
+
+/* Scrollbar polish */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #fbcfe8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f472b6;
+}

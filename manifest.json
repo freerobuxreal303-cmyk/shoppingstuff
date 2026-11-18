@@ -1,7 +1,7 @@
 {
-  "name": "Smart Grocery & Nutrition Tracker",
+  "name": "Smart Grocery & Budget Companion - Rian",
   "short_name": "SmartGrocery",
-  "description": "Mobile PWA Shopping List, Budget Safety Cap & Smart Nutrition Value Tracker untuk Siswa Rantau",
+  "description": "Mobile PWA Smart Grocery, Realtime Price Comparator & Budget Safety Cap untuk Studi Kasus Rian",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#fff0f5",
