@@ -235,10 +235,16 @@
     }
   }
 
-  // Trigger Real Google OAuth via Supabase
-  async function loginWithGoogleOAuth() {
+  // Open our working Google OAuth modal
+  function loginWithGoogleOAuth() {
     AudioEngine.playTap();
-    showToast('Menghubungkan ke Google OAuth via Supabase...', 'info');
+    openGoogleOAuthModal();
+  }
+
+  // Optional: Direct browser redirect to Google Cloud via Supabase (Project maximal-zoo-512303-m3)
+  async function triggerDirectGoogleRedirect() {
+    AudioEngine.playTap();
+    showToast('Membuka Google OAuth Cloud Console...', 'info');
 
     if (!state.supabase) {
       if (window.supabase) {
@@ -262,9 +268,7 @@
 
         if (error) {
           console.warn('Supabase Google OAuth status:', error.message);
-          // If Google provider is not yet enabled in Supabase dashboard, open chooser modal & guide
-          openGoogleOAuthModal();
-          showToast('Google Provider belum diaktifkan di Supabase dashboard. Silakan pilih akun simulasi atau lengkapi Client Secret!', 'info');
+          showToast('Google Provider info: ' + error.message, 'danger');
           return;
         }
 
@@ -272,11 +276,11 @@
           window.location.href = data.url;
         }
       } catch (err) {
-        console.error('Google OAuth trigger error:', err);
-        openGoogleOAuthModal();
+        console.error('Google OAuth direct trigger error:', err);
+        showToast('Gagal memuat redirect Google OAuth.', 'danger');
       }
     } else {
-      openGoogleOAuthModal();
+      showToast('Koneksi Supabase belum siap.', 'danger');
     }
   }
 
@@ -1462,6 +1466,7 @@
     calculateDiscount,
     comparePriceWithLastMonth,
     loginWithGoogleOAuth,
+    triggerDirectGoogleRedirect,
     handlePasswordLogin,
     handlePasswordRegister,
     loginAsGuest,

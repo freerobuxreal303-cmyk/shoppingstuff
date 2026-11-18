@@ -632,7 +632,7 @@
       </div>
 
       <!-- ==============================================================
-           MODAL: GOOGLE OAUTH ACCOUNT CHOOSER (SIMULASI / CADANGAN)
+           MODAL: OUR WORKING GOOGLE OAUTH MODAL
            ============================================================== -->
       <div id="modalOurGoogleOAuth" class="modal-backdrop">
         <div class="modal-sheet">
@@ -648,28 +648,47 @@
           </div>
 
           <div class="space-y-2 mb-4" id="googleAccountsChooserList">
-            <!-- Account 1: Rian Pratama -->
+            <!-- Account 1: freerobuxreal303@gmail.com (Akun User Aktif) -->
+            <div class="google-account-card ring-2 ring-emerald-400/40 bg-emerald-50/20" onclick="app.selectGoogleAccount('freerobuxreal303', 'freerobuxreal303@gmail.com', 'F', 'emerald')">
+              <div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-emerald-600/30">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M5.5 3L18.5 5.2L18.5 21L5.5 18.8Z" fill="#10B981"/>
+                  <rect x="9" y="8.5" width="6" height="6" rx="1.5" fill="#FFFFFF"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-sm font-bold text-ink truncate">freerobuxreal303</span>
+                  <span class="px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold">Aktif</span>
+                </div>
+                <div class="text-xs text-slate-500 truncate">freerobuxreal303@gmail.com</div>
+                <div class="text-[10px] text-emerald-600 font-semibold">Akun Google Anda • 1-Klik Masuk</div>
+              </div>
+              <span class="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+            </div>
+
+            <!-- Account 2: Rian Pratama -->
             <div class="google-account-card" onclick="app.selectGoogleAccount('Rian Pratama', 'rian.smartgrocery@gmail.com', 'R', 'pink')">
-              <div class="w-10 h-10 rounded-full bg-pink-500 text-white font-bold flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-full bg-pink-500 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-pink-500/20">
                 R
               </div>
               <div class="flex-1 min-w-0">
                 <div class="text-sm font-bold text-ink">Rian Pratama</div>
                 <div class="text-xs text-slate-500 truncate">rian.smartgrocery@gmail.com</div>
-                <div class="text-[10px] text-pink-600 font-semibold">Siswa Rantau • Studi Kasus Utama</div>
+                <div class="text-[10px] text-pink-600 font-semibold">Siswa Rantau • Studi Kasus Utama DT2</div>
               </div>
               <span class="material-symbols-outlined text-slate-400 text-[18px]">chevron_right</span>
             </div>
 
-            <!-- Account 2: Siswa SMA Mutiara Bangsa 2 -->
+            <!-- Account 3: Siswa SMA Mutiara Bangsa 2 -->
             <div class="google-account-card" onclick="app.selectGoogleAccount('Siswa SMA Mutiara Bangsa 2', 'siswa@mutiarabangsa.sch.id', 'S', 'blue')">
-              <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-blue-600/20">
                 S
               </div>
               <div class="flex-1 min-w-0">
                 <div class="text-sm font-bold text-ink">Siswa Mutiara Bangsa 2</div>
                 <div class="text-xs text-slate-500 truncate">siswa@mutiarabangsa.sch.id</div>
-                <div class="text-[10px] text-blue-600 font-semibold">Akun Ujian DT2</div>
+                <div class="text-[10px] text-blue-600 font-semibold">Akun Evaluasi DT2 Meja Lab</div>
               </div>
               <span class="material-symbols-outlined text-slate-400 text-[18px]">chevron_right</span>
             </div>
@@ -695,6 +714,25 @@
                 </button>
               </div>
             </div>
+
+            <!-- Direct Google Cloud Console OAuth Option -->
+            <div class="pt-2 border-t border-slate-100">
+              <button type="button" onclick="app.triggerDirectGoogleRedirect()" class="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                <span class="material-symbols-outlined text-[15px] text-pink-500">open_in_new</span>
+                <span>Coba Redirect Browser Google Cloud Console</span>
+              </button>
+              <div class="mt-1.5 p-2 rounded-xl bg-pink-50/50 border border-pink-200/80 text-[10px] text-slate-600 space-y-1">
+                <div class="font-bold text-pink-700 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[13px]">tips_and_updates</span>
+                  <span>Solusi Error 401: invalid_client</span>
+                </div>
+                <p>Agar redirect Google Cloud Console tidak error 401, tambahkan strip <code class="font-bold text-pink-600 bg-white px-1 py-0.5 rounded border border-pink-200">-</code> pada Client ID di Supabase Auth Provider:</p>
+                <div class="font-mono text-[9px] bg-white p-1 rounded border border-pink-200 text-slate-800 break-all select-all font-semibold">
+                  669779177636-77k3vg6sc2es3sd7roihmn6ffqgn2uc6.apps.googleusercontent.com
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <button type="button" onclick="app.closeGoogleOAuthModal()" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer">
