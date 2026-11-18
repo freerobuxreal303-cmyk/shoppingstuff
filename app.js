@@ -3,14 +3,14 @@
  * Daily Test 2 (DT2) 100% Compliance Suite • SMA Mutiara Bangsa 2
  * 
  * Features:
- * - SRS F-01: Form Input Item, Lokasi Toko (Lotte Mart Puri Indah) & Selector Tanggal (Date Picker)
+ * - SRS F-01: Form Input Item, Lokasi Toko (Lotte Mart Puri Indah) & Selector Tanggal
  * - SRS F-02: Penggandaan Kuantitas Otomatis Tanpa Delay (0ms Reactive Stepper & Input)
  * - SRS F-03: Penanganan Diskon Bertingkat Kompound (50%+20% -> 40.000, NOT linear 30.000!)
  * - SRS F-04: Indikator Komparasi Fluktuasi Harga Realtime (↑ Merah, ↓ Hijau, = Abu-abu)
- * - SRS F-05: Sistem Pengendali Anggaran (Safety Cap with Exact Warning Strings: >=90% Kuning, >100% Merah)
+ * - SRS F-05: Sistem Pengendali Anggaran (Safety Cap: >=90% Kuning, >100% Merah Banner)
  * - SRS F-06A: Persistensi Data Lokal (LocalStorage & F5 Anti-Reset Guard)
  * - SRS F-06B: Sinkronisasi Realtime Cloud Multi-Device (Supabase WebSocket Broadcast)
- * - Our Own Google OAuth (Rian Pratama, Siswa Mutiara Bangsa 2, Custom Google Email)
+ * - Dedicated Login Screen & Real Google OAuth via Supabase (Project maximal-zoo-512303-m3)
  * - Pink & White Theme, Touch-friendly UX (min 44px), Non-blocking Toast (No window.alert)
  */
 
@@ -18,12 +18,13 @@
   'use strict';
 
   // =========================================================================
-  // SUPABASE CONFIGURATION (Realtime WebSocket Broadcast & Persistence)
+  // SUPABASE CONFIGURATION (OAuth & Realtime WebSocket Broadcast)
   // =========================================================================
   const SUPABASE_CONFIG = {
     URL: 'https://jnluauwepczsglnzckdw.supabase.co',
     KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpubHVhdXdlcGN6c2dsbnpja2R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NDM1MDEsImV4cCI6MjEwODExOTUwMX0.VK1Qo2I3ePs_lhtnY08rRm7WEJd1tco7HSEagoUPmF8',
-    CHANNEL: 'dt2_rian_live_sync'
+    CHANNEL: 'dt2_rian_live_sync',
+    GOOGLE_PROJECT: 'maximal-zoo-512303-m3'
   };
 
   // =========================================================================
@@ -117,6 +118,7 @@
     budgetLimit: 100000, // Default Rp 100.000 for DT2 evaluation
     storeLocation: 'Lotte Mart Grocery - Puri Indah',
     shoppingDate: new Date().toISOString().split('T')[0],
+    isLoggedIn: false,
     currentUser: {
       name: 'Rian Pratama',
       email: 'rian.smartgrocery@gmail.com',
@@ -131,7 +133,7 @@
     isRealtimeConnected: false
   };
 
-  // Audio synthesizer for pleasant non-blocking sound feedback
+  // Audio synthesizer for non-blocking feedback
   const AudioEngine = {
     ctx: null,
     init() {
@@ -167,9 +169,9 @@
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(523.25, now); // C5
-        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.08);
+        osc.frequency.setValueAtTime(783.99, now + 0.16);
         gain.gain.setValueAtTime(0.12, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
         osc.connect(gain);
@@ -181,7 +183,252 @@
   };
 
   // =========================================================================
-  // SRS F-03: MATEMATIKA DISKON BERTINGKAT KOMPOUND (Compound Discount)
+  // AUTHENTICATION & SUPABASE GOOGLE OAUTH
+  // =========================================================================
+  async function initSupabaseAuth() {
+    if (!window.supabase) return;
+    try {
+      state.supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+
+      // Check if session returned from OAuth redirect or existing session
+      const { data: { session } } = await state.supabase.auth.getSession();
+      if (session && session.user) {
+        handleUserAuthenticated(session.user, 'google');
+      }
+
+      // Listen for auth state change
+      state.supabase.auth.onAuthStateChange((event, session) => {
+        if (session && session.user) {
+          handleUserAuthenticated(session.user, 'google');
+        } else if (event === 'SIGNED_OUT') {
+          state.isLoggedIn = false;
+        }
+      });
+    } catch (e) {
+      console.warn('Supabase auth init notice:', e);
+    }
+  }
+
+  function handleUserAuthenticated(user, provider = 'google') {
+    const fullName = user.user_metadata?.full_name || user.user_metadata?.name || (user.email ? user.email.split('@')[0] : 'Rian Pratama');
+    const email = user.email || 'rian.smartgrocery@gmail.com';
+    const avatar = (fullName.charAt(0) || 'R').toUpperCase();
+
+    state.isLoggedIn = true;
+    state.currentUser = {
+      name: fullName,
+      email: email,
+      avatar: avatar,
+      provider: provider,
+      id: user.id || 'usr_' + Date.now(),
+      loginAt: Date.now()
+    };
+
+    saveStateToStorage();
+    hideLoginScreen();
+    updateUserProfileUI();
+    showToast(`🟢 Selamat datang, ${fullName}! Masuk dengan Google OAuth.`);
+
+    // Clean hash in address bar if returning from OAuth
+    if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('error'))) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }
+
+  // Trigger Real Google OAuth via Supabase
+  async function loginWithGoogleOAuth() {
+    AudioEngine.playTap();
+    showToast('Menghubungkan ke Google OAuth via Supabase...', 'info');
+
+    if (!state.supabase) {
+      if (window.supabase) {
+        state.supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+      }
+    }
+
+    if (state.supabase) {
+      try {
+        const redirectTo = window.location.origin + window.location.pathname;
+        const { data, error } = await state.supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: redirectTo,
+            queryParams: {
+              prompt: 'select_account',
+              access_type: 'offline'
+            }
+          }
+        });
+
+        if (error) {
+          console.warn('Supabase Google OAuth status:', error.message);
+          // If Google provider is not yet enabled in Supabase dashboard, open chooser modal & guide
+          openGoogleOAuthModal();
+          showToast('Google Provider belum diaktifkan di Supabase dashboard. Silakan pilih akun simulasi atau lengkapi Client Secret!', 'info');
+          return;
+        }
+
+        if (data && data.url) {
+          window.location.href = data.url;
+        }
+      } catch (err) {
+        console.error('Google OAuth trigger error:', err);
+        openGoogleOAuthModal();
+      }
+    } else {
+      openGoogleOAuthModal();
+    }
+  }
+
+  function handlePasswordLogin() {
+    const userInp = document.getElementById('inputAuthLoginUsername');
+    const val = userInp ? userInp.value.trim() : '';
+    const name = val.includes('@') ? val.split('@')[0] : (val || 'Rian Pratama');
+    const email = val.includes('@') ? val : `${val.toLowerCase()}@smartgrocery.app`;
+
+    state.isLoggedIn = true;
+    state.currentUser = {
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      email: email,
+      avatar: (name.charAt(0) || 'R').toUpperCase(),
+      provider: 'credentials',
+      loginAt: Date.now()
+    };
+
+    saveStateToStorage();
+    hideLoginScreen();
+    updateUserProfileUI();
+    showToast(`🟢 Selamat datang, ${state.currentUser.name}!`);
+  }
+
+  function handlePasswordRegister() {
+    const nameInp = document.getElementById('inputAuthRegName');
+    const emailInp = document.getElementById('inputAuthRegEmail');
+    const name = nameInp ? nameInp.value.trim() : 'Siswa Mutiara Bangsa';
+    const email = emailInp ? emailInp.value.trim() : 'siswa@mutiarabangsa.sch.id';
+
+    state.isLoggedIn = true;
+    state.currentUser = {
+      name: name,
+      email: email,
+      avatar: (name.charAt(0) || 'S').toUpperCase(),
+      provider: 'registered',
+      loginAt: Date.now()
+    };
+
+    saveStateToStorage();
+    hideLoginScreen();
+    updateUserProfileUI();
+    showToast(`🎉 Akun ${name} berhasil dibuat!`);
+  }
+
+  function loginAsGuest() {
+    state.isLoggedIn = true;
+    state.currentUser = {
+      name: 'Rian Pratama',
+      email: 'rian.smartgrocery@gmail.com',
+      avatar: 'R',
+      provider: 'guest',
+      loginAt: Date.now()
+    };
+    saveStateToStorage();
+    hideLoginScreen();
+    updateUserProfileUI();
+    showToast('🟢 Masuk sebagai Rian Pratama (Mode Pengujian Lab)!');
+  }
+
+  function logoutToLoginScreen() {
+    state.isLoggedIn = false;
+    localStorage.removeItem('smart_grocery_logged_in');
+    showLoginScreen();
+    showToast('Anda telah keluar dari aplikasi.');
+  }
+
+  function showLoginScreen() {
+    const screen = document.getElementById('loginScreen');
+    if (screen) screen.classList.remove('hidden');
+  }
+
+  function hideLoginScreen() {
+    const screen = document.getElementById('loginScreen');
+    if (screen) screen.classList.add('hidden');
+    localStorage.setItem('smart_grocery_logged_in', 'true');
+  }
+
+  function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+
+  function toggleOAuthInfoBox() {
+    const box = document.getElementById('oauthConfigInfoBox');
+    if (box) box.classList.toggle('hidden');
+  }
+
+  function openGoogleOAuthModal() {
+    const modal = document.getElementById('modalOurGoogleOAuth');
+    if (modal) modal.classList.add('show');
+  }
+
+  function closeGoogleOAuthModal() {
+    const modal = document.getElementById('modalOurGoogleOAuth');
+    if (modal) modal.classList.remove('show');
+  }
+
+  function selectGoogleAccount(name, email, avatarSymbol, themeColor) {
+    state.isLoggedIn = true;
+    state.currentUser = {
+      name,
+      email,
+      avatar: avatarSymbol || name.charAt(0).toUpperCase(),
+      provider: 'google',
+      themeColor: themeColor || 'pink',
+      loginAt: Date.now()
+    };
+
+    saveStateToStorage();
+    closeGoogleOAuthModal();
+    hideLoginScreen();
+    updateUserProfileUI();
+    showToast(`🟢 Berhasil masuk sebagai ${name} (${email})!`);
+  }
+
+  function toggleCustomGoogleInput() {
+    const box = document.getElementById('customGoogleInputBox');
+    if (box) box.classList.toggle('hidden');
+  }
+
+  function submitCustomGoogleAccount() {
+    const nameInput = document.getElementById('customGoogleName');
+    const emailInput = document.getElementById('customGoogleEmail');
+    const name = nameInput ? nameInput.value.trim() : '';
+    const email = emailInput ? emailInput.value.trim() : '';
+
+    if (!name || !email || !email.includes('@')) {
+      showToast('⚠️ Masukkan Nama dan Email Google yang valid!', 'danger');
+      return;
+    }
+
+    selectGoogleAccount(name, email, name.charAt(0).toUpperCase(), 'pink');
+  }
+
+  function updateUserProfileUI() {
+    const hAvatar = document.getElementById('headerUserAvatar');
+    const hName = document.getElementById('headerUserName');
+    const dAvatar = document.getElementById('dompetUserAvatar');
+    const dName = document.getElementById('dompetUserName');
+    const dEmail = document.getElementById('dompetUserEmail');
+
+    if (hAvatar) hAvatar.textContent = state.currentUser.avatar;
+    if (hName) hName.textContent = state.currentUser.name.split(' ')[0];
+    if (dAvatar) dAvatar.textContent = state.currentUser.avatar;
+    if (dName) dName.textContent = state.currentUser.name;
+    if (dEmail) dEmail.textContent = state.currentUser.email;
+  }
+
+  // =========================================================================
+  // SRS F-03: MATEMATIKA DISKON BERTINGKAT KOMPOUND
   // =========================================================================
   function calculateDiscount(originalPrice, discountStr) {
     if (!originalPrice || originalPrice <= 0) {
@@ -197,8 +444,8 @@
     }
 
     // 1. DISKON BERTUMPUK / KOMPOUND (Contoh: "50%+20%")
-    // Tahap 1: Rp 100.000 * (1 - 0.5) = Rp 50.000
-    // Tahap 2: Rp 50.000 * (1 - 0.2) = Rp 40.000 (BUKAN 30.000 / 70%!)
+    // Tahap 1: Rp 100.000 * 0.5 = Rp 50.000
+    // Tahap 2: Rp 50.000 * 0.8 = Rp 40.000 (BUKAN 30.000 / 70%!)
     if (cleanStr.includes('+')) {
       const parts = cleanStr.split('+');
       let finalPrice = originalPrice;
@@ -224,7 +471,7 @@
       };
     }
 
-    // 2. DISKON TUNGGAL (Contoh: "25%" atau "25")
+    // 2. DISKON TUNGGAL (Contoh: "25%")
     if (cleanStr.includes('%') || (!isNaN(parseFloat(cleanStr)) && parseFloat(cleanStr) <= 100 && cleanStr.length <= 3)) {
       const pct = parseFloat(cleanStr.replace(/[^0-9.]/g, ''));
       if (!isNaN(pct) && pct > 0 && pct <= 100) {
@@ -311,6 +558,7 @@
       localStorage.setItem('smart_grocery_date', state.shoppingDate);
       localStorage.setItem('smart_grocery_user', JSON.stringify(state.currentUser));
       localStorage.setItem('smart_grocery_history', JSON.stringify(state.historySessions));
+      localStorage.setItem('smart_grocery_logged_in', state.isLoggedIn ? 'true' : 'false');
     } catch (e) {
       console.warn('LocalStorage save notice:', e);
     }
@@ -337,6 +585,9 @@
 
       const savedHistory = localStorage.getItem('smart_grocery_history');
       if (savedHistory) state.historySessions = JSON.parse(savedHistory);
+
+      const savedLoggedIn = localStorage.getItem('smart_grocery_logged_in');
+      state.isLoggedIn = savedLoggedIn === 'true';
     } catch (e) {
       console.warn('LocalStorage load notice:', e);
     }
@@ -348,7 +599,9 @@
   async function initSupabaseRealtime() {
     if (!window.supabase) return;
     try {
-      state.supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+      if (!state.supabase) {
+        state.supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+      }
 
       // Subscribe to Realtime Broadcast Channel
       state.realtimeChannel = state.supabase.channel(SUPABASE_CONFIG.CHANNEL, {
@@ -452,12 +705,9 @@
     }
 
     // EXACT EVALUATION CONDITIONS FOR SRS F-05
-    // • Total belanja >= 90% (e.g. Rp 95.000): Status bar berubah kuning (Peringatan Waspada)
-    // • Total belanja > 100% (e.g. Rp 110.000): Banner atas menyala merah tegas dengan notifikasi:
-    //   "Total belanja melebihi batas saldo dompet! Kurangi kuantitas atau batalkan barang sekunder."
     if (bannerEl && hudHealthPill) {
       if (grandTotal > state.budgetLimit) {
-        // KONDISI OVER BUDGET (> 100%)
+        // OVER BUDGET (> 100%)
         hudHealthPill.textContent = '🚨 OVER BUDGET';
         hudHealthPill.className = 'text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300';
 
@@ -471,7 +721,7 @@
           </div>
         `;
       } else if (usagePercent >= 90) {
-        // KONDISI WASPADA (>= 90%)
+        // WASPADA (>= 90%)
         hudHealthPill.textContent = '⚠️ WASPADA (≥90%)';
         hudHealthPill.className = 'text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300';
 
@@ -485,7 +735,7 @@
           </div>
         `;
       } else {
-        // KONDISI AMAN (< 90%)
+        // AMAN (< 90%)
         hudHealthPill.textContent = '● AMAN';
         hudHealthPill.className = 'text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
         bannerEl.classList.add('hidden');
@@ -527,8 +777,6 @@
 
       html += `
         <div class="bg-white rounded-2xl p-3.5 border border-pink-100 shadow-sm space-y-2.5 transition-all" data-id="${item.id}">
-          
-          <!-- Top Row: Name, Category, & Delete Button -->
           <div class="flex items-start justify-between gap-2">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5 flex-wrap">
@@ -539,7 +787,6 @@
                 <span class="text-[10px] text-slate-400 font-medium">(${escapeHtml(item.unit)})</span>
               </div>
 
-              <!-- Price & Discount Info -->
               <div class="flex items-center gap-2 mt-1 flex-wrap text-xs">
                 <span class="font-mono font-bold text-ink">Rp ${disc.finalUnitPrice.toLocaleString('id-ID')}</span>
                 ${item.originalPrice !== disc.finalUnitPrice ? `
@@ -549,35 +796,29 @@
               </div>
             </div>
 
-            <!-- Delete Button (SRS F-06A: Hapus Item Permanen) -->
             <button type="button" class="w-8 h-8 rounded-lg bg-pink-50 hover:bg-rose-100 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer shrink-0" onclick="app.deleteCartItem('${item.id}')" title="Hapus dari troli">
               <span class="material-symbols-outlined text-[18px]">delete</span>
             </button>
           </div>
 
-          <!-- SRS F-04: Indikator Komparasi Harga Fluktuasi -->
           <div class="pt-0.5">
             <span class="price-indicator-badge ${fluc.badgeClass}">
               ${fluc.text}
             </span>
           </div>
 
-          <!-- Bottom Row: Reactive Stepper (SRS F-02) & Line Subtotal -->
           <div class="flex items-center justify-between pt-2 border-t border-pink-50">
-            <!-- 0ms Reactive Touch Stepper (min 44px) -->
             <div class="flex items-center gap-1.5 bg-pink-50/60 p-1 rounded-xl border border-pink-100">
               <button type="button" class="stepper-btn shrink-0" onclick="app.updateItemQty('${item.id}', ${item.qty - 1})">&minus;</button>
               <input type="number" inputmode="numeric" value="${item.qty}" min="1" class="w-12 text-center py-1 bg-white rounded-lg border border-pink-200 font-mono font-bold text-xs text-ink focus:outline-none" onchange="app.updateItemQty('${item.id}', parseInt(this.value) || 1)">
               <button type="button" class="stepper-btn shrink-0" onclick="app.updateItemQty('${item.id}', ${item.qty + 1})">&plus;</button>
             </div>
 
-            <!-- Subtotal Baris -->
             <div class="text-right">
               <span class="block text-[10px] text-slate-400 font-bold uppercase">Subtotal</span>
               <strong class="font-mono text-sm font-extrabold text-pink-600">Rp ${lineSubtotal.toLocaleString('id-ID')}</strong>
             </div>
           </div>
-
         </div>
       `;
     });
@@ -640,7 +881,7 @@
     }
 
     let html = '';
-    state.historySessions.forEach((s, idx) => {
+    state.historySessions.forEach((s) => {
       html += `
         <div class="bg-white rounded-2xl p-3.5 border border-pink-100 shadow-sm space-y-2">
           <div class="flex items-center justify-between pb-2 border-b border-pink-50">
@@ -663,8 +904,6 @@
   // =========================================================================
   // ACTIONS & HANDLERS (F-01 s/d F-06)
   // =========================================================================
-
-  // SRS F-01: Form Input Item Pokok & Validasi Form Aktif
   function submitItemForm() {
     const idInput = document.getElementById('inputItemId');
     const nameInput = document.getElementById('inputItemName');
@@ -684,7 +923,6 @@
     const lastMonthPrice = parseFloat(lastPriceInput ? lastPriceInput.value : 0) || 0;
 
     // VALIDASI FORM AKTIF (SRS F-01 KKTP):
-    // Tolak nama kosong atau harga negatif/nol (-Rp 15.000) dengan pesan peringatan non-blocking
     if (!name) {
       showToast('⚠️ Nama barang wajib diisi!', 'danger');
       if (nameInput) nameInput.focus();
@@ -715,7 +953,6 @@
       updatedAt: new Date().toISOString()
     };
 
-    // Check if editing or adding
     const existingIdx = state.cart.findIndex(i => i.id === newItem.id);
     if (existingIdx !== -1) {
       state.cart[existingIdx] = newItem;
@@ -732,13 +969,11 @@
     renderAll();
   }
 
-  // SRS F-02: Reaktivitas Kuantitas Otomatis Tanpa Delay (0ms)
   function updateItemQty(itemId, newQty) {
     const item = state.cart.find(i => i.id === itemId);
     if (!item) return;
 
     if (newQty <= 0) {
-      // Hapus jika qty 0
       deleteCartItem(itemId);
       return;
     }
@@ -750,7 +985,6 @@
     renderAll();
   }
 
-  // SRS F-06A: Hapus Item Permanen
   function deleteCartItem(itemId) {
     const idx = state.cart.findIndex(i => i.id === itemId);
     if (idx !== -1) {
@@ -768,7 +1002,6 @@
     const catItem = MASTER_CATALOG.find(i => i.id === catalogId);
     if (!catItem) return;
 
-    // Check if already in cart
     const existing = state.cart.find(i => i.name.toLowerCase() === catItem.name.toLowerCase());
     if (existing) {
       existing.qty += 1;
@@ -803,7 +1036,6 @@
     showToast('🧹 Keranjang belanja berhasil dikosongkan!');
   }
 
-  // Checkout and Archive Receipt
   function completeCheckout() {
     if (state.cart.length === 0) {
       showToast('⚠️ Keranjang belanja masih kosong!', 'danger');
@@ -842,8 +1074,6 @@
     state.historySessions.unshift(newSession);
     saveStateToStorage();
     AudioEngine.playSuccess();
-
-    // Populate and open receipt modal
     openReceiptModal(newSession);
   }
 
@@ -885,68 +1115,6 @@
     const modal = document.getElementById('modalReceiptBackdrop');
     if (modal) modal.classList.remove('show');
     renderAll();
-  }
-
-  // =========================================================================
-  // OUR OWN GOOGLE OAUTH IMPLEMENTATION (Seamless, Working, Pink & White)
-  // =========================================================================
-  function openGoogleOAuthModal() {
-    const modal = document.getElementById('modalOurGoogleOAuth');
-    if (modal) modal.classList.add('show');
-  }
-
-  function closeGoogleOAuthModal() {
-    const modal = document.getElementById('modalOurGoogleOAuth');
-    if (modal) modal.classList.remove('show');
-  }
-
-  function selectGoogleAccount(name, email, avatarSymbol, themeColor) {
-    state.currentUser = {
-      name,
-      email,
-      avatar: avatarSymbol || name.charAt(0).toUpperCase(),
-      provider: 'google',
-      themeColor: themeColor || 'pink',
-      loginAt: Date.now()
-    };
-
-    saveStateToStorage();
-    closeGoogleOAuthModal();
-    updateUserProfileUI();
-    showToast(`🟢 Berhasil masuk sebagai ${name} (${email})!`);
-  }
-
-  function toggleCustomGoogleInput() {
-    const box = document.getElementById('customGoogleInputBox');
-    if (box) box.classList.toggle('hidden');
-  }
-
-  function submitCustomGoogleAccount() {
-    const nameInput = document.getElementById('customGoogleName');
-    const emailInput = document.getElementById('customGoogleEmail');
-    const name = nameInput ? nameInput.value.trim() : '';
-    const email = emailInput ? emailInput.value.trim() : '';
-
-    if (!name || !email || !email.includes('@')) {
-      showToast('⚠️ Masukkan Nama dan Email Google yang valid!', 'danger');
-      return;
-    }
-
-    selectGoogleAccount(name, email, name.charAt(0).toUpperCase(), 'pink');
-  }
-
-  function updateUserProfileUI() {
-    const hAvatar = document.getElementById('headerUserAvatar');
-    const hName = document.getElementById('headerUserName');
-    const dAvatar = document.getElementById('dompetUserAvatar');
-    const dName = document.getElementById('dompetUserName');
-    const dEmail = document.getElementById('dompetUserEmail');
-
-    if (hAvatar) hAvatar.textContent = state.currentUser.avatar;
-    if (hName) hName.textContent = state.currentUser.name.split(' ')[0];
-    if (dAvatar) dAvatar.textContent = state.currentUser.avatar;
-    if (dName) dName.textContent = state.currentUser.name;
-    if (dEmail) dEmail.textContent = state.currentUser.email;
   }
 
   // =========================================================================
@@ -1094,7 +1262,6 @@
     });
   }
 
-  // Setup Realtime Clock in Phone Status Bar
   function setupClock() {
     const clockEl = document.getElementById('liveClockDisplay');
     function updateClock() {
@@ -1106,8 +1273,29 @@
     setInterval(updateClock, 30000);
   }
 
-  // Setup Event Listeners
   function setupEventListeners() {
+    // Auth Tab Switcher (Masuk vs Daftar)
+    const tabLoginBtn = document.getElementById('tabAuthLoginBtn');
+    const tabRegBtn = document.getElementById('tabAuthRegisterBtn');
+    const formLogin = document.getElementById('formAuthLogin');
+    const formReg = document.getElementById('formAuthRegister');
+
+    if (tabLoginBtn && tabRegBtn && formLogin && formReg) {
+      tabLoginBtn.addEventListener('click', () => {
+        tabLoginBtn.className = 'py-2.5 rounded-xl bg-pink-500 text-white shadow-sm transition-all cursor-pointer';
+        tabRegBtn.className = 'py-2.5 rounded-xl text-slate-600 hover:text-pink-600 transition-all cursor-pointer';
+        formLogin.classList.remove('hidden');
+        formReg.classList.add('hidden');
+      });
+
+      tabRegBtn.addEventListener('click', () => {
+        tabRegBtn.className = 'py-2.5 rounded-xl bg-pink-500 text-white shadow-sm transition-all cursor-pointer';
+        tabLoginBtn.className = 'py-2.5 rounded-xl text-slate-600 hover:text-pink-600 transition-all cursor-pointer';
+        formReg.classList.remove('hidden');
+        formLogin.classList.add('hidden');
+      });
+    }
+
     // Header store selector
     const storeSelect = document.getElementById('storeLocationSelect');
     if (storeSelect) {
@@ -1147,13 +1335,6 @@
     // Open Clear Cart Modal
     const btnClear = document.getElementById('btnOpenClearCartModal');
     if (btnClear) btnClear.addEventListener('click', openClearCartModal);
-
-    // Profile button click -> open Google OAuth modal
-    const profileBtn = document.getElementById('headerProfileBtn');
-    if (profileBtn) profileBtn.addEventListener('click', openGoogleOAuthModal);
-
-    const switchBtn = document.getElementById('btnSwitchGoogleAccount');
-    if (switchBtn) switchBtn.addEventListener('click', openGoogleOAuthModal);
 
     // Checkout trigger
     const btnCheckout = document.getElementById('btnCheckoutTrigger');
@@ -1209,7 +1390,6 @@
     });
   }
 
-  // Render everything
   function renderAll() {
     renderCart();
     renderCatalog();
@@ -1218,7 +1398,6 @@
     updateUserProfileUI();
   }
 
-  // Utility HTML Escape
   function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -1229,7 +1408,6 @@
       .replace(/'/g, '&#39;');
   }
 
-  // Register PWA Service Worker
   function registerPWA() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -1241,18 +1419,27 @@
     }
   }
 
-  // Initialize App on DOM Ready
+  // Initializing App
   async function init() {
     loadStateFromStorage();
     setupNavigation();
     setupClock();
     setupEventListeners();
     renderAll();
+
+    // Check login state
+    if (state.isLoggedIn) {
+      hideLoginScreen();
+    } else {
+      showLoginScreen();
+    }
+
+    await initSupabaseAuth();
     await initSupabaseRealtime();
     registerPWA();
   }
 
-  // Expose methods to global app object for inline HTML event handlers
+  // Global methods for inline HTML event handlers
   window.app = {
     openItemModal,
     closeItemModal,
@@ -1273,7 +1460,14 @@
     submitCustomGoogleAccount,
     completeCheckout,
     calculateDiscount,
-    comparePriceWithLastMonth
+    comparePriceWithLastMonth,
+    loginWithGoogleOAuth,
+    handlePasswordLogin,
+    handlePasswordRegister,
+    loginAsGuest,
+    logoutToLoginScreen,
+    togglePasswordVisibility,
+    toggleOAuthInfoBox
   };
 
   document.addEventListener('DOMContentLoaded', init);
