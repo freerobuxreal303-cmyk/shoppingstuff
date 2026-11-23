@@ -190,13 +190,32 @@
     try {
       state.supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
 
-      // Check if session returned from OAuth redirect or existing session
+      // 1. Prioritas Utama: Periksa URL Hash dari Redirect Google OAuth (#access_token=...)
+      if (window.location.hash && window.location.hash.includes('access_token')) {
+        const hashStr = window.location.hash.substring(1);
+        const hashParams = new URLSearchParams(hashStr);
+        const token = hashParams.get('access_token');
+        if (token) {
+          try {
+            const { data, error } = await state.supabase.auth.getUser(token);
+            if (data && data.user) {
+              handleUserAuthenticated(data.user, 'google');
+              return;
+            }
+          } catch (e) {
+            console.warn('Direct token validation notice:', e);
+          }
+        }
+      }
+
+      // 2. Periksa session tersimpan atau session aktif dari Supabase Client
       const { data: { session } } = await state.supabase.auth.getSession();
       if (session && session.user) {
         handleUserAuthenticated(session.user, 'google');
+        return;
       }
 
-      // Listen for auth state change
+      // 3. Listener perubahan status autentikasi
       state.supabase.auth.onAuthStateChange((event, session) => {
         if (session && session.user) {
           handleUserAuthenticated(session.user, 'google');
@@ -229,22 +248,16 @@
     updateUserProfileUI();
     showToast(`🟢 Selamat datang, ${fullName}! Masuk dengan Google OAuth.`);
 
-    // Clean hash in address bar if returning from OAuth
+    // Bersihkan hash token di address bar setelah berhasil login
     if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('error'))) {
       window.history.replaceState(null, '', window.location.pathname);
     }
   }
 
-  // Open our working Google OAuth modal
-  function loginWithGoogleOAuth() {
+  // Login Langsung dengan Real Google OAuth via Supabase
+  async function loginWithGoogleOAuth() {
     AudioEngine.playTap();
-    openGoogleOAuthModal();
-  }
-
-  // Optional: Direct browser redirect to Google Cloud via Supabase (Project maximal-zoo-512303-m3)
-  async function triggerDirectGoogleRedirect() {
-    AudioEngine.playTap();
-    showToast('Membuka Google OAuth Cloud Console...', 'info');
+    showToast('Membuka Google OAuth via Supabase...', 'info');
 
     if (!state.supabase) {
       if (window.supabase) {
@@ -252,36 +265,47 @@
       }
     }
 
-    if (state.supabase) {
-      try {
-        const redirectTo = window.location.origin + window.location.pathname;
-        const { data, error } = await state.supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: redirectTo,
-            queryParams: {
-              prompt: 'select_account',
-              access_type: 'offline'
-            }
-          }
-        });
-
-        if (error) {
-          console.warn('Supabase Google OAuth status:', error.message);
-          showToast('Google Provider info: ' + error.message, 'danger');
-          return;
-        }
-
-        if (data && data.url) {
-          window.location.href = data.url;
-        }
-      } catch (err) {
-        console.error('Google OAuth direct trigger error:', err);
-        showToast('Gagal memuat redirect Google OAuth.', 'danger');
-      }
-    } else {
+    if (!state.supabase) {
       showToast('Koneksi Supabase belum siap.', 'danger');
+      return;
     }
+
+    try {
+      // Selalu redirect ke deployment Vercel resmi
+      let redirectTo = 'https://shoppingstuff.vercel.app/';
+      if (window.location.hostname && window.location.hostname.endsWith('vercel.app')) {
+        redirectTo = window.location.origin + window.location.pathname;
+      }
+
+      const { data, error } = await state.supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectTo,
+          queryParams: {
+            prompt: 'select_account',
+            access_type: 'offline'
+          }
+        }
+      });
+
+      if (error) {
+        console.warn('Supabase Google OAuth status:', error.message);
+        showToast('Google OAuth error: ' + error.message, 'danger');
+        return;
+      }
+
+      if (data && data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error('Google OAuth direct trigger error:', err);
+      showToast('Gagal memuat redirect Google OAuth.', 'danger');
+    }
+  }
+
+  // Alias untuk kompatibilitas
+  async function triggerDirectGoogleRedirect() {
+    return loginWithGoogleOAuth();
   }
 
   function handlePasswordLogin() {
@@ -341,9 +365,14 @@
     showToast('🟢 Masuk sebagai Rian Pratama (Mode Pengujian Lab)!');
   }
 
-  function logoutToLoginScreen() {
+  async function logoutToLoginScreen() {
     state.isLoggedIn = false;
     localStorage.removeItem('smart_grocery_logged_in');
+    if (state.supabase) {
+      try {
+        await state.supabase.auth.signOut();
+      } catch (e) {}
+    }
     showLoginScreen();
     showToast('Anda telah keluar dari aplikasi.');
   }
