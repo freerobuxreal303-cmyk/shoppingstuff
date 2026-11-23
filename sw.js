@@ -3,6 +3,7 @@ const CACHE_NAME = 'smart-grocery-pink-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './callback.html',
   './styles.css',
   './app.js',
   './supabase.js',
