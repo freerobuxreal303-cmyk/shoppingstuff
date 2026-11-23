@@ -218,6 +218,16 @@
       // 1. Tangkap pesan dari jendela Popup Login Google (window.opener postMessage)
       window.addEventListener('message', async (event) => {
         if (event.data && event.data.type === 'SUPABASE_OAUTH_POPUP_SUCCESS') {
+          if (event.data.user) {
+            state.isLoggedIn = true;
+            state.currentUser = event.data.user;
+            saveStateToStorage();
+            hideLoginScreen();
+            updateUserProfileUI();
+            showToast(`🟢 Selamat datang, ${state.currentUser.name}! Masuk dengan Google OAuth.`);
+            renderAll();
+            return;
+          }
           const token = event.data.token;
           if (token && state.supabase) {
             try {
@@ -302,6 +312,25 @@
     };
 
     saveStateToStorage();
+
+    // JIKA JENDELA INI DIBUKA SEBAGAI POPUP OLEH TAB UTAMA:
+    if (window.opener && window.opener !== window) {
+      try {
+        window.opener.postMessage({
+          type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
+          user: state.currentUser,
+          token: user.access_token || null
+        }, '*');
+        localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
+      } catch (e) {
+        console.warn('postMessage to opener notice:', e);
+      }
+      setTimeout(() => {
+        window.close();
+      }, 150);
+      return;
+    }
+
     hideLoginScreen();
     updateUserProfileUI();
     showToast(`🟢 Selamat datang, ${fullName}! Masuk dengan Google OAuth.`);
@@ -435,6 +464,25 @@
     };
 
     saveStateToStorage();
+
+    // JIKA JENDELA INI DIBUKA SEBAGAI POPUP OLEH TAB UTAMA:
+    if (window.opener && window.opener !== window) {
+      try {
+        window.opener.postMessage({
+          type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
+          user: state.currentUser,
+          token: user.access_token || null
+        }, '*');
+        localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
+      } catch (e) {
+        console.warn('postMessage to opener notice:', e);
+      }
+      setTimeout(() => {
+        window.close();
+      }, 150);
+      return;
+    }
+
     hideLoginScreen();
     updateUserProfileUI();
     showToast(`🟢 Selamat datang, ${state.currentUser.name}!`);
@@ -456,6 +504,25 @@
     };
 
     saveStateToStorage();
+
+    // JIKA JENDELA INI DIBUKA SEBAGAI POPUP OLEH TAB UTAMA:
+    if (window.opener && window.opener !== window) {
+      try {
+        window.opener.postMessage({
+          type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
+          user: state.currentUser,
+          token: user.access_token || null
+        }, '*');
+        localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
+      } catch (e) {
+        console.warn('postMessage to opener notice:', e);
+      }
+      setTimeout(() => {
+        window.close();
+      }, 150);
+      return;
+    }
+
     hideLoginScreen();
     updateUserProfileUI();
     showToast(`🎉 Akun ${name} berhasil dibuat!`);
@@ -471,6 +538,25 @@
       loginAt: Date.now()
     };
     saveStateToStorage();
+
+    // JIKA JENDELA INI DIBUKA SEBAGAI POPUP OLEH TAB UTAMA:
+    if (window.opener && window.opener !== window) {
+      try {
+        window.opener.postMessage({
+          type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
+          user: state.currentUser,
+          token: user.access_token || null
+        }, '*');
+        localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
+      } catch (e) {
+        console.warn('postMessage to opener notice:', e);
+      }
+      setTimeout(() => {
+        window.close();
+      }, 150);
+      return;
+    }
+
     hideLoginScreen();
     updateUserProfileUI();
     showToast('🟢 Masuk sebagai Rian Pratama (Mode Pengujian Lab)!');
