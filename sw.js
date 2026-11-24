@@ -1,5 +1,5 @@
 // Service Worker for Smart Grocery & Budget Tracker PWA (Pink & White Edition)
-const CACHE_NAME = 'smart-grocery-pink-v3';
+const CACHE_NAME = 'smart-grocery-pink-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
