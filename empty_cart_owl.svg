@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 130" width="100%" height="100%">
+  <defs>
+    <linearGradient id="emptyCartPink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff75b3"/>
+      <stop offset="100%" stop-color="#f43f8e"/>
+    </linearGradient>
+    <linearGradient id="cartMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+  </defs>
+
+  <!-- SOFT SHADOW GROUND -->
+  <ellipse cx="110" cy="118" rx="85" ry="8" fill="#fce7f3" opacity="0.8"/>
+
+  <!-- EMPTY SHOPPING CART (LEFT) -->
+  <g transform="translate(15, 30)">
+    <!-- Cart wheels -->
+    <circle cx="22" cy="74" r="5" fill="#64748b"/>
+    <circle cx="22" cy="74" r="2.5" fill="#e2e8f0"/>
+    <circle cx="62" cy="74" r="5" fill="#64748b"/>
+    <circle cx="62" cy="74" r="2.5" fill="#e2e8f0"/>
+    
+    <!-- Cart base frame -->
+    <path d="M 12 70 L 68 70 L 62 48" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linecap="round"/>
+    
+    <!-- Cart Basket wireframe (Empty!) -->
+    <path d="M 18 20 L 72 20 L 60 56 L 24 56 Z" fill="#fff0f5" fill-opacity="0.4" stroke="#ec4899" stroke-width="2.2" stroke-linejoin="round"/>
+    <!-- Wire grid lines -->
+    <path d="M 21 32 L 68 32 M 23 44 L 64 44" stroke="#f472b6" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M 33 20 L 33 56 M 46 20 L 46 56 M 58 20 L 56 56" stroke="#f472b6" stroke-width="1.5" stroke-linecap="round"/>
+    
+    <!-- Cart Handle with soft pink grip -->
+    <path d="M 18 20 L 8 10" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="2" y="6" width="10" height="7" rx="3.5" fill="#f43f8e"/>
+  </g>
+
+  <!-- RELAXED / LOUNGING PINK OWL (RIGHT) -->
+  <g transform="translate(100, 32)">
+    <!-- Plush Pink Cushion / Pillow -->
+    <ellipse cx="60" cy="72" rx="42" ry="14" fill="#ffd0e5" stroke="#fbcfe8" stroke-width="1.5"/>
+
+    <!-- Little orange feet kicking up or tucked -->
+    <ellipse cx="22" cy="74" rx="7" ry="4" fill="#ff9900" transform="rotate(-15 22 74)"/>
+    <ellipse cx="32" cy="76" rx="7" ry="4" fill="#ff9900" transform="rotate(-5 32 76)"/>
+
+    <!-- Reclined Owl Body -->
+    <path d="M 30 65 
+             C 25 45, 40 22, 65 22 
+             C 86 22, 98 40, 96 62 
+             C 94 76, 75 80, 52 80 
+             C 38 80, 32 75, 30 65 Z" 
+          fill="url(#emptyCartPink)"/>
+
+    <!-- Belly patch -->
+    <path d="M 42 60 C 44 42, 75 42, 80 58 C 82 72, 68 76, 54 76 C 45 76, 40 70, 42 60 Z" fill="#fff0f5"/>
+
+    <!-- Belly feathers -->
+    <path d="M 52 56 Q 58 60 64 56" stroke="#f472b6" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 50 64 Q 56 68 62 64" stroke="#f472b6" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+    <!-- Relaxed Closed Happy Eyes (^ ^) -->
+    <path d="M 54 38 Q 60 31 66 38" fill="none" stroke="#2d3748" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M 74 38 Q 80 31 86 38" fill="none" stroke="#2d3748" stroke-width="2.8" stroke-linecap="round"/>
+
+    <!-- Cute Blush -->
+    <ellipse cx="50" cy="45" rx="5" ry="3" fill="#ff3385" opacity="0.35"/>
+    <ellipse cx="88" cy="45" rx="5" ry="3" fill="#ff3385" opacity="0.35"/>
+
+    <!-- Small Orange Beak -->
+    <polygon points="69,40 73,40 71,46" fill="#ff9900"/>
+
+    <!-- Turquoise Bow on head -->
+    <g transform="translate(68, 18) scale(0.85)">
+      <path d="M 0 0 C -10 -8, -18 -5, -16 2 C -14 8, -6 3, 0 0 Z" fill="#38cfab"/>
+      <path d="M 0 0 C 10 -8, 18 -5, 16 2 C 14 8, 6 3, 0 0 Z" fill="#38cfab"/>
+      <circle cx="0" cy="0" r="3.5" fill="#20b2aa"/>
+      <circle cx="-0.5" cy="-0.5" r="2" fill="#5eead4"/>
+    </g>
+
+    <!-- Resting Wing propping or relaxing -->
+    <path d="M 72 52 C 82 52, 92 62, 86 72 C 80 75, 70 66, 68 58 Z" fill="#ff5c9d"/>
+
+    <!-- Peaceful 'Z z z' floating bubbles -->
+    <text x="88" y="18" font-family="Plus Jakarta Sans, sans-serif" font-size="11" font-weight="800" fill="#f43f8e" opacity="0.8">z</text>
+    <text x="96" y="10" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="800" fill="#ec4899" opacity="0.6">z</text>
+  </g>
+</svg>

@@ -65,19 +65,19 @@
   };
 
   // =========================================================================
-  // MASTER CATALOG LOTTE MART PURI INDAH (DT2 Ujian Skenario 1 - 7)
+  // MASTER CATALOG & SUPERMARKET DATABASE
   // =========================================================================
   const MASTER_CATALOG = [
     {
       id: 'dt2_item_1',
-      name: 'Beras Rojolele',
+      name: 'Beras Rojolele 5kg',
       category: 'Bahan Pokok',
       unit: 'karung/5kg',
       price: 74000,
       lastMonthPrice: 68000,
       discountStr: '',
       icon: '🌾',
-      desc: 'Skenario 1 & 4 (Harga Naik ↑ Merah +Rp 6.000)'
+      desc: 'Beras pulen kemasan 5kg kualitas pilihan super'
     },
     {
       id: 'dt2_item_2',
@@ -88,7 +88,7 @@
       lastMonthPrice: 45000,
       discountStr: '',
       icon: '🌻',
-      desc: 'Skenario 2 (Uji Qty 1 -> 3 = Rp 129.000) & Skenario 4 (Harga Turun ↓ Hijau)'
+      desc: 'Minyak kelapa sawit murni 2 kali penyaringan'
     },
     {
       id: 'dt2_item_3',
@@ -99,61 +99,94 @@
       lastMonthPrice: 32000,
       discountStr: '',
       icon: '🥚',
-      desc: 'Skenario 4 (Harga Turun ↓ Hijau -Rp 4.000)'
+      desc: 'Telur ayam negeri segar pilihan peternakan higienis'
     },
     {
       id: 'dt2_item_4',
-      name: 'Garam 500g',
+      name: 'Garam Dapur 500g',
       category: 'Bahan Pokok',
       unit: 'bungkus/500g',
       price: 5000,
       lastMonthPrice: 5000,
       discountStr: '',
       icon: '🧂',
-      desc: 'Skenario 4 (Harga Stabil = Abu-abu Rp 5.000)'
+      desc: 'Garam beryodium gurih alami untuk masakan'
     },
     {
       id: 'dt2_item_5',
-      name: 'Sabun Cuci',
+      name: 'Sabun Cuci Pakaian',
       category: 'Kebutuhan Rumah',
       unit: 'pcs',
       price: 20000,
       lastMonthPrice: 20000,
       discountStr: '25%',
       icon: '🧼',
-      desc: 'Skenario 3 (Diskon Tunggal 25% -> Rp 15.000)'
+      desc: 'Deterjen pembersih noda wangi tahan lama'
     },
     {
       id: 'dt2_item_6',
-      name: 'Wajan Anti Lengket',
+      name: 'Wajan Anti Lengket 24cm',
       category: 'Kebutuhan Rumah',
       unit: 'pcs',
       price: 100000,
       lastMonthPrice: 100000,
       discountStr: '50%+20%',
       icon: '🍳',
-      desc: 'Skenario 3 (Diskon Kompound 50%+20% -> Rp 40.000)'
+      desc: 'Wajan teflon anti gores hemat minyak'
     },
     {
       id: 'dt2_item_7',
-      name: 'Sabun Mandi',
+      name: 'Sabun Mandi Cair',
       category: 'Kebutuhan Rumah',
       unit: 'pcs',
       price: 15000,
       lastMonthPrice: 15000,
       discountStr: '',
       icon: '🫧',
-      desc: 'Skenario 7 (Uji Sinkronisasi Realtime HP & PC)'
+      desc: 'Sabun mandi cair wangi lembut melembapkan kulit'
     }
   ];
+
+  // Supermarket Store Profiles (Used for Realistic Thermal Receipts)
+  const STORE_DETAILS = {
+    'Lotte Mart - Puri Indah': {
+      name: 'LOTTE MART - PURI INDAH',
+      address: 'Jl. Puri Indah Raya Blok U1, Kembangan, Jakarta Barat',
+      cashier: 'SELF-CHECKOUT #04',
+      pos: '#01',
+      code: 'LM'
+    },
+    'Super Indo - Puri': {
+      name: 'SUPER INDO - PURI INDAH',
+      address: 'Jl. Pesanggrahan No. 8, Kembangan, Jakarta Barat',
+      cashier: 'KASIR 02 - SITI',
+      pos: '#03',
+      code: 'SI'
+    },
+    'Grand Lucky - Superstore': {
+      name: 'GRAND LUCKY SUPERSTORE',
+      address: 'Kawasan Niaga Terpadu Sudirman, Jakarta',
+      cashier: 'TERMINAL #11 - ANDI',
+      pos: '#07',
+      code: 'GL'
+    },
+    'Hypermart - Lippo Mall': {
+      name: 'HYPERMART - LIPPO PURI',
+      address: 'Lippo Mall Puri LG-12, Jakarta Barat',
+      cashier: 'KASIR 06 - RINA',
+      pos: '#02',
+      code: 'HM'
+    }
+  };
 
   // =========================================================================
   // APPLICATION STATE
   // =========================================================================
   const state = {
     cart: [],
-    budgetLimit: 100000, // Default Rp 100.000 for DT2 evaluation
-    storeLocation: 'Lotte Mart Grocery - Puri Indah',
+    catalog: [],
+    budgetLimit: 100000,
+    storeLocation: 'Lotte Mart - Puri Indah',
     shoppingDate: new Date().toISOString().split('T')[0],
     isLoggedIn: false,
     currentUser: {
@@ -167,7 +200,11 @@
     deviceId: 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now(),
     supabase: null,
     realtimeChannel: null,
-    isRealtimeConnected: false
+    isRealtimeConnected: false,
+    lastModified: Date.now(),
+    pendingReceiptSession: null,
+    pendingCartBackup: null,
+    lastOverbudgetWarned: false
   };
 
   // High-performance cached currency formatter (eliminates Intl GC thrashing)
@@ -176,7 +213,7 @@
     return ID_CURRENCY_FORMATTER.format(Math.round(num || 0));
   }
 
-  // Audio synthesizer for non-blocking feedback
+  // Audio synthesizer with customized melodic frequencies
   const AudioEngine = {
     ctx: null,
     init() {
@@ -184,26 +221,12 @@
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (AudioCtx) this.ctx = new AudioCtx();
       }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
     },
+    // Soft acoustic bubble pop for navigation and buttons
     playTap() {
-      if (!state.soundEnabled) return;
-      this.init();
-      if (!this.ctx) return;
-      try {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(650, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1100, this.ctx.currentTime + 0.04);
-        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.04);
-      } catch (e) {}
-    },
-    playSuccess() {
       if (!state.soundEnabled) return;
       this.init();
       if (!this.ctx) return;
@@ -211,16 +234,151 @@
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(523.25, now);
-        osc.frequency.setValueAtTime(659.25, now + 0.08);
-        osc.frequency.setValueAtTime(783.99, now + 0.16);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.05);
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.28);
+        osc.stop(now + 0.05);
+      } catch (e) {}
+    },
+    // Rising two-tone melodic chime for adding item to cart
+    playAddItem() {
+      if (!state.soundEnabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        [587.33, 880].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.08, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.12);
+        });
+      } catch (e) {}
+    },
+    // Soft wooden drop tone when removing an item
+    playRemoveItem() {
+      if (!state.soundEnabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(330, now);
+        osc.frequency.exponentialRampToValueAtTime(160, now + 0.08);
+        gain.gain.setValueAtTime(0.09, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } catch (e) {}
+    },
+    // Cute bubbly sparkle when adding item into empty cart
+    playEmptyCartAdd() {
+      if (!state.soundEnabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+          gain.gain.setValueAtTime(0.09, now + idx * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.14);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.05);
+          osc.stop(now + idx * 0.05 + 0.14);
+        });
+      } catch (e) {}
+    },
+    // Overbudget buzzer / warning sound (dual-tone alert)
+    playOverbudgetBuzzer() {
+      if (!state.soundEnabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        [466.16, 440].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+          gain.gain.setValueAtTime(0.12, now + idx * 0.09);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.09);
+          osc.stop(now + idx * 0.09 + 0.12);
+        });
+      } catch (e) {}
+    },
+    // Celebratory cash register chime + arpeggio for completed checkout
+    playCheckoutSuccess() {
+      if (!state.soundEnabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        const ding = this.ctx.createOscillator();
+        const dingGain = this.ctx.createGain();
+        ding.type = 'sine';
+        ding.frequency.setValueAtTime(1760, now);
+        dingGain.gain.setValueAtTime(0.18, now);
+        dingGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        ding.connect(dingGain);
+        dingGain.connect(this.ctx.destination);
+        ding.start(now);
+        ding.stop(now + 0.45);
+
+        [659.25, 830.61, 987.77, 1318.51].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + 0.08 + idx * 0.06);
+          gain.gain.setValueAtTime(0.11, now + 0.08 + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08 + idx * 0.06 + 0.32);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + 0.08 + idx * 0.06);
+          osc.stop(now + 0.08 + idx * 0.06 + 0.32);
+        });
+      } catch (e) {}
+    },
+    // Easter Egg cheerful owl slide chirp
+    playEasterEgg() {
+      if (!state.soundEnabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(1600, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.22);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
       } catch (e) {}
     }
   };
@@ -808,11 +966,12 @@
   }
 
   // =========================================================================
-  // SRS F-06A: PERSISTENSI DATA LOKAL (LocalStorage & F5 Protection)
+  // SRS F-06A: PERSISTENSI DATA LOKAL (LocalStorage & F5 Anti-Reset Protection)
   // =========================================================================
   function saveStateToStorage() {
     try {
       localStorage.setItem('smart_grocery_cart', JSON.stringify(state.cart));
+      localStorage.setItem('smart_grocery_catalog', JSON.stringify(state.catalog));
       localStorage.setItem('smart_grocery_budget', String(state.budgetLimit));
       localStorage.setItem('smart_grocery_store', state.storeLocation);
       localStorage.setItem('smart_grocery_date', state.shoppingDate);
@@ -836,6 +995,17 @@
       const savedCart = localStorage.getItem('smart_grocery_cart');
       if (savedCart) {
         try { state.cart = JSON.parse(savedCart); } catch (e) { state.cart = []; }
+      }
+
+      const savedCatalog = localStorage.getItem('smart_grocery_catalog');
+      if (savedCatalog) {
+        try {
+          const parsedCat = JSON.parse(savedCatalog);
+          if (Array.isArray(parsedCat) && parsedCat.length > 0) state.catalog = parsedCat;
+        } catch (e) {}
+      }
+      if (!state.catalog || state.catalog.length === 0) {
+        state.catalog = JSON.parse(JSON.stringify(MASTER_CATALOG));
       }
 
       const savedBudget = localStorage.getItem('smart_grocery_budget');
@@ -875,8 +1045,20 @@
         state.supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
       }
 
+      // Channel name can scope to logged in account or default channel
+      let channelName = SUPABASE_CONFIG.CHANNEL;
+      if (state.isLoggedIn && state.currentUser && state.currentUser.email) {
+        const cleanEmail = state.currentUser.email.replace(/[^a-zA-Z0-9]/g, '_');
+        channelName = `sync_${cleanEmail}`;
+      }
+
+      // Unsubscribe existing if changing channel
+      if (state.realtimeChannel) {
+        try { state.supabase.removeChannel(state.realtimeChannel); } catch (e) {}
+      }
+
       // Subscribe to Realtime Broadcast Channel
-      state.realtimeChannel = state.supabase.channel(SUPABASE_CONFIG.CHANNEL, {
+      state.realtimeChannel = state.supabase.channel(channelName, {
         config: { broadcast: { ack: false } }
       });
 
@@ -885,14 +1067,30 @@
           if (!payload || payload.senderId === state.deviceId) return;
           handleIncomingRealtimeSync(payload);
         })
+        .on('broadcast', { event: 'REQUEST_SYNC' }, ({ payload }) => {
+          if (!payload || payload.senderId === state.deviceId) return;
+          // Reply with our state if we have modified data
+          if (state.cart.length > 0 || state.budgetLimit !== 100000 || state.historySessions.length > 0) {
+            broadcastStateChange();
+          }
+        })
         .subscribe((status) => {
           const badge = document.getElementById('realtimeStatusText');
           if (status === 'SUBSCRIBED') {
             state.isRealtimeConnected = true;
-            if (badge) badge.textContent = '🟢 Cloud Realtime Sync Aktif (Live Multi-Device)';
+            if (badge) badge.textContent = 'Cloud Realtime Sync Aktif';
+
+            // Send request to discover if any other device is already open with data
+            try {
+              state.realtimeChannel.send({
+                type: 'broadcast',
+                event: 'REQUEST_SYNC',
+                payload: { senderId: state.deviceId }
+              });
+            } catch (e) {}
           } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
             state.isRealtimeConnected = false;
-            if (badge) badge.textContent = '🟡 Cloud Sync Menghubungkan...';
+            if (badge) badge.textContent = 'Cloud Sync Menghubungkan...';
           }
         });
     } catch (err) {
@@ -903,15 +1101,18 @@
   function broadcastStateChange() {
     if (!state.realtimeChannel || !state.isRealtimeConnected) return;
     try {
+      state.lastModified = Date.now();
       state.realtimeChannel.send({
         type: 'broadcast',
         event: 'MULTIDEVICE_SYNC',
         payload: {
           senderId: state.deviceId,
           cart: state.cart,
+          catalog: state.catalog,
           budgetLimit: state.budgetLimit,
           storeLocation: state.storeLocation,
-          timestamp: Date.now()
+          historySessions: state.historySessions,
+          lastModified: state.lastModified
         }
       });
     } catch (e) {
@@ -921,13 +1122,25 @@
 
   function handleIncomingRealtimeSync(payload) {
     if (!payload) return;
+
+    // Dominant peer conflict protection:
+    // If local state has newer edits and has active cart items, do not let an older state overwrite us
+    if (payload.lastModified && state.lastModified && payload.lastModified < state.lastModified && state.cart.length > 0) {
+      return;
+    }
+
     if (Array.isArray(payload.cart)) state.cart = payload.cart;
-    if (payload.budgetLimit) state.budgetLimit = payload.budgetLimit;
+    if (Array.isArray(payload.catalog) && payload.catalog.length > 0) state.catalog = payload.catalog;
+    if (payload.budgetLimit && !isNaN(payload.budgetLimit) && payload.budgetLimit > 0) {
+      state.budgetLimit = payload.budgetLimit;
+    }
     if (payload.storeLocation) state.storeLocation = payload.storeLocation;
+    if (Array.isArray(payload.historySessions)) state.historySessions = payload.historySessions;
+    if (payload.lastModified) state.lastModified = payload.lastModified;
 
     saveStateToStorage();
     renderAll();
-    showToast('⚡ Sinkronisasi realtime diterima dari perangkat lain!', 'info');
+    // Silent sync: no disruptive toast popup
   }
 
   // =========================================================================
@@ -1017,7 +1230,7 @@
   }
 
   // =========================================================================
-  // SRS F-01 & F-02: KERANJANG BELANJA (CART RENDERING & REACTIVE STEPPER)
+  // KERANJANG BELANJA (CART RENDERING & REACTIVE STEPPER)
   // =========================================================================
   function renderCart() {
     const container = document.getElementById('cartItemsList');
@@ -1028,13 +1241,13 @@
 
     if (state.cart.length === 0) {
       container.innerHTML = `
-        <div class="text-center py-10 px-4 bg-white rounded-2xl border border-pink-100 shadow-sm">
-          <div class="w-14 h-14 rounded-full bg-pink-50 text-pink-500 mx-auto flex items-center justify-center mb-3">
-            <span class="material-symbols-outlined text-[32px]">remove_shopping_cart</span>
+        <div class="text-center py-8 px-4 bg-white rounded-3xl border border-pink-100 shadow-sm">
+          <div class="w-48 h-auto mx-auto mb-2 flex items-center justify-center">
+            <img src="empty_cart_owl.svg" alt="Pink Owl Santai Samping Keranjang" class="w-full h-auto object-contain">
           </div>
           <h3 class="font-display text-sm font-bold text-ink">Keranjang Belanja Masih Kosong</h3>
           <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
-            Keranjang belanja masih kosong, silakan tambahkan kebutuhan pokok pertamamu dari katalog atau tombol di atas.
+            Burung santai menunggu belanjaanmu! Yuk pilih kebutuhan pokok dari katalog atau tekan tombol tambah barang.
           </p>
         </div>
       `;
@@ -1099,35 +1312,53 @@
   }
 
   // =========================================================================
-  // MASTER CATALOG RENDERING (TAB 2)
+  // KATALOG PRODUK DENGAN FITUR EDIT HARGA & FLUKTUASI (TAB 2)
   // =========================================================================
   function renderCatalog() {
     const container = document.getElementById('masterCatalogList');
     if (!container) return;
 
+    if (!Array.isArray(state.catalog) || state.catalog.length === 0) {
+      state.catalog = JSON.parse(JSON.stringify(MASTER_CATALOG));
+    }
+
     let html = '';
-    MASTER_CATALOG.forEach(item => {
+    state.catalog.forEach(item => {
       const disc = calculateDiscount(item.price, item.discountStr);
       const fluc = comparePriceWithLastMonth(disc.finalUnitPrice, item.lastMonthPrice);
 
       html += `
-        <div class="bg-white rounded-2xl p-3.5 border border-pink-100 shadow-sm flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="text-2xl p-2 rounded-xl bg-pink-50 shrink-0">${item.icon}</span>
-            <div class="min-w-0">
-              <div class="font-display text-xs sm:text-sm font-bold text-ink truncate">${escapeHtml(item.name)}</div>
-              <div class="text-[10px] text-pink-600 font-semibold">${escapeHtml(item.desc)}</div>
+        <div class="bg-white rounded-2xl p-3.5 border border-pink-100 shadow-sm flex items-center justify-between gap-3 transition-all hover:border-pink-300">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <span class="text-2xl p-2 rounded-xl bg-pink-50 shrink-0">${item.icon || '🛍️'}</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-display text-xs sm:text-sm font-bold text-ink truncate">${escapeHtml(item.name)}</span>
+                <span class="px-1.5 py-0.2 rounded bg-pink-50 text-pink-700 font-mono text-[9px] font-bold border border-pink-200">${escapeHtml(item.unit || 'pcs')}</span>
+              </div>
+              <div class="text-[10px] text-pink-600 font-semibold line-clamp-1">${escapeHtml(item.desc || 'Kebutuhan belanja pokok')}</div>
               <div class="flex items-center gap-2 mt-1 flex-wrap">
                 <span class="font-mono text-xs font-bold text-ink">Rp ${formatIDR(disc.finalUnitPrice)}</span>
-                ${item.discountStr ? `<span class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 text-[9px] font-bold">${item.discountStr}</span>` : ''}
+                ${item.discountStr ? `<span class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 text-[9px] font-bold">${escapeHtml(item.discountStr)}</span>` : ''}
                 <span class="price-indicator-badge ${fluc.badgeClass} text-[9px] py-0.5 px-1.5">${fluc.text}</span>
               </div>
             </div>
           </div>
 
-          <button type="button" class="stepper-btn bg-pink-500 hover:bg-pink-600 text-white border-pink-500 shrink-0 shadow-sm" onclick="app.addCatalogItemToCart('${item.id}')" title="Tambah ke Troli" aria-label="Tambah ${escapeHtml(item.name)} ke Troli">
-            &plus;
-          </button>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <!-- Tombol Edit Harga Produk -->
+            <button type="button" class="w-8 h-8 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 flex items-center justify-center cursor-pointer transition-colors" onclick="app.openEditCatalogModal('${item.id}')" title="Edit Harga Barang" aria-label="Edit Harga ${escapeHtml(item.name)}">
+              <span class="material-symbols-outlined text-[16px]">edit</span>
+            </button>
+            <!-- Tombol Hapus dari Katalog -->
+            <button type="button" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 flex items-center justify-center cursor-pointer transition-colors" onclick="app.deleteCatalogItem('${item.id}')" title="Hapus dari Katalog" aria-label="Hapus ${escapeHtml(item.name)} dari Katalog">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+            </button>
+            <!-- Tombol Tambah ke Troli -->
+            <button type="button" class="stepper-btn bg-pink-500 hover:bg-pink-600 text-white border-pink-500 shadow-sm" onclick="app.addCatalogItemToCart('${item.id}')" title="Tambah ke Troli" aria-label="Tambah ${escapeHtml(item.name)} ke Troli">
+              &plus;
+            </button>
+          </div>
         </div>
       `;
     });
@@ -1142,11 +1373,12 @@
     const container = document.getElementById('historySessionsList');
     if (!container) return;
 
-    if (state.historySessions.length === 0) {
+    if (!Array.isArray(state.historySessions) || state.historySessions.length === 0) {
       container.innerHTML = `
-        <div class="text-center py-8 px-4 bg-white rounded-2xl border border-pink-100">
-          <span class="material-symbols-outlined text-[28px] text-slate-300 mb-1">receipt</span>
-          <p class="text-xs text-slate-500">Belum ada struk belanja yang diarsipkan.</p>
+        <div class="text-center py-8 px-4 bg-white rounded-3xl border border-pink-100 shadow-sm">
+          <span class="material-symbols-outlined text-[32px] text-pink-300 mb-1">receipt</span>
+          <p class="text-xs text-slate-500 font-semibold">Belum ada struk belanja yang diarsipkan.</p>
+          <p class="text-[11px] text-slate-400 mt-1">Selesaikan pembelanjaan di troli untuk membuat struk resmi.</p>
         </div>
       `;
       return;
@@ -1155,16 +1387,20 @@
     let html = '';
     state.historySessions.forEach((s) => {
       html += `
-        <div class="bg-white rounded-2xl p-3.5 border border-pink-100 shadow-sm space-y-2">
+        <div class="bg-white rounded-2xl p-3.5 border border-pink-100 shadow-sm space-y-2.5 transition-all hover:border-pink-200">
           <div class="flex items-center justify-between pb-2 border-b border-pink-50">
             <div>
               <span class="font-mono text-xs font-bold text-ink">${escapeHtml(s.date)}</span>
-              <span class="block text-[10px] text-slate-400 font-medium">${escapeHtml(s.store || state.storeLocation)}</span>
+              <span class="block text-[10px] text-slate-500 font-semibold">${escapeHtml(s.store || state.storeLocation)}</span>
             </div>
             <strong class="font-mono text-sm font-black text-pink-600">Rp ${formatIDR(s.totalCost)}</strong>
           </div>
-          <div class="text-xs text-slate-600 font-medium">
-            ${s.items.length} Barang Belanja &bull; Hemat Promo: Rp ${formatIDR(s.totalSaved || 0)}
+          <div class="flex items-center justify-between text-xs text-slate-600">
+            <span class="font-medium">${s.items ? s.items.length : 0} Barang Belanja &bull; Hemat: Rp ${formatIDR(s.totalSaved || 0)}</span>
+            <button type="button" class="py-1 px-2.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 font-bold text-xs flex items-center gap-1 border border-pink-200 cursor-pointer transition-colors" onclick="app.viewArchivedReceipt('${s.id}')">
+              <span class="material-symbols-outlined text-[15px]">receipt</span>
+              <span>Lihat Struk</span>
+            </button>
           </div>
         </div>
       `;
@@ -1176,6 +1412,16 @@
   // =========================================================================
   // ACTIONS & HANDLERS (F-01 s/d F-06)
   // =========================================================================
+  function getCategoryIcon(category) {
+    switch (category) {
+      case 'Bahan Pokok': return '🌾';
+      case 'Protein Tinggi': return '🥚';
+      case 'Kebutuhan Rumah': return '🧼';
+      case 'Minuman': return '🧃';
+      default: return '🛍️';
+    }
+  }
+
   function submitItemForm() {
     const idInput = document.getElementById('inputItemId');
     const nameInput = document.getElementById('inputItemName');
@@ -1221,10 +1467,13 @@
       originalPrice: price,
       qty,
       discountStr,
-      lastMonthPrice,
+      lastMonthPrice: lastMonthPrice || price,
       updatedAt: new Date().toISOString()
     };
 
+    const wasCartEmpty = state.cart.length === 0;
+
+    // 1. TAMBAH/UPDATE KE KERANJANG
     const existingIdx = state.cart.findIndex(i => i.id === newItem.id);
     if (existingIdx !== -1) {
       state.cart[existingIdx] = newItem;
@@ -1234,7 +1483,31 @@
       showToast(`🛒 "${name}" berhasil ditambahkan ke keranjang!`);
     }
 
-    AudioEngine.playSuccess();
+    // 2. TAMBAH KE KATALOG DI POSISI PALING ATAS
+    const catIdx = state.catalog.findIndex(c => c.name.toLowerCase() === name.toLowerCase() || c.id === newItem.id);
+    if (catIdx !== -1) {
+      state.catalog[catIdx].price = price;
+      state.catalog[catIdx].lastMonthPrice = lastMonthPrice || state.catalog[catIdx].price;
+      state.catalog[catIdx].discountStr = discountStr;
+    } else {
+      const newCatItem = {
+        id: 'cat_' + Date.now(),
+        name,
+        category,
+        unit,
+        price,
+        lastMonthPrice: lastMonthPrice || price,
+        discountStr,
+        icon: getCategoryIcon(category),
+        desc: 'Produk kebutuhan belanja baru',
+        priceHistory: [{ date: new Date().toISOString(), price }]
+      };
+      state.catalog.unshift(newCatItem); // Terlihat di bagian paling atas katalog!
+    }
+
+    if (wasCartEmpty) AudioEngine.playEmptyCartAdd();
+    else AudioEngine.playAddItem();
+
     closeItemModal();
     saveStateToStorage();
     broadcastStateChange();
@@ -1262,7 +1535,7 @@
     if (idx !== -1) {
       const removedName = state.cart[idx].name;
       state.cart.splice(idx, 1);
-      AudioEngine.playTap();
+      AudioEngine.playRemoveItem();
       saveStateToStorage();
       broadcastStateChange();
       renderAll();
@@ -1271,9 +1544,10 @@
   }
 
   function addCatalogItemToCart(catalogId) {
-    const catItem = MASTER_CATALOG.find(i => i.id === catalogId);
+    const catItem = state.catalog.find(i => i.id === catalogId);
     if (!catItem) return;
 
+    const wasCartEmpty = state.cart.length === 0;
     const existing = state.cart.find(i => i.name.toLowerCase() === catItem.name.toLowerCase());
     if (existing) {
       existing.qty += 1;
@@ -1290,103 +1564,277 @@
         lastMonthPrice: catItem.lastMonthPrice,
         updatedAt: new Date().toISOString()
       });
-      showToast(`🛒 ${catItem.name} masuk ke keranjang!`);
+      showToast(`🛒 ${catItem.name} masuk ke troli!`);
     }
 
-    AudioEngine.playSuccess();
+    if (wasCartEmpty) AudioEngine.playEmptyCartAdd();
+    else AudioEngine.playAddItem();
+
     saveStateToStorage();
     broadcastStateChange();
     renderAll();
+  }
+
+  function deleteCatalogItem(catalogId) {
+    const idx = state.catalog.findIndex(c => c.id === catalogId);
+    if (idx !== -1) {
+      const name = state.catalog[idx].name;
+      state.catalog.splice(idx, 1);
+      AudioEngine.playRemoveItem();
+      saveStateToStorage();
+      broadcastStateChange();
+      renderCatalog();
+      showToast(`🗑️ "${name}" dihapus dari katalog.`);
+    }
+  }
+
+  function openEditCatalogModal(catalogId) {
+    const item = state.catalog.find(c => c.id === catalogId);
+    if (!item) return;
+
+    const modal = document.getElementById('modalEditCatalogPrice');
+    const idEl = document.getElementById('editCatalogItemId');
+    const nameEl = document.getElementById('editCatalogItemName');
+    const priceEl = document.getElementById('editCatalogItemPrice');
+    const lastPriceEl = document.getElementById('editCatalogItemLastPrice');
+    const discEl = document.getElementById('editCatalogItemDiscount');
+
+    if (idEl) idEl.value = item.id;
+    if (nameEl) nameEl.value = item.name;
+    if (priceEl) priceEl.value = item.price;
+    if (lastPriceEl) lastPriceEl.value = item.lastMonthPrice || item.price;
+    if (discEl) discEl.value = item.discountStr || '';
+
+    AudioEngine.playTap();
+    if (modal) modal.classList.add('show');
+  }
+
+  function closeEditCatalogModal() {
+    const modal = document.getElementById('modalEditCatalogPrice');
+    if (modal) modal.classList.remove('show');
+  }
+
+  function submitEditCatalogPrice() {
+    const idEl = document.getElementById('editCatalogItemId');
+    const priceEl = document.getElementById('editCatalogItemPrice');
+    const lastPriceEl = document.getElementById('editCatalogItemLastPrice');
+    const discEl = document.getElementById('editCatalogItemDiscount');
+
+    if (!idEl) return;
+    const item = state.catalog.find(c => c.id === idEl.value);
+    if (!item) return;
+
+    const newPrice = parseFloat(priceEl ? priceEl.value : 0);
+    const newLastPrice = parseFloat(lastPriceEl ? lastPriceEl.value : 0);
+    const newDiscount = discEl ? discEl.value.trim() : '';
+
+    if (isNaN(newPrice) || newPrice < 0) {
+      showToast('⚠️ Masukkan harga yang valid!', 'danger');
+      return;
+    }
+
+    const oldPrice = item.price;
+    item.lastMonthPrice = !isNaN(newLastPrice) && newLastPrice > 0 ? newLastPrice : oldPrice;
+    item.price = newPrice;
+    item.discountStr = newDiscount;
+    if (!Array.isArray(item.priceHistory)) item.priceHistory = [];
+    item.priceHistory.push({ date: new Date().toISOString(), price: newPrice });
+
+    // Sinkronkan ke keranjang aktif jika barang sedang ada di troli
+    state.cart.forEach(cartItem => {
+      if (cartItem.name.toLowerCase() === item.name.toLowerCase()) {
+        cartItem.originalPrice = newPrice;
+        cartItem.lastMonthPrice = item.lastMonthPrice;
+        cartItem.discountStr = newDiscount;
+      }
+    });
+
+    closeEditCatalogModal();
+    AudioEngine.playTap();
+    saveStateToStorage();
+    broadcastStateChange();
+    renderAll();
+    showToast(`✏️ Harga "${item.name}" berhasil diubah ke Rp ${formatIDR(newPrice)}!`);
+  }
+
+  function openClearCartModal() {
+    if (state.cart.length === 0) {
+      AudioEngine.playTap();
+      showToast('Keranjang belanja sudah kosong, tidak ada barang yang bisa dihapus.', 'info');
+      return;
+    }
+    const modal = document.getElementById('modalConfirmClearCart');
+    if (modal) modal.classList.add('show');
   }
 
   function confirmClearCart() {
     state.cart = [];
     closeClearCartModal();
+    AudioEngine.playRemoveItem();
     saveStateToStorage();
     broadcastStateChange();
     renderAll();
-    showToast('🧹 Keranjang belanja berhasil dikosongkan!');
+    showToast('🧹 Keranjang belanja telah dikosongkan!');
   }
 
   function completeCheckout() {
     if (state.cart.length === 0) {
-      showToast('⚠️ Keranjang belanja masih kosong!', 'danger');
+      showToast('⚠️ Keranjang belanja masih kosong, silakan tambah barang!', 'danger');
       return;
     }
 
     let totalCost = 0;
     let totalSaved = 0;
+    let subtotalGross = 0;
     const itemsSnapshot = state.cart.map(i => {
       const disc = calculateDiscount(i.originalPrice, i.discountStr);
       const subtotal = disc.finalUnitPrice * i.qty;
       totalCost += subtotal;
+      subtotalGross += i.originalPrice * i.qty;
       totalSaved += (i.originalPrice - disc.finalUnitPrice) * i.qty;
       return {
         name: i.name,
         qty: i.qty,
         unit: i.unit,
+        originalPrice: i.originalPrice,
+        discountStr: i.discountStr,
         finalUnitPrice: disc.finalUnitPrice,
         subtotal
       };
     });
 
+    // JANGAN BOLEHKAN BELI JIKA MELEBIHI ANGGARAN (SAFETY CAP ENFORCEMENT)
+    if (totalCost > state.budgetLimit) {
+      AudioEngine.playOverbudgetBuzzer();
+      showToast('⚠️ Total belanja melebihi batas saldo dompet! Kurangi kuantitas atau batalkan barang sebelum checkout.', 'danger');
+      return;
+    }
+
     const now = new Date();
     const formattedDate = `${now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} • ${now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+
+    const storeInfo = STORE_DETAILS[state.storeLocation] || STORE_DETAILS['Lotte Mart - Puri Indah'];
+    const randomTxNum = Math.floor(1000 + Math.random() * 9000);
+    const dateCode = now.toISOString().slice(0, 10).replace(/-/g, '');
+    const txNumber = `${storeInfo.code}-${dateCode}-${randomTxNum}`;
 
     const newSession = {
       id: 'trx_' + Date.now(),
       date: formattedDate,
       store: state.storeLocation,
+      storeInfo,
+      txNumber,
+      subtotalGross,
       totalCost,
       totalSaved,
       items: itemsSnapshot,
       createdAt: now.toISOString()
     };
 
-    state.historySessions.unshift(newSession);
-    saveStateToStorage();
-    AudioEngine.playSuccess();
-    openReceiptModal(newSession);
+    // Staging receipt session for cancel/edit option
+    state.pendingReceiptSession = newSession;
+    state.pendingCartBackup = JSON.parse(JSON.stringify(state.cart));
+
+    openReceiptModal(newSession, false);
   }
 
-  function openReceiptModal(session) {
+  function openReceiptModal(session, isViewingArchived = false) {
     const modal = document.getElementById('modalReceiptBackdrop');
-    const container = document.getElementById('receiptItemsContainer');
-    const timeEl = document.getElementById('receiptTimestampDisplay');
-    const limitEl = document.getElementById('receiptLimitDisplay');
-    const savedEl = document.getElementById('receiptSavedDisplay');
-    const totalEl = document.getElementById('receiptGrandTotalDisplay');
-
     if (!modal) return;
 
+    const storeInfo = session.storeInfo || STORE_DETAILS[session.store] || STORE_DETAILS['Lotte Mart - Puri Indah'];
+    const storeNameEl = document.getElementById('receiptStoreNameDisplay');
+    const storeAddressEl = document.getElementById('receiptStoreAddressDisplay');
+    const txNumEl = document.getElementById('receiptTxNumberDisplay');
+    const timeEl = document.getElementById('receiptTimestampDisplay');
+    const cashierEl = document.getElementById('receiptCashierDisplay');
+    const container = document.getElementById('receiptItemsContainer');
+    const subtotalEl = document.getElementById('receiptSubtotalDisplay');
+    const savedEl = document.getElementById('receiptSavedDisplay');
+    const limitEl = document.getElementById('receiptLimitDisplay');
+    const totalEl = document.getElementById('receiptGrandTotalDisplay');
+    const cancelBtn = document.getElementById('btnReceiptCancelEdit');
+    const confirmText = document.getElementById('btnReceiptConfirmText');
+
+    if (storeNameEl) storeNameEl.textContent = storeInfo.name;
+    if (storeAddressEl) storeAddressEl.textContent = storeInfo.address;
+    if (txNumEl) txNumEl.textContent = `BON: ${session.txNumber || 'LM-20261124-8841'}`;
     if (timeEl) timeEl.textContent = session.date;
+    if (cashierEl) cashierEl.textContent = `KASIR: ${storeInfo.cashier}`;
+    if (subtotalEl) subtotalEl.textContent = `Rp ${formatIDR(session.subtotalGross || session.totalCost)}`;
+    if (savedEl) savedEl.textContent = `-Rp ${formatIDR(session.totalSaved || 0)}`;
     if (limitEl) limitEl.textContent = `Rp ${formatIDR(state.budgetLimit)}`;
-    if (savedEl) savedEl.textContent = `Rp ${formatIDR(session.totalSaved || 0)}`;
     if (totalEl) totalEl.textContent = `Rp ${formatIDR(session.totalCost)}`;
+
+    if (isViewingArchived) {
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      if (confirmText) confirmText.textContent = 'Tutup Struk';
+    } else {
+      if (cancelBtn) cancelBtn.style.display = 'flex';
+      if (confirmText) confirmText.textContent = 'Selesai & Simpan';
+    }
 
     if (container) {
       let html = '';
       session.items.forEach(i => {
         html += `
-          <div class="flex items-center justify-between text-xs font-mono py-1 border-b border-pink-50">
-            <div>
-              <span class="font-bold text-ink">${escapeHtml(i.name)}</span>
-              <span class="text-slate-400 text-[10px]"> x${i.qty}</span>
+          <div class="py-1 border-b border-dashed border-slate-200">
+            <div class="flex justify-between font-bold text-slate-800">
+              <span class="truncate pr-2">${escapeHtml(i.name)}</span>
+              <span>Rp ${formatIDR(i.subtotal)}</span>
             </div>
-            <span class="font-bold text-pink-600">Rp ${formatIDR(i.subtotal)}</span>
+            <div class="flex justify-between text-[10px] text-slate-500">
+              <span>${i.qty} x Rp ${formatIDR(i.finalUnitPrice)}</span>
+              ${i.discountStr ? `<span class="text-rose-600 font-bold">Disc ${escapeHtml(i.discountStr)}</span>` : ''}
+            </div>
           </div>
         `;
       });
       container.innerHTML = html;
     }
 
+    AudioEngine.playTap();
     modal.classList.add('show');
+  }
+
+  function cancelAndEditReceipt() {
+    const modal = document.getElementById('modalReceiptBackdrop');
+    if (modal) modal.classList.remove('show');
+
+    if (state.pendingCartBackup) {
+      state.cart = JSON.parse(JSON.stringify(state.pendingCartBackup));
+    }
+    state.pendingReceiptSession = null;
+    state.pendingCartBackup = null;
+
+    switchTab('tabCart');
+    renderAll();
+    showToast('✏️ Pembayaran dibatalkan, silakan edit barang di troli.', 'info');
   }
 
   function closeReceiptModal() {
     const modal = document.getElementById('modalReceiptBackdrop');
     if (modal) modal.classList.remove('show');
-    renderAll();
+
+    if (state.pendingReceiptSession) {
+      state.historySessions.unshift(state.pendingReceiptSession);
+      state.cart = [];
+      state.pendingReceiptSession = null;
+      state.pendingCartBackup = null;
+      AudioEngine.playCheckoutSuccess();
+      saveStateToStorage();
+      broadcastStateChange();
+      renderAll();
+      showToast('🎉 Struk berhasil disimpan ke riwayat belanja!');
+    } else {
+      renderAll();
+    }
+  }
+
+  function viewArchivedReceipt(sessionId) {
+    const session = state.historySessions.find(s => s.id === sessionId);
+    if (!session) return;
+    openReceiptModal(session, true);
   }
 
   // =========================================================================
@@ -1477,11 +1925,6 @@
     if (subtotalBox) subtotalBox.textContent = `Rp ${formatIDR(subtotal)}`;
   }
 
-  function openClearCartModal() {
-    const modal = document.getElementById('modalConfirmClearCart');
-    if (modal) modal.classList.add('show');
-  }
-
   function closeClearCartModal() {
     const modal = document.getElementById('modalConfirmClearCart');
     if (modal) modal.classList.remove('show');
@@ -1512,25 +1955,96 @@
   }
 
   // =========================================================================
-  // NAVIGATION SETUP (4 Clean Tabs)
+  // NAVIGATION SETUP (4 Clean Tabs & Floating Cart Summary)
   // =========================================================================
-  function setupNavigation() {
+  function switchTab(targetId) {
     const tabs = document.querySelectorAll('.dock-tab');
     const panes = document.querySelectorAll('.tab-pane');
 
+    tabs.forEach(t => {
+      if (t.getAttribute('data-tab') === targetId) {
+        t.classList.add('active');
+      } else {
+        t.classList.remove('active');
+      }
+    });
+
+    panes.forEach(p => {
+      if (p.id === targetId) {
+        p.classList.add('active');
+      } else {
+        p.classList.remove('active');
+      }
+    });
+
+    updateFloatingCartVisibility(targetId);
+  }
+
+  function updateFloatingCartVisibility(currentTabId) {
+    const bar = document.getElementById('floatingCartSummaryBar');
+    const countEl = document.getElementById('floatingCartCountText');
+    const totalEl = document.getElementById('floatingCartTotalText');
+    if (!bar) return;
+
+    let totalItems = 0;
+    let grandTotal = 0;
+    state.cart.forEach(item => {
+      totalItems += item.qty;
+      const disc = calculateDiscount(item.originalPrice, item.discountStr);
+      grandTotal += disc.finalUnitPrice * item.qty;
+    });
+
+    const activePane = document.querySelector('.tab-pane.active');
+    const activeTab = currentTabId || (activePane ? activePane.id : 'tabCart');
+
+    if (totalItems > 0 && activeTab !== 'tabCart' && state.isLoggedIn) {
+      if (countEl) countEl.textContent = `${totalItems} Barang di Troli`;
+      if (totalEl) totalEl.textContent = `Total: Rp ${formatIDR(grandTotal)}`;
+      bar.classList.remove('hidden');
+    } else {
+      bar.classList.add('hidden');
+    }
+  }
+
+  function setupNavigation() {
+    const tabs = document.querySelectorAll('.dock-tab');
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const targetId = tab.getAttribute('data-tab');
         if (!targetId) return;
-
         AudioEngine.playTap();
-        tabs.forEach(t => t.classList.remove('active'));
-        panes.forEach(p => p.classList.remove('active'));
-
-        tab.classList.add('active');
-        const activePane = document.getElementById(targetId);
-        if (activePane) activePane.classList.add('active');
+        switchTab(targetId);
       });
+    });
+  }
+
+  function setupEasterEgg() {
+    const indicator = document.getElementById('indicator4G');
+    const owl = document.getElementById('owlEasterEgg');
+    if (!indicator || !owl) return;
+
+    let clickCount = 0;
+    let clickTimer = null;
+
+    indicator.addEventListener('click', () => {
+      clickCount++;
+      if (clickTimer) clearTimeout(clickTimer);
+
+      if (clickCount >= 4) {
+        clickCount = 0;
+        AudioEngine.playEasterEgg();
+        owl.classList.remove('active');
+        // Force browser reflow to restart CSS animation cleanly
+        void owl.offsetWidth;
+        owl.classList.add('active');
+        setTimeout(() => {
+          owl.classList.remove('active');
+        }, 2600);
+      } else {
+        clickTimer = setTimeout(() => {
+          clickCount = 0;
+        }, 1200);
+      }
     });
   }
 
@@ -1646,14 +2160,8 @@
       });
     });
 
-    // Cloud Ping test button
-    const btnPing = document.getElementById('btnTestCloudPing');
-    if (btnPing) {
-      btnPing.addEventListener('click', () => {
-        broadcastStateChange();
-        showToast('📡 Sinyal broadcast sinkronisasi dikirim ke cloud!');
-      });
-    }
+    // Setup 4G Easter Egg (Duolingo Pink Owl Peek)
+    setupEasterEgg();
 
     // Live calculation listener on input modal
     ['inputItemPrice', 'inputItemQty', 'inputItemDiscount', 'inputItemLastMonthPrice'].forEach(id => {
@@ -1670,6 +2178,7 @@
     renderHistory();
     updateBudgetAndSafetyCap();
     updateUserProfileUI();
+    updateFloatingCartVisibility();
   }
 
   function escapeHtml(str) {
@@ -1722,11 +2231,17 @@
     updateItemQty,
     deleteCartItem,
     addCatalogItemToCart,
+    openEditCatalogModal,
+    closeEditCatalogModal,
+    submitEditCatalogPrice,
+    deleteCatalogItem,
     openClearCartModal,
     closeClearCartModal,
     confirmClearCart,
     openReceiptModal,
     closeReceiptModal,
+    cancelAndEditReceipt,
+    viewArchivedReceipt,
     openGoogleOAuthModal,
     closeGoogleOAuthModal,
     selectGoogleAccount,
@@ -1742,7 +2257,9 @@
     loginAsGuest,
     logoutToLoginScreen,
     togglePasswordVisibility,
-    toggleOAuthInfoBox
+    toggleOAuthInfoBox,
+    switchTab,
+    updateFloatingCartVisibility
   };
 
   document.addEventListener('DOMContentLoaded', init);
