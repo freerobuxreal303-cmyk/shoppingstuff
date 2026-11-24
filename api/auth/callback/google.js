@@ -150,6 +150,7 @@ export default async function handler(req, res) {
 
           if (formattedUser) {
             localStorage.setItem('smart_grocery_user', JSON.stringify(formattedUser));
+            localStorage.setItem('smart_grocery_logged_in', 'true');
           }
 
           // Kirim pesan ke jendela utama (opener)

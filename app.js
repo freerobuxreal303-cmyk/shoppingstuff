@@ -267,15 +267,18 @@
       return;
     }
 
-    // 3. Periksa session tersimpan di localStorage (Anti-Reset F5 Guard)
-    const savedUserStr = localStorage.getItem('smart_grocery_user');
-    if (savedUserStr) {
-      try {
-        const savedUser = JSON.parse(savedUserStr);
-        if (savedUser && (savedUser.email || savedUser.name)) {
-          handleUserAuthenticated(savedUser, savedUser.provider || 'google');
-        }
-      } catch (e) {}
+    // 3. Hanya pulihkan session jika pengguna memang sudah logged in (Anti-Reset F5 Guard)
+    if (state.isLoggedIn) {
+      const savedUserStr = localStorage.getItem('smart_grocery_user');
+      if (savedUserStr) {
+        try {
+          const savedUser = JSON.parse(savedUserStr);
+          if (savedUser && (savedUser.email || savedUser.name)) {
+            state.currentUser = savedUser;
+            updateUserProfileUI();
+          }
+        } catch (e) {}
+      }
     }
   }
 
@@ -438,8 +441,9 @@
       const popupWatcher = setInterval(() => {
         if (!popup || popup.closed) {
           clearInterval(popupWatcher);
+          const isMarkedLoggedIn = localStorage.getItem('smart_grocery_logged_in') === 'true';
           const savedUserStr = localStorage.getItem('smart_grocery_user');
-          if (savedUserStr) {
+          if (isMarkedLoggedIn && savedUserStr) {
             try {
               const u = JSON.parse(savedUserStr);
               if (u && !state.isLoggedIn) {
@@ -578,6 +582,7 @@
   async function logoutToLoginScreen() {
     state.isLoggedIn = false;
     localStorage.removeItem('smart_grocery_logged_in');
+    localStorage.removeItem('smart_grocery_user');
     if (state.supabase) {
       try {
         await state.supabase.auth.signOut();
@@ -799,7 +804,11 @@
       localStorage.setItem('smart_grocery_budget', String(state.budgetLimit));
       localStorage.setItem('smart_grocery_store', state.storeLocation);
       localStorage.setItem('smart_grocery_date', state.shoppingDate);
-      localStorage.setItem('smart_grocery_user', JSON.stringify(state.currentUser));
+      if (state.isLoggedIn && state.currentUser) {
+        localStorage.setItem('smart_grocery_user', JSON.stringify(state.currentUser));
+      } else {
+        localStorage.removeItem('smart_grocery_user');
+      }
       localStorage.setItem('smart_grocery_history', JSON.stringify(state.historySessions));
       localStorage.setItem('smart_grocery_logged_in', state.isLoggedIn ? 'true' : 'false');
     } catch (e) {
@@ -809,6 +818,9 @@
 
   function loadStateFromStorage() {
     try {
+      const savedLoggedIn = localStorage.getItem('smart_grocery_logged_in');
+      state.isLoggedIn = savedLoggedIn === 'true';
+
       const savedCart = localStorage.getItem('smart_grocery_cart');
       if (savedCart) state.cart = JSON.parse(savedCart);
 
@@ -823,14 +835,13 @@
       const savedDate = localStorage.getItem('smart_grocery_date');
       if (savedDate) state.shoppingDate = savedDate;
 
-      const savedUser = localStorage.getItem('smart_grocery_user');
-      if (savedUser) state.currentUser = JSON.parse(savedUser);
+      if (state.isLoggedIn) {
+        const savedUser = localStorage.getItem('smart_grocery_user');
+        if (savedUser) state.currentUser = JSON.parse(savedUser);
+      }
 
       const savedHistory = localStorage.getItem('smart_grocery_history');
       if (savedHistory) state.historySessions = JSON.parse(savedHistory);
-
-      const savedLoggedIn = localStorage.getItem('smart_grocery_logged_in');
-      state.isLoggedIn = savedLoggedIn === 'true';
     } catch (e) {
       console.warn('LocalStorage load notice:', e);
     }
@@ -1053,7 +1064,7 @@
           <div class="flex items-center justify-between pt-2 border-t border-pink-50">
             <div class="flex items-center gap-1.5 bg-pink-50/60 p-1 rounded-xl border border-pink-100">
               <button type="button" class="stepper-btn shrink-0" onclick="app.updateItemQty('${item.id}', ${item.qty - 1})">&minus;</button>
-              <input type="number" inputmode="numeric" value="${item.qty}" min="1" class="w-12 text-center py-1 bg-white rounded-lg border border-pink-200 font-mono font-bold text-xs text-ink focus:outline-none" onchange="app.updateItemQty('${item.id}', parseInt(this.value) || 1)">
+              <input type="number" inputmode="numeric" value="${item.qty}" min="1" class="w-12 text-center py-1 bg-white rounded-lg border border-pink-200 font-mono font-bold text-xs text-ink focus:outline-none" oninput="app.updateItemQty('${item.id}', parseInt(this.value) || 1)" onchange="app.updateItemQty('${item.id}', parseInt(this.value) || 1)">
               <button type="button" class="stepper-btn shrink-0" onclick="app.updateItemQty('${item.id}', ${item.qty + 1})">&plus;</button>
             </div>
 

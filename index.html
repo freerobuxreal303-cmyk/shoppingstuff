@@ -1,27 +1,34 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Smart Grocery &amp; Budget Tracker - Rian</title>
-  
+
   <!-- PWA & Meta Tags -->
-  <meta name="description" content="Mobile PWA Smart Grocery, Realtime Price Comparator &amp; Budget Safety Cap untuk Studi Kasus Rian.">
+  <meta name="description"
+    content="Mobile PWA Smart Grocery, Realtime Price Comparator &amp; Budget Safety Cap untuk Studi Kasus Rian.">
   <meta name="theme-color" content="#ec4899">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="SmartGrocery">
-  
+
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="apple-touch-icon" href="icon-192.svg">
-  
+
   <!-- Typography & Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    rel="stylesheet">
+
   <!-- Tailwind CSS CDN with Pink & White Design Tokens -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -57,21 +64,25 @@
       }
     };
   </script>
-  
+
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
   <!-- ==============================================================
        HALAMAN LOGIN & REGISTER (DEDICATED AUTH SCREEN - PINK & WHITE)
        ============================================================== -->
-  <div id="loginScreen" class="fixed inset-0 z-[100] bg-gradient-to-b from-[#fff0f5] via-[#fdf2f8] to-white flex flex-col justify-between overflow-y-auto">
+  <div id="loginScreen"
+    class="fixed inset-0 z-[100] bg-gradient-to-b from-[#fff0f5] via-[#fdf2f8] to-white flex flex-col justify-between overflow-y-auto">
     <div class="w-full max-w-[440px] mx-auto min-h-screen flex flex-col justify-between p-6">
-      
+
       <!-- Top Branding -->
       <div class="pt-8 text-center">
-        <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-pink-500 to-rose-400 text-white mx-auto flex items-center justify-center shadow-lg shadow-pink-500/25 mb-3 border-2 border-white">
-          <span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+        <div
+          class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-pink-500 to-rose-400 text-white mx-auto flex items-center justify-center shadow-lg shadow-pink-500/25 mb-3 border-2 border-white">
+          <span class="material-symbols-outlined text-[32px]"
+            style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
         </div>
         <h1 class="font-display text-[22px] font-black text-ink tracking-tight">Smart Grocery &bull; Rian</h1>
         <p class="text-xs font-semibold text-pink-600 mt-0.5">Budget Safety Cap &amp; Google Cloud OAuth</p>
@@ -79,13 +90,15 @@
 
       <!-- Main Auth Card -->
       <div class="bg-white rounded-3xl p-6 shadow-xl shadow-pink-500/10 border border-pink-100 my-auto">
-        
+
         <!-- Tab Switcher: Masuk vs Daftar -->
         <div class="grid grid-cols-2 p-1 bg-pink-50/70 border border-pink-200/80 rounded-2xl mb-5 font-bold text-xs">
-          <button type="button" id="tabAuthLoginBtn" class="py-2.5 rounded-xl bg-pink-500 text-white shadow-sm transition-all cursor-pointer">
+          <button type="button" id="tabAuthLoginBtn"
+            class="py-2.5 rounded-xl bg-pink-500 text-white shadow-sm transition-all cursor-pointer">
             Masuk
           </button>
-          <button type="button" id="tabAuthRegisterBtn" class="py-2.5 rounded-xl text-slate-600 hover:text-pink-600 transition-all cursor-pointer">
+          <button type="button" id="tabAuthRegisterBtn"
+            class="py-2.5 rounded-xl text-slate-600 hover:text-pink-600 transition-all cursor-pointer">
             Daftar Akun
           </button>
         </div>
@@ -93,10 +106,13 @@
         <!-- FORM MASUK (LOGIN) -->
         <form id="formAuthLogin" class="space-y-3.5" onsubmit="event.preventDefault(); app.handlePasswordLogin();">
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Username / Email</label>
+            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Username /
+              Email</label>
             <div class="relative">
-              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-pink-400 text-[18px]">person</span>
-              <input type="text" id="inputAuthLoginUsername" value="rian.smartgrocery@gmail.com" required placeholder="rian.smartgrocery@gmail.com"
+              <span
+                class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-pink-400 text-[18px]">person</span>
+              <input type="text" id="inputAuthLoginUsername" value="rian.smartgrocery@gmail.com" required
+                placeholder="rian.smartgrocery@gmail.com"
                 class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-pink-200 text-xs font-bold text-ink focus:outline-none focus:border-pink-500 bg-pink-50/30">
             </div>
           </div>
@@ -104,23 +120,28 @@
           <div>
             <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Password</label>
             <div class="relative">
-              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-pink-400 text-[18px]">lock</span>
-              <input type="password" id="inputAuthLoginPassword" value="rian123" required placeholder="Masukkan password"
+              <span
+                class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-pink-400 text-[18px]">lock</span>
+              <input type="password" id="inputAuthLoginPassword" value="rian123" required
+                placeholder="Masukkan password"
                 class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-pink-200 text-xs font-bold text-ink focus:outline-none focus:border-pink-500 bg-pink-50/30">
-              <button type="button" onclick="app.togglePasswordVisibility('inputAuthLoginPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-pink-600 cursor-pointer">
+              <button type="button" onclick="app.togglePasswordVisibility('inputAuthLoginPassword')"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-pink-600 cursor-pointer">
                 <span class="material-symbols-outlined text-[18px]">visibility</span>
               </button>
             </div>
           </div>
 
-          <button type="submit" class="w-full py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs shadow-md shadow-pink-500/20 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer mt-1">
+          <button type="submit"
+            class="w-full py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs shadow-md shadow-pink-500/20 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer mt-1">
             <span>Masuk ke Troli Belanja</span>
             <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
           </button>
         </form>
 
         <!-- FORM DAFTAR (REGISTER - HIDDEN BY DEFAULT) -->
-        <form id="formAuthRegister" class="hidden space-y-3" onsubmit="event.preventDefault(); app.handlePasswordRegister();">
+        <form id="formAuthRegister" class="hidden space-y-3"
+          onsubmit="event.preventDefault(); app.handlePasswordRegister();">
           <div>
             <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Lengkap</label>
             <input type="text" id="inputAuthRegName" placeholder="Contoh: Rian Pratama" required
@@ -132,11 +153,13 @@
               class="w-full px-3.5 py-2.5 rounded-xl border border-pink-200 text-xs font-bold text-ink focus:outline-none focus:border-pink-500 bg-pink-50/30">
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Password Baru</label>
+            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Password
+              Baru</label>
             <input type="password" id="inputAuthRegPassword" placeholder="Minimal 6 karakter" required
               class="w-full px-3.5 py-2.5 rounded-xl border border-pink-200 text-xs font-bold text-ink focus:outline-none focus:border-pink-500 bg-pink-50/30">
           </div>
-          <button type="submit" class="w-full py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs shadow-md shadow-pink-500/20 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer mt-1">
+          <button type="submit"
+            class="w-full py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs shadow-md shadow-pink-500/20 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer mt-1">
             <span>Daftar Akun Baru</span>
             <span class="material-symbols-outlined text-[16px]">check_circle</span>
           </button>
@@ -145,7 +168,9 @@
         <!-- Divider -->
         <div class="flex items-center my-4 gap-3">
           <div class="h-px bg-pink-100 flex-1"></div>
-          <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider select-none shrink-0">atau masuk dengan</span>
+          <span
+            class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider select-none shrink-0">atau
+            masuk dengan</span>
           <div class="h-px bg-pink-100 flex-1"></div>
         </div>
 
@@ -154,10 +179,14 @@
           class="w-full py-3 px-4 rounded-xl bg-white border-2 border-slate-200 hover:border-pink-500 text-ink font-bold text-xs shadow-sm hover:shadow-md active:scale-98 transition-all flex items-center justify-center gap-2.5 cursor-pointer">
           <!-- Google G Logo SVG -->
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
           </svg>
           <span>Masuk dengan Google</span>
         </button>
@@ -166,28 +195,28 @@
 
       <!-- Footer Info: Panduan Google Cloud OAuth 2.0 (Mr. Tio • Mutiara Bangsa 2 School) -->
       <div class="text-center pt-4 pb-2">
-        <button type="button" onclick="app.toggleOAuthInfoBox()" class="text-[11px] font-bold text-pink-600 hover:text-pink-800 underline cursor-pointer">
+        <button type="button" onclick="app.toggleOAuthInfoBox()"
+          class="text-[11px] font-bold text-pink-600 hover:text-pink-800 underline cursor-pointer">
           ℹ️ Info Konfigurasi Google Cloud Platform (Panduan Mr. Tio)
         </button>
-        <div id="oauthConfigInfoBox" class="hidden mt-2 p-3 bg-white/90 rounded-2xl border border-pink-200 text-left text-[11px] space-y-1.5 shadow-sm">
+        <div id="oauthConfigInfoBox"
+          class="hidden mt-2 p-3 bg-white/90 rounded-2xl border border-pink-200 text-left text-[11px] space-y-1.5 shadow-sm">
           <div class="font-bold text-ink flex items-center gap-1">
             <span class="material-symbols-outlined text-pink-500 text-[14px]">cloud_sync</span>
             <span>Konfigurasi Google Cloud Console (Step 6)</span>
           </div>
           <p class="text-slate-600">
-            Project: <code class="font-mono text-pink-700 bg-pink-50 px-1 py-0.5 rounded font-bold">maximal-zoo-512303-m3</code>
+            Project: <code
+              class="font-mono text-pink-700 bg-pink-50 px-1 py-0.5 rounded font-bold">maximal-zoo-512303-m3</code>
           </p>
           <p class="text-slate-600 font-semibold">
-            Authorized redirect URIs (Tambahkan kedua URI ini di Google Cloud Console):
+            Authorized redirect URI (Tambahkan di Google Cloud Console):
           </p>
           <div class="p-1.5 rounded bg-slate-50 border border-slate-200 font-mono text-[9px] text-slate-800 break-all select-all font-bold">
             https://shoppingstuff.vercel.app/api/auth/callback/google
           </div>
-          <div class="p-1.5 rounded bg-slate-50 border border-slate-200 font-mono text-[9px] text-slate-800 break-all select-all font-bold">
-            http://localhost:3000/api/auth/callback/google
-          </div>
           <p class="text-[10px] text-slate-500">
-            Sesuai Step 6 dokumen Mr. Tio: buka <em>Clients &gt; Web application &gt; Authorized redirect URIs</em>, tempel kedua URI di atas agar login dapat berfungsi baik di Vercel maupun perangkat lain.
+            Sesuai Step 6 dokumen Mr. Tio: buka <em>Clients &gt; Web application &gt; Authorized redirect URIs</em>, tempel URI di atas agar Google OAuth dapat berfungsi secara live.
           </p>
         </div>
       </div>
@@ -199,9 +228,9 @@
        MAIN APP CONTAINER (TAMPILAN UTAMA APLIKASI TROLI BELANJA)
        ============================================================== -->
   <div class="desktop-viewport-wrapper">
-    
+
     <div class="mobile-app-container" id="mobileAppContainer">
-      
+
       <!-- Simulated Phone Status Bar -->
       <div class="phone-status-bar">
         <span id="liveClockDisplay">09:41</span>
@@ -220,8 +249,10 @@
         <div class="flex items-center justify-between mb-2">
           <!-- Logo & Title -->
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center shadow-sm">
-              <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+            <div
+              class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center shadow-sm">
+              <span class="material-symbols-outlined text-[20px]"
+                style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
             </div>
             <div>
               <h1 class="font-display text-[16px] font-black text-ink leading-tight">Smart Grocery</h1>
@@ -231,11 +262,16 @@
 
           <!-- Profile / Google Account Badge (Click opens account / logout sheet) -->
           <div class="flex items-center gap-1.5">
-            <button type="button" id="headerProfileBtn" onclick="app.openGoogleOAuthModal()" class="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-pink-50 border border-pink-200 hover:bg-pink-100 transition-all cursor-pointer">
-              <span class="w-6 h-6 rounded-full bg-pink-500 text-white font-bold text-xs flex items-center justify-center" id="headerUserAvatar">R</span>
+            <button type="button" id="headerProfileBtn" onclick="app.openGoogleOAuthModal()"
+              class="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-pink-50 border border-pink-200 hover:bg-pink-100 transition-all cursor-pointer">
+              <span
+                class="w-6 h-6 rounded-full bg-pink-500 text-white font-bold text-xs flex items-center justify-center"
+                id="headerUserAvatar">R</span>
               <span class="text-xs font-bold text-pink-900 max-w-[80px] truncate" id="headerUserName">Rian</span>
             </button>
-            <button type="button" onclick="app.logoutToLoginScreen()" class="w-7 h-7 rounded-full bg-pink-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer" title="Keluar / Ganti Akun">
+            <button type="button" onclick="app.logoutToLoginScreen()"
+              class="w-7 h-7 rounded-full bg-pink-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer"
+              title="Keluar / Ganti Akun">
               <span class="material-symbols-outlined text-[16px]">logout</span>
             </button>
           </div>
@@ -246,28 +282,34 @@
           <div>
             <label class="block text-[10px] font-bold uppercase tracking-wider text-pink-700 mb-0.5">Lokasi Toko</label>
             <div class="relative">
-              <select id="storeLocationSelect" class="w-full text-xs font-bold text-ink bg-pink-50/60 border border-pink-200 rounded-xl px-2.5 py-1.5 appearance-none focus:outline-none focus:border-pink-500 transition-colors">
-                <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart - Puri Indah</option>
+              <select id="storeLocationSelect"
+                class="w-full text-xs font-bold text-ink bg-pink-50/60 border border-pink-200 rounded-xl px-2.5 py-1.5 appearance-none focus:outline-none focus:border-pink-500 transition-colors">
+                <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart Grocery - Puri Indah</option>
                 <option value="Indomaret Fresh">Indomaret Fresh</option>
                 <option value="Alfamart Super">Alfamart Super</option>
               </select>
-              <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-pink-500 text-[16px] pointer-events-none">expand_more</span>
+              <span
+                class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-pink-500 text-[16px] pointer-events-none">expand_more</span>
             </div>
           </div>
 
           <div>
-            <label class="block text-[10px] font-bold uppercase tracking-wider text-pink-700 mb-0.5">Tanggal Belanja</label>
-            <input type="date" id="shoppingDateInput" class="w-full text-xs font-bold text-ink bg-pink-50/60 border border-pink-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-pink-500 transition-colors">
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-pink-700 mb-0.5">Tanggal
+              Belanja</label>
+            <input type="date" id="shoppingDateInput"
+              class="w-full text-xs font-bold text-ink bg-pink-50/60 border border-pink-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-pink-500 transition-colors">
           </div>
         </div>
 
         <!-- Realtime Multi-Device Cloud Sync Status Bar (SRS F-06B) -->
-        <div class="mt-2.5 flex items-center justify-between py-1 px-2.5 rounded-lg bg-pink-50/80 border border-pink-200/80 text-[10px] font-semibold">
+        <div
+          class="mt-2.5 flex items-center justify-between py-1 px-2.5 rounded-lg bg-pink-50/80 border border-pink-200/80 text-[10px] font-semibold">
           <div class="flex items-center gap-1.5 text-pink-800" id="realtimeStatusBadge">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span id="realtimeStatusText">🟢 Cloud Realtime Sync Aktif (Live Multi-Device)</span>
           </div>
-          <button type="button" id="btnTestCloudPing" class="text-pink-600 hover:text-pink-800 font-bold underline cursor-pointer text-[10px]">Ping</button>
+          <button type="button" id="btnTestCloudPing"
+            class="text-pink-600 hover:text-pink-800 font-bold underline cursor-pointer text-[10px]">Ping</button>
         </div>
       </header>
 
@@ -278,12 +320,12 @@
 
       <!-- MAIN TAB CONTENT AREA -->
       <main class="flex-1 overflow-y-auto pb-24 p-4 space-y-4">
-        
+
         <!-- ==============================================================
              TAB 1: TROLI BELANJA (CART) - SRS F-01, F-02, F-03, F-04, F-06A
              ============================================================== -->
         <section id="tabCart" class="tab-pane active flex-col w-full gap-3">
-          
+
           <!-- Financial HUD / Budget Progress Card -->
           <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100 relative overflow-hidden">
             <div class="flex items-center justify-between mb-2">
@@ -291,7 +333,8 @@
                 <span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>
                 <span>Saldo Belanja Rian</span>
               </span>
-              <span id="budgetHealthPill" class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span id="budgetHealthPill"
+                class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                 ● AMAN
               </span>
             </div>
@@ -300,21 +343,26 @@
             <div class="grid grid-cols-3 gap-2 my-2 text-center">
               <div class="bg-pink-50/60 rounded-xl p-2 border border-pink-100">
                 <span class="block text-[10px] font-bold text-slate-500 uppercase">Batas Pagu</span>
-                <strong class="font-mono text-xs sm:text-sm font-extrabold text-ink cursor-pointer hover:text-pink-600" id="hudBudgetLimit" title="Klik untuk ubah limit">Rp 100.000</strong>
+                <strong class="font-mono text-xs sm:text-sm font-extrabold text-ink cursor-pointer hover:text-pink-600"
+                  id="hudBudgetLimit" title="Klik untuk ubah limit">Rp 100.000</strong>
               </div>
               <div class="bg-pink-50/60 rounded-xl p-2 border border-pink-100">
                 <span class="block text-[10px] font-bold text-slate-500 uppercase">Total Troli</span>
-                <strong class="font-mono text-xs sm:text-sm font-extrabold text-pink-600" id="hudTotalSpend">Rp 0</strong>
+                <strong class="font-mono text-xs sm:text-sm font-extrabold text-pink-600" id="hudTotalSpend">Rp
+                  0</strong>
               </div>
               <div class="bg-pink-50/60 rounded-xl p-2 border border-pink-100">
                 <span class="block text-[10px] font-bold text-slate-500 uppercase">Sisa Dompet</span>
-                <strong class="font-mono text-xs sm:text-sm font-extrabold text-emerald-600" id="hudRemaining">Rp 100.000</strong>
+                <strong class="font-mono text-xs sm:text-sm font-extrabold text-emerald-600" id="hudRemaining">Rp
+                  100.000</strong>
               </div>
             </div>
 
             <!-- Progress Bar -->
             <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mt-3 border border-slate-200/50">
-              <div id="budgetProgressBar" class="h-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full transition-all duration-300" style="width: 0%;"></div>
+              <div id="budgetProgressBar"
+                class="h-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full transition-all duration-300"
+                style="width: 0%;"></div>
             </div>
             <div class="flex items-center justify-between mt-1 text-[10px] font-semibold text-slate-500">
               <span id="budgetUsagePercentText">0% Terpakai</span>
@@ -324,11 +372,14 @@
 
           <!-- Action Buttons Bar -->
           <div class="flex items-center gap-2">
-            <button type="button" id="btnOpenAddModal" class="flex-1 py-3 px-4 rounded-xl bg-pink-500 hover:bg-pink-600 active:scale-98 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer">
+            <button type="button" id="btnOpenAddModal"
+              class="flex-1 py-3 px-4 rounded-xl bg-pink-500 hover:bg-pink-600 active:scale-98 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer">
               <span class="material-symbols-outlined text-[18px]">add_circle</span>
               <span>+ Tambah Barang Baru</span>
             </button>
-            <button type="button" id="btnOpenClearCartModal" class="py-3 px-3.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 font-bold text-xs border border-pink-200 active:scale-98 transition-all cursor-pointer" title="Kosongkan Troli">
+            <button type="button" id="btnOpenClearCartModal"
+              class="py-3 px-3.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 font-bold text-xs border border-pink-200 active:scale-98 transition-all cursor-pointer"
+              title="Kosongkan Troli">
               <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
             </button>
           </div>
@@ -340,7 +391,8 @@
 
           <!-- Checkout / Selesaikan Belanja -->
           <div class="pt-2">
-            <button type="button" id="btnCheckoutTrigger" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-display text-sm font-bold shadow-md hover:shadow-lg active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <button type="button" id="btnCheckoutTrigger"
+              class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-display text-sm font-bold shadow-md hover:shadow-lg active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer">
               <span class="material-symbols-outlined text-[20px]">receipt_long</span>
               <span>Arsipkan &amp; Simpan Struk Belanja</span>
             </button>
@@ -352,14 +404,15 @@
              TAB 2: RENCANA & KATALOG (MASTER REFERENCE LOTTE MART)
              ============================================================== -->
         <section id="tabBudget" class="tab-pane flex-col w-full gap-3">
-          
+
           <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
             <h2 class="font-display text-sm font-bold text-ink flex items-center gap-1.5 mb-1">
               <span class="material-symbols-outlined text-pink-500 text-[18px]">checklist</span>
               <span>Katalog Ujian DT2 &bull; Lotte Mart Puri Indah</span>
             </h2>
             <p class="text-xs text-slate-500 leading-relaxed">
-              Klik tombol tambah (<span class="text-pink-600 font-bold">+</span>) pada produk untuk simulasi uji skenario F-01 s/d F-04 secara instan!
+              Klik tombol tambah (<span class="text-pink-600 font-bold">+</span>) pada produk untuk simulasi uji
+              skenario F-01 s/d F-04 secara instan!
             </p>
           </div>
 
@@ -374,7 +427,7 @@
              TAB 3: RIWAYAT & STRUK BELANJA
              ============================================================== -->
         <section id="tabHistory" class="tab-pane flex-col w-full gap-3">
-          
+
           <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
             <h2 class="font-display text-sm font-bold text-ink flex items-center gap-1.5 mb-1">
               <span class="material-symbols-outlined text-pink-500 text-[18px]">history</span>
@@ -396,18 +449,21 @@
              TAB 4: KENDALI ANGGARAN & AKUN (DOMPET & GOOGLE OAUTH)
              ============================================================== -->
         <section id="tabDompet" class="tab-pane flex-col w-full gap-3">
-          
+
           <!-- User Profile & Google Sign In Card -->
           <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
             <div class="flex items-center justify-between mb-3 pb-3 border-b border-pink-100">
               <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-pink-500 text-white font-bold text-lg flex items-center justify-center shadow-sm" id="dompetUserAvatar">
+                <div
+                  class="w-12 h-12 rounded-full bg-pink-500 text-white font-bold text-lg flex items-center justify-center shadow-sm"
+                  id="dompetUserAvatar">
                   R
                 </div>
                 <div>
                   <h3 class="font-display text-sm font-black text-ink" id="dompetUserName">Rian Pratama</h3>
                   <p class="text-xs text-pink-600 font-medium" id="dompetUserEmail">rian.smartgrocery@gmail.com</p>
-                  <span class="inline-block mt-0.5 px-2 py-0.5 rounded-md bg-pink-100 text-pink-800 text-[9px] font-extrabold uppercase">
+                  <span
+                    class="inline-block mt-0.5 px-2 py-0.5 rounded-md bg-pink-100 text-pink-800 text-[9px] font-extrabold uppercase">
                     Google OAuth Terverifikasi
                   </span>
                 </div>
@@ -415,16 +471,22 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-              <button type="button" onclick="app.loginWithGoogleOAuth()" class="py-2.5 px-3 rounded-xl bg-white border border-pink-200 hover:border-pink-500 text-pink-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+              <button type="button" onclick="app.loginWithGoogleOAuth()"
+                class="py-2.5 px-3 rounded-xl bg-white border border-pink-200 hover:border-pink-500 text-pink-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  <path fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                  <path fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                 </svg>
                 <span>OAuth Google</span>
               </button>
-              <button type="button" onclick="app.logoutToLoginScreen()" class="py-2.5 px-3 rounded-xl bg-pink-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-pink-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+              <button type="button" onclick="app.logoutToLoginScreen()"
+                class="py-2.5 px-3 rounded-xl bg-pink-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-pink-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                 <span class="material-symbols-outlined text-[16px]">logout</span>
                 <span>Ganti Akun</span>
               </button>
@@ -441,19 +503,29 @@
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Batas Maksimal Pengeluaran (Rp):</label>
               <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-xs text-slate-400">Rp</span>
-                <input type="number" id="inputSettingBudget" inputmode="numeric" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-pink-200 font-mono font-bold text-sm text-ink focus:outline-none focus:border-pink-500" value="100000">
+                <span
+                  class="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-xs text-slate-400">Rp</span>
+                <input type="number" id="inputSettingBudget" inputmode="numeric"
+                  class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-pink-200 font-mono font-bold text-sm text-ink focus:outline-none focus:border-pink-500"
+                  value="100000">
               </div>
             </div>
 
             <!-- Quick Presets -->
             <div class="flex items-center gap-2 pt-1">
-              <button type="button" class="btn-preset-budget flex-1 py-1.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold border border-pink-200 transition-colors" data-preset="100000">Rp 100k</button>
-              <button type="button" class="btn-preset-budget flex-1 py-1.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold border border-pink-200 transition-colors" data-preset="250000">Rp 250k</button>
-              <button type="button" class="btn-preset-budget flex-1 py-1.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold border border-pink-200 transition-colors" data-preset="350000">Rp 350k</button>
+              <button type="button"
+                class="btn-preset-budget flex-1 py-1.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold border border-pink-200 transition-colors"
+                data-preset="100000">Rp 100k</button>
+              <button type="button"
+                class="btn-preset-budget flex-1 py-1.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold border border-pink-200 transition-colors"
+                data-preset="250000">Rp 250k</button>
+              <button type="button"
+                class="btn-preset-budget flex-1 py-1.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-700 text-xs font-bold border border-pink-200 transition-colors"
+                data-preset="350000">Rp 350k</button>
             </div>
 
-            <button type="button" id="btnSaveSettingBudget" class="w-full py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs transition-colors">
+            <button type="button" id="btnSaveSettingBudget"
+              class="w-full py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs transition-colors">
               Simpan Limit Anggaran
             </button>
           </div>
@@ -465,7 +537,9 @@
               <span>Integrasi Cloud &amp; Realtime Lab</span>
             </h3>
             <p class="text-[11px] text-slate-500 leading-relaxed">
-              Sistem tersambung ke Supabase WebSocket Broadcast channel <code class="font-mono text-pink-700 bg-pink-50 px-1 py-0.5 rounded">dt2_rian_live_sync</code>. Setiap aksi penambahan di HP akan langsung muncul di PC tanpa reload F5 (≤ 2s).
+              Sistem tersambung ke Supabase WebSocket Broadcast channel <code
+                class="font-mono text-pink-700 bg-pink-50 px-1 py-0.5 rounded">dt2_rian_live_sync</code>. Setiap aksi
+              penambahan di HP akan langsung muncul di PC tanpa reload F5 (≤ 2s).
             </p>
           </div>
 
@@ -476,12 +550,13 @@
       <!-- BOTTOM NAVIGATION DOCK (4 Clean Tabs - Min 44px Touch Targets) -->
       <nav class="dock-nav-bar">
         <div class="grid grid-cols-4 gap-1">
-          
+
           <!-- 1. Troli Belanja -->
           <button type="button" class="dock-tab active" data-tab="tabCart" id="navBtnCart">
             <div class="relative">
               <span class="material-symbols-outlined text-[22px]">shopping_cart</span>
-              <span id="navCartBadge" class="absolute -top-1 -right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-pink-500 text-white font-mono text-[9px] font-black flex items-center justify-center leading-none">0</span>
+              <span id="navCartBadge"
+                class="absolute -top-1 -right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-pink-500 text-white font-mono text-[9px] font-black flex items-center justify-center leading-none">0</span>
             </div>
             <span class="text-[10px] mt-0.5 font-bold">Troli</span>
           </button>
@@ -517,7 +592,9 @@
               <span class="material-symbols-outlined text-pink-500">add_shopping_cart</span>
               <span>Input Barang Belanjaan</span>
             </h3>
-            <button type="button" class="w-8 h-8 rounded-full bg-pink-50 text-slate-500 hover:text-ink flex items-center justify-center cursor-pointer" onclick="app.closeItemModal()">
+            <button type="button"
+              class="w-8 h-8 rounded-full bg-pink-50 text-slate-500 hover:text-ink flex items-center justify-center cursor-pointer"
+              onclick="app.closeItemModal()">
               &times;
             </button>
           </div>
@@ -527,15 +604,18 @@
 
             <!-- Nama Barang -->
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Nama Barang <span class="text-rose-500">*</span></label>
-              <input type="text" id="inputItemName" placeholder="Contoh: Beras Rojolele" required class="w-full px-3.5 py-2.5 rounded-xl border border-pink-200 text-sm font-semibold text-ink focus:outline-none focus:border-pink-500">
+              <label class="block text-xs font-bold text-slate-700 mb-1">Nama Barang <span
+                  class="text-rose-500">*</span></label>
+              <input type="text" id="inputItemName" placeholder="Contoh: Beras Rojolele" required
+                class="w-full px-3.5 py-2.5 rounded-xl border border-pink-200 text-sm font-semibold text-ink focus:outline-none focus:border-pink-500">
             </div>
 
             <!-- Kategori & Satuan -->
             <div class="grid grid-cols-2 gap-2">
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Kategori</label>
-                <select id="inputItemCategory" class="w-full px-3 py-2.5 rounded-xl border border-pink-200 text-xs font-semibold text-ink focus:outline-none focus:border-pink-500">
+                <select id="inputItemCategory"
+                  class="w-full px-3 py-2.5 rounded-xl border border-pink-200 text-xs font-semibold text-ink focus:outline-none focus:border-pink-500">
                   <option value="Bahan Pokok">Bahan Pokok</option>
                   <option value="Protein Tinggi">Protein Tinggi</option>
                   <option value="Kebutuhan Rumah">Kebutuhan Rumah</option>
@@ -546,7 +626,8 @@
 
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Satuan</label>
-                <select id="inputItemUnit" class="w-full px-3 py-2.5 rounded-xl border border-pink-200 text-xs font-semibold text-ink focus:outline-none focus:border-pink-500">
+                <select id="inputItemUnit"
+                  class="w-full px-3 py-2.5 rounded-xl border border-pink-200 text-xs font-semibold text-ink focus:outline-none focus:border-pink-500">
                   <option value="karung/5kg">karung/5kg</option>
                   <option value="pouch/2L">pouch/2L</option>
                   <option value="kg">kg</option>
@@ -561,15 +642,18 @@
             <!-- Harga Satuan & Qty Stepper (SRS F-02) -->
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Harga Satuan (Rp) <span class="text-rose-500">*</span></label>
-                <input type="number" id="inputItemPrice" inputmode="numeric" placeholder="74000" required class="w-full px-3.5 py-2.5 rounded-xl border border-pink-200 font-mono text-sm font-bold text-ink focus:outline-none focus:border-pink-500">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Harga Satuan (Rp) <span
+                    class="text-rose-500">*</span></label>
+                <input type="number" id="inputItemPrice" inputmode="numeric" placeholder="74000" required
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-pink-200 font-mono text-sm font-bold text-ink focus:outline-none focus:border-pink-500">
               </div>
 
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Kuantitas (Qty)</label>
                 <div class="flex items-center gap-1">
                   <button type="button" class="stepper-btn shrink-0" onclick="app.adjustModalQty(-1)">&minus;</button>
-                  <input type="number" id="inputItemQty" inputmode="numeric" value="1" min="1" class="w-full text-center py-2 rounded-xl border border-pink-200 font-mono font-bold text-sm text-ink focus:outline-none focus:border-pink-500">
+                  <input type="number" id="inputItemQty" inputmode="numeric" value="1" min="1"
+                    class="w-full text-center py-2 rounded-xl border border-pink-200 font-mono font-bold text-sm text-ink focus:outline-none focus:border-pink-500">
                   <button type="button" class="stepper-btn shrink-0" onclick="app.adjustModalQty(1)">&plus;</button>
                 </div>
               </div>
@@ -582,7 +666,8 @@
                   Diskon / Promo
                   <span class="text-[10px] text-pink-600 font-normal">(50%+20% / 25%)</span>
                 </label>
-                <input type="text" id="inputItemDiscount" placeholder="Contoh: 50%+20%" class="w-full px-3 py-2 rounded-xl border border-pink-200 font-mono text-xs font-bold text-ink focus:outline-none focus:border-pink-500">
+                <input type="text" id="inputItemDiscount" placeholder="Contoh: 50%+20%"
+                  class="w-full px-3 py-2 rounded-xl border border-pink-200 font-mono text-xs font-bold text-ink focus:outline-none focus:border-pink-500">
               </div>
 
               <div>
@@ -590,12 +675,14 @@
                   Harga Bulan Lalu
                   <span class="text-[10px] text-pink-600 font-normal">(SRS F-04)</span>
                 </label>
-                <input type="number" id="inputItemLastMonthPrice" inputmode="numeric" placeholder="68000" class="w-full px-3 py-2 rounded-xl border border-pink-200 font-mono text-xs font-bold text-ink focus:outline-none focus:border-pink-500">
+                <input type="number" id="inputItemLastMonthPrice" inputmode="numeric" placeholder="68000"
+                  class="w-full px-3 py-2 rounded-xl border border-pink-200 font-mono text-xs font-bold text-ink focus:outline-none focus:border-pink-500">
               </div>
             </div>
 
             <!-- Live Calculation Preview Card -->
-            <div id="modalLiveCalculationBox" class="p-3 rounded-xl bg-pink-50/70 border border-pink-200 text-xs space-y-1">
+            <div id="modalLiveCalculationBox"
+              class="p-3 rounded-xl bg-pink-50/70 border border-pink-200 text-xs space-y-1">
               <div class="flex justify-between text-slate-600">
                 <span>Rincian Diskon:</span>
                 <span id="previewDiscountText" class="font-semibold text-pink-700">Tanpa Diskon</span>
@@ -616,10 +703,13 @@
 
             <!-- Submit Buttons -->
             <div class="flex items-center gap-2 pt-2">
-              <button type="button" class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer" onclick="app.closeItemModal()">
+              <button type="button"
+                class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer"
+                onclick="app.closeItemModal()">
                 Batal
               </button>
-              <button type="submit" class="flex-1 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs shadow-sm transition-all cursor-pointer">
+              <button type="submit"
+                class="flex-1 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs shadow-sm transition-all cursor-pointer">
                 Simpan ke Keranjang
               </button>
             </div>
@@ -634,10 +724,14 @@
         <div class="modal-sheet">
           <div class="text-center mb-5 pb-3 border-b border-slate-100">
             <svg class="w-8 h-8 mx-auto mb-2" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              <path fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+              <path fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
             </svg>
             <h3 class="font-display text-lg font-bold text-ink">Sign in with Google</h3>
             <p class="text-xs text-slate-500 mt-0.5">Pilih akun untuk melanjutkan ke Smart Grocery &bull; Rian</p>
@@ -645,17 +739,20 @@
 
           <div class="space-y-2 mb-4" id="googleAccountsChooserList">
             <!-- Account 1: freerobuxreal303@gmail.com (Akun User Aktif) -->
-            <div class="google-account-card ring-2 ring-emerald-400/40 bg-emerald-50/20" onclick="app.selectGoogleAccount('freerobuxreal303', 'freerobuxreal303@gmail.com', 'F', 'emerald')">
-              <div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-emerald-600/30">
+            <div class="google-account-card ring-2 ring-emerald-400/40 bg-emerald-50/20"
+              onclick="app.selectGoogleAccount('freerobuxreal303', 'freerobuxreal303@gmail.com', 'F', 'emerald')">
+              <div
+                class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-emerald-600/30">
                 <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                  <path d="M5.5 3L18.5 5.2L18.5 21L5.5 18.8Z" fill="#10B981"/>
-                  <rect x="9" y="8.5" width="6" height="6" rx="1.5" fill="#FFFFFF"/>
+                  <path d="M5.5 3L18.5 5.2L18.5 21L5.5 18.8Z" fill="#10B981" />
+                  <rect x="9" y="8.5" width="6" height="6" rx="1.5" fill="#FFFFFF" />
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5">
                   <span class="text-sm font-bold text-ink truncate">freerobuxreal303</span>
-                  <span class="px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold">Aktif</span>
+                  <span
+                    class="px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold">Aktif</span>
                 </div>
                 <div class="text-xs text-slate-500 truncate">freerobuxreal303@gmail.com</div>
                 <div class="text-[10px] text-emerald-600 font-semibold">Akun Google Anda • 1-Klik Masuk</div>
@@ -664,8 +761,10 @@
             </div>
 
             <!-- Account 2: Rian Pratama -->
-            <div class="google-account-card" onclick="app.selectGoogleAccount('Rian Pratama', 'rian.smartgrocery@gmail.com', 'R', 'pink')">
-              <div class="w-10 h-10 rounded-full bg-pink-500 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-pink-500/20">
+            <div class="google-account-card"
+              onclick="app.selectGoogleAccount('Rian Pratama', 'rian.smartgrocery@gmail.com', 'R', 'pink')">
+              <div
+                class="w-10 h-10 rounded-full bg-pink-500 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-pink-500/20">
                 R
               </div>
               <div class="flex-1 min-w-0">
@@ -677,8 +776,10 @@
             </div>
 
             <!-- Account 3: Siswa SMA Mutiara Bangsa 2 -->
-            <div class="google-account-card" onclick="app.selectGoogleAccount('Siswa SMA Mutiara Bangsa 2', 'siswa@mutiarabangsa.sch.id', 'S', 'blue')">
-              <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-blue-600/20">
+            <div class="google-account-card"
+              onclick="app.selectGoogleAccount('Siswa SMA Mutiara Bangsa 2', 'siswa@mutiarabangsa.sch.id', 'S', 'blue')">
+              <div
+                class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-blue-600/20">
                 S
               </div>
               <div class="flex-1 min-w-0">
@@ -691,47 +792,35 @@
 
             <!-- Custom Account Input Option -->
             <div class="pt-2 border-t border-slate-100">
-              <button type="button" onclick="app.toggleCustomGoogleInput()" class="w-full py-2 text-xs font-bold text-pink-600 hover:text-pink-800 flex items-center justify-center gap-1 cursor-pointer">
+              <button type="button" onclick="app.toggleCustomGoogleInput()"
+                class="w-full py-2 text-xs font-bold text-pink-600 hover:text-pink-800 flex items-center justify-center gap-1 cursor-pointer">
                 <span class="material-symbols-outlined text-[16px]">person_add</span>
                 <span>Gunakan Akun Google Lain</span>
               </button>
 
-              <div id="customGoogleInputBox" class="hidden mt-2 p-3 rounded-xl bg-pink-50/60 border border-pink-200 space-y-2">
+              <div id="customGoogleInputBox"
+                class="hidden mt-2 p-3 rounded-xl bg-pink-50/60 border border-pink-200 space-y-2">
                 <div>
                   <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Nama Lengkap</label>
-                  <input type="text" id="customGoogleName" placeholder="Contoh: Rian Gunawan" class="w-full px-3 py-1.5 rounded-lg border border-pink-200 text-xs font-semibold">
+                  <input type="text" id="customGoogleName" placeholder="Contoh: Rian Gunawan"
+                    class="w-full px-3 py-1.5 rounded-lg border border-pink-200 text-xs font-semibold">
                 </div>
                 <div>
                   <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Email Google</label>
-                  <input type="email" id="customGoogleEmail" placeholder="nama@gmail.com" class="w-full px-3 py-1.5 rounded-lg border border-pink-200 text-xs font-semibold">
+                  <input type="email" id="customGoogleEmail" placeholder="nama@gmail.com"
+                    class="w-full px-3 py-1.5 rounded-lg border border-pink-200 text-xs font-semibold">
                 </div>
-                <button type="button" onclick="app.submitCustomGoogleAccount()" class="w-full py-2 rounded-lg bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold">
+                <button type="button" onclick="app.submitCustomGoogleAccount()"
+                  class="w-full py-2 rounded-lg bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold">
                   Masuk dengan Akun Ini
                 </button>
               </div>
             </div>
 
-            <!-- Direct Google Cloud Console OAuth Option -->
-            <div class="pt-2 border-t border-slate-100">
-              <button type="button" onclick="app.triggerDirectGoogleRedirect()" class="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-                <span class="material-symbols-outlined text-[15px] text-pink-500">open_in_new</span>
-                <span>Coba Redirect Browser Google Cloud Console</span>
-              </button>
-              <div class="mt-1.5 p-2 rounded-xl bg-pink-50/50 border border-pink-200/80 text-[10px] text-slate-600 space-y-1">
-                <div class="font-bold text-pink-700 flex items-center gap-1">
-                  <span class="material-symbols-outlined text-[13px]">tips_and_updates</span>
-                  <span>Solusi Error 401: invalid_client</span>
-                </div>
-                <p>Agar redirect Google Cloud Console tidak error 401, tambahkan strip <code class="font-bold text-pink-600 bg-white px-1 py-0.5 rounded border border-pink-200">-</code> pada Client ID di Supabase Auth Provider:</p>
-                <div class="font-mono text-[9px] bg-white p-1 rounded border border-pink-200 text-slate-800 break-all select-all font-semibold">
-                  669779177636-77k3vg6sc2es3sd7roihmn6ffqgn2uc6.apps.googleusercontent.com
-                </div>
-              </div>
-            </div>
-
           </div>
 
-          <button type="button" onclick="app.closeGoogleOAuthModal()" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer">
+          <button type="button" onclick="app.closeGoogleOAuthModal()"
+            class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer">
             Batal
           </button>
         </div>
@@ -771,7 +860,8 @@
           </div>
 
           <div class="flex items-center gap-2 mt-4 pt-2">
-            <button type="button" onclick="app.closeReceiptModal()" class="flex-1 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs shadow-sm cursor-pointer">
+            <button type="button" onclick="app.closeReceiptModal()"
+              class="flex-1 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs shadow-sm cursor-pointer">
               Selesai &amp; Tutup Struk
             </button>
           </div>
@@ -794,10 +884,12 @@
           </div>
 
           <div class="flex items-center gap-2 mt-4">
-            <button type="button" onclick="app.closeClearCartModal()" class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer">
+            <button type="button" onclick="app.closeClearCartModal()"
+              class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer">
               Batal
             </button>
-            <button type="button" onclick="app.confirmClearCart()" class="flex-1 py-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-sm cursor-pointer">
+            <button type="button" onclick="app.confirmClearCart()"
+              class="flex-1 py-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-sm cursor-pointer">
               Ya, Kosongkan
             </button>
           </div>
@@ -815,6 +907,7 @@
 
   <!-- Supabase JS Client & Main Application Logic -->
   <script src="supabase.js"></script>
-  <script src="app.js?v=4.0"></script>
+  <script src="app.js?v=4.1"></script>
 </body>
+
 </html>
