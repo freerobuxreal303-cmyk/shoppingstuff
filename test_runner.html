@@ -167,6 +167,35 @@
       assert('Metode dynamic account chooser dan Google popup terdaftar', typeof appObj.renderGoogleAccountsChooser === 'function' && typeof appObj.triggerGcpOAuthPopup === 'function' && typeof appObj.selectGoogleAccount === 'function');
       assert('Metode direct Google Account view switch pada login screen terdaftar', typeof appObj.showGoogleAccountsSection === 'function' && typeof appObj.showDefaultLoginSection === 'function');
 
+      // Scoped Google Account Chooser & Multi-Account Switching Verification
+      try {
+        const modalHtml = appObj.buildGoogleAccountsChooserHTML ? appObj.buildGoogleAccountsChooserHTML('modal') : '';
+        const loginHtml = appObj.buildGoogleAccountsChooserHTML ? appObj.buildGoogleAccountsChooserHTML('login') : '';
+        
+        const hasScopedModalIds = modalHtml.includes('modal_customGoogleInputBox') && modalHtml.includes('modal_customGoogleEmail');
+        const hasScopedLoginIds = loginHtml.includes('login_customGoogleInputBox') && loginHtml.includes('login_customGoogleEmail');
+        const hasNoMisleadingDoorIcon = !modalHtml.includes('>login<') && !loginHtml.includes('>login<');
+        
+        assert('Scoped custom Google account form ID (modal_ vs login_) tanpa ID collision', hasScopedModalIds && hasScopedLoginIds);
+        assert('Tombol aksi akun tidak menggunakan icon login/logout yang ambigu', hasNoMisleadingDoorIcon);
+
+        // Uji multi-account record dan remove
+        const initialAccounts = appObj.getKnownAccounts();
+        const testUser = { name: 'User Test 99', email: 'test99@gmail.com', avatar: 'U' };
+        appObj.selectGoogleAccount(testUser.name, testUser.email, testUser.avatar, 'pink');
+        const updatedAccounts = appObj.getKnownAccounts();
+        const found = updatedAccounts.some(a => a.email === 'test99@gmail.com');
+        assert('Akun Google baru berhasil disimpan ke daftar multi-akun perangkat', found);
+
+        // Hapus akun test
+        appObj.removeKnownAccount('test99@gmail.com');
+        const afterRemove = appObj.getKnownAccounts();
+        const removed = !afterRemove.some(a => a.email === 'test99@gmail.com');
+        assert('removeKnownAccount() berhasil menghapus akun dari daftar perangkat', removed);
+      } catch (errChooser) {
+        assert('Uji Scoped Google Chooser & Multi-Account', false, errChooser.message);
+      }
+
       // Logout non-recursive instant verification
       try {
         localStorage.setItem('smart_grocery_logged_in', 'true');
