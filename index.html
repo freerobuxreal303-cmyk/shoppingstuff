@@ -736,70 +736,7 @@
           </div>
 
           <div class="space-y-2 mb-4" id="googleAccountsChooserList">
-            <!-- Account 1: freerobuxreal303@gmail.com (Akun User Aktif) -->
-            <div class="google-account-card ring-2 ring-emerald-400/40 bg-emerald-50/20"
-              onclick="app.selectGoogleAccount('freerobuxreal303', 'freerobuxreal303@gmail.com', 'F', 'emerald')">
-              <div
-                class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-emerald-600/30">
-                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                  <path d="M5.5 3L18.5 5.2L18.5 21L5.5 18.8Z" fill="#10B981" />
-                  <rect x="9" y="8.5" width="6" height="6" rx="1.5" fill="#FFFFFF" />
-                </svg>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-1.5">
-                  <span class="text-sm font-bold text-ink truncate">freerobuxreal303</span>
-                  <span
-                    class="px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold">Aktif</span>
-                </div>
-                <div class="text-xs text-slate-500 truncate">freerobuxreal303@gmail.com</div>
-                <div class="text-[10px] text-emerald-600 font-semibold">Akun Google Anda • 1-Klik Masuk</div>
-              </div>
-              <span class="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
-            </div>
-
-            <!-- Account 2: Akun Standar Siswa / Pengguna -->
-            <div class="google-account-card"
-              onclick="app.selectGoogleAccount('Siswa Mutiara Bangsa', 'siswa@mutiarabangsa.sch.id', 'S', 'blue')">
-              <div
-                class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-blue-600/20">
-                S
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-bold text-ink">Siswa Mutiara Bangsa</div>
-                <div class="text-xs text-slate-500 truncate">siswa@mutiarabangsa.sch.id</div>
-                <div class="text-[10px] text-blue-600 font-semibold">Akun Siswa Mutiara Bangsa</div>
-              </div>
-              <span class="material-symbols-outlined text-slate-400 text-[18px]">chevron_right</span>
-            </div>
-
-            <!-- Custom Account Input Option -->
-            <div class="pt-2 border-t border-slate-100">
-              <button type="button" onclick="app.toggleCustomGoogleInput()"
-                class="w-full py-2 text-xs font-bold text-pink-600 hover:text-pink-800 flex items-center justify-center gap-1 cursor-pointer">
-                <span class="material-symbols-outlined text-[16px]">person_add</span>
-                <span>Gunakan Akun Google Lain</span>
-              </button>
-
-              <div id="customGoogleInputBox"
-                class="hidden mt-2 p-3 rounded-xl bg-pink-50/60 border border-pink-200 space-y-2">
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Nama Lengkap</label>
-                  <input type="text" id="customGoogleName" placeholder="Contoh: Budi Santoso"
-                    class="w-full px-3 py-1.5 rounded-lg border border-pink-200 text-xs font-semibold">
-                </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Email Google</label>
-                  <input type="email" id="customGoogleEmail" placeholder="nama@gmail.com"
-                    class="w-full px-3 py-1.5 rounded-lg border border-pink-200 text-xs font-semibold">
-                </div>
-                <button type="button" onclick="app.submitCustomGoogleAccount()"
-                  class="w-full py-2 rounded-lg bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold">
-                  Masuk dengan Akun Ini
-                </button>
-              </div>
-            </div>
-
+            <!-- Dynamically populated via app.renderGoogleAccountsChooser() -->
           </div>
 
           <button type="button" onclick="app.closeGoogleOAuthModal()"

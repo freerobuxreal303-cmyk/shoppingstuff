@@ -38,13 +38,14 @@
       return;
     }
 
-    // 2. Cek user yang tersimpan di localStorage dari sesi popup ini
-    const savedPopupUser = localStorage.getItem('smart_grocery_user');
-    if (savedPopupUser) {
+    // 2. Cek fresh user yang tersimpan di localStorage dari sesi popup ini
+    const freshPopupUser = localStorage.getItem('smart_grocery_popup_fresh_user');
+    if (freshPopupUser) {
       try {
+        localStorage.removeItem('smart_grocery_popup_fresh_user');
         window.opener.postMessage({
           type: 'GOOGLE_OAUTH_SUCCESS',
-          user: JSON.parse(savedPopupUser)
+          user: JSON.parse(freshPopupUser)
         }, '*');
       } catch (e) {}
       setTimeout(() => {
@@ -505,10 +506,12 @@
           });
           const profile = await res.json();
           if (profile && (profile.name || profile.email)) {
+            const cleanEmail = (profile.email || '').trim().toLowerCase();
+            const cleanName = profile.name || profile.given_name || (cleanEmail ? cleanEmail.split('@')[0] : 'Pengguna Google');
             handleUserAuthenticated({
-              name: profile.name || profile.given_name || (profile.email ? profile.email.split('@')[0] : 'Pengguna Google'),
-              email: profile.email || 'freerobuxreal303@gmail.com',
-              avatar: (profile.name ? profile.name.charAt(0) : 'G').toUpperCase(),
+              name: cleanName,
+              email: cleanEmail || 'pengguna@gmail.com',
+              avatar: (cleanName.charAt(0) || 'G').toUpperCase(),
               avatarUrl: profile.picture || '',
               id: profile.sub || 'usr_' + Date.now()
             }, 'google');
@@ -523,10 +526,12 @@
       if (idToken) {
         const p = parseJwt(idToken);
         if (p) {
+          const cleanEmail = (p.email || '').trim().toLowerCase();
+          const cleanName = p.name || p.given_name || (cleanEmail ? cleanEmail.split('@')[0] : 'Pengguna Google');
           handleUserAuthenticated({
-            name: p.name || p.given_name || (p.email ? p.email.split('@')[0] : 'Pengguna Google'),
-            email: p.email || 'freerobuxreal303@gmail.com',
-            avatar: (p.name ? p.name.charAt(0) : 'G').toUpperCase(),
+            name: cleanName,
+            email: cleanEmail || 'pengguna@gmail.com',
+            avatar: (cleanName.charAt(0) || 'G').toUpperCase(),
             avatarUrl: p.picture || '',
             id: p.sub || 'usr_' + Date.now()
           }, 'google');
@@ -538,10 +543,21 @@
   }
 
   function handleUserAuthenticated(user, provider = 'google') {
-    const fullName = user.name || user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] : 'Freerobuxreal');
-    const email = user.email || 'freerobuxreal303@gmail.com';
-    const avatar = (fullName.charAt(0) || 'F').toUpperCase();
+    if (!user || (!user.email && !user.name)) return;
+
+    const email = (user.email || 'pengguna@gmail.com').trim().toLowerCase();
+    const fullName = user.name || user.user_metadata?.full_name || email.split('@')[0];
+    const avatar = (user.avatar || fullName.charAt(0) || 'G').toUpperCase();
     const avatarUrl = user.avatarUrl || user.picture || user.user_metadata?.avatar_url || '';
+
+    // Disconnect prior realtime channel so different accounts don't cross-sync
+    if (state.realtimeChannel && state.supabase) {
+      try {
+        state.supabase.removeChannel(state.realtimeChannel);
+        state.realtimeChannel = null;
+        state.isRealtimeConnected = false;
+      } catch (e) {}
+    }
 
     state.isLoggedIn = true;
     state.currentUser = {
@@ -550,10 +566,18 @@
       avatar: avatar,
       avatarUrl: avatarUrl,
       provider: provider,
+      themeColor: user.themeColor || 'pink',
       id: user.id || user.sub || 'usr_' + Date.now(),
       loginAt: Date.now()
     };
 
+    // Save known account to device account list
+    recordKnownAccount(state.currentUser);
+
+    // CRITICAL: Load this user's isolated data (cart, catalog, budget, history)
+    loadStateForUser(state.currentUser);
+
+    // Persist current state under user key
     saveStateToStorage();
 
     // JIKA JENDELA INI DIBUKA SEBAGAI POPUP OLEH TAB UTAMA:
@@ -574,25 +598,33 @@
 
     hideLoginScreen();
     updateUserProfileUI();
-    showToast(`🟢 Selamat datang, ${fullName}! Masuk dengan Google.`);
+    showToast(`🟢 Selamat datang, ${fullName}! (${email})`);
 
     // Bersihkan hash token di address bar setelah berhasil login
     if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('id_token') || window.location.hash.includes('error'))) {
       window.history.replaceState(null, '', window.location.pathname);
     }
 
-    // Pastikan Multi-Device Realtime Sync terhubung
-    if (!state.isRealtimeConnected) {
-      initSupabaseRealtime();
-    }
+    // Connect user-isolated Supabase Realtime channel
+    initSupabaseRealtime();
   }
 
   // =========================================================================
-  // LOGIN GOOGLE OAUTH 2.0 (SESUAI PANDUAN MR. TIO • POPUP OTOMATIS)
+  // LOGIN GOOGLE OAUTH 2.0 (SESUAI PANDUAN MR. TIO • MULTI-ACCOUNT DYNAMIC CHOOSER)
   // =========================================================================
-  async function loginWithGoogleOAuth() {
+  function loginWithGoogleOAuth() {
     AudioEngine.playTap();
-    showToast('Membuka Google Sign-In...', 'info');
+    openGoogleOAuthModal();
+  }
+
+  // Alias untuk kompatibilitas
+  function triggerDirectGoogleRedirect() {
+    return loginWithGoogleOAuth();
+  }
+
+  async function triggerGcpOAuthPopup() {
+    AudioEngine.playTap();
+    showToast('Membuka Google Sign-In Popup...', 'info');
 
     try {
       const width = 500;
@@ -600,35 +632,8 @@
       const left = window.screenX + (window.outerWidth - width) / 2;
       const top = window.screenY + (window.outerHeight - height) / 2;
 
-      // 1. Langsung buka popup window saat tombol ditekan
-      const popup = window.open(
-        'about:blank',
-        'GoogleSignInPopup',
-        `width=${width},height=${height},left=${left},top=${top},status=no,menubar=no,toolbar=no`
-      );
+      localStorage.removeItem('smart_grocery_popup_fresh_user');
 
-      if (popup) {
-        popup.document.write(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>Menghubungkan ke Google...</title>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #fff0f5; color: #db2777; text-align: center; }
-              .spinner { width: 36px; height: 36px; border: 4px solid #fce7f3; border-top-color: #ec4899; border-radius: 50%; animation: spin 0.8s linear infinite; }
-              @keyframes spin { to { transform: rotate(360deg); } }
-            </style>
-          </head>
-          <body>
-            <div class="spinner"></div>
-            <p style="margin-top: 14px; font-weight: 700; font-size: 13px;">Menghubungkan ke Google Cloud Platform...</p>
-          </body>
-          </html>
-        `);
-      }
-
-      // 2. Susun URL Google OAuth 2.0 resmi (Panduan Mr. Tio Step 5 & 6)
       const redirectUri = getGoogleRedirectUri();
       const stateNonce = 'st_' + Math.random().toString(36).substring(2, 10);
       const authUrl = new URL(GOOGLE_OAUTH_CONFIG.AUTH_URI);
@@ -639,23 +644,21 @@
       authUrl.searchParams.set('prompt', 'select_account');
       authUrl.searchParams.set('nonce', stateNonce);
 
-      if (popup) {
-        popup.location.href = authUrl.toString();
-      } else {
-        window.location.href = authUrl.toString();
-        return;
-      }
+      const popup = window.open(
+        authUrl.toString(),
+        'GoogleSignInPopup',
+        `width=${width},height=${height},left=${left},top=${top},status=no,menubar=no,toolbar=no`
+      );
 
-      // 3. Monitor penutupan popup (Fallback jika postMessage terblokir)
       const popupWatcher = setInterval(() => {
         if (!popup || popup.closed) {
           clearInterval(popupWatcher);
-          const isMarkedLoggedIn = localStorage.getItem('smart_grocery_logged_in') === 'true';
-          const savedUserStr = localStorage.getItem('smart_grocery_user');
-          if (isMarkedLoggedIn && savedUserStr) {
+          const freshUserStr = localStorage.getItem('smart_grocery_popup_fresh_user');
+          if (freshUserStr) {
             try {
-              const u = JSON.parse(savedUserStr);
-              if (u && !state.isLoggedIn) {
+              const u = JSON.parse(freshUserStr);
+              localStorage.removeItem('smart_grocery_popup_fresh_user');
+              if (u && u.email) {
                 handleUserAuthenticated(u, 'google');
               }
             } catch (e) {}
@@ -669,134 +672,61 @@
     }
   }
 
-  // Alias untuk kompatibilitas
-  async function triggerDirectGoogleRedirect() {
-    return loginWithGoogleOAuth();
-  }
-
   function handlePasswordLogin() {
     const userInp = document.getElementById('inputAuthLoginUsername');
     const val = userInp ? userInp.value.trim() : '';
     const name = val.includes('@') ? val.split('@')[0] : (val || 'Pengguna');
     const email = val.includes('@') ? val : `${val.toLowerCase() || 'pengguna'}@smartgrocery.app`;
 
-    state.isLoggedIn = true;
-    state.currentUser = {
+    handleUserAuthenticated({
       name: name.charAt(0).toUpperCase() + name.slice(1),
       email: email,
-      avatar: (name.charAt(0) || 'U').toUpperCase(),
-      provider: 'credentials',
-      loginAt: Date.now()
-    };
-
-    saveStateToStorage();
-
-    // JIKA JENDELA INI DIBUKA SEBAGAI POPUP OLEH TAB UTAMA:
-    if (window.opener && window.opener !== window) {
-      try {
-        window.opener.postMessage({
-          type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
-          user: state.currentUser,
-          token: null
-        }, '*');
-        localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
-      } catch (e) {
-        console.warn('postMessage to opener notice:', e);
-      }
-      setTimeout(() => {
-        window.close();
-      }, 150);
-      return;
-    }
-
-    hideLoginScreen();
-    updateUserProfileUI();
-    showToast(`🟢 Selamat datang, ${state.currentUser.name}!`);
+      avatar: (name.charAt(0) || 'U').toUpperCase()
+    }, 'credentials');
   }
 
   function handlePasswordRegister() {
     const nameInp = document.getElementById('inputAuthRegName');
     const emailInp = document.getElementById('inputAuthRegEmail');
-    const name = nameInp ? nameInp.value.trim() : 'Siswa Mutiara Bangsa';
-    const email = emailInp ? emailInp.value.trim() : 'siswa@mutiarabangsa.sch.id';
+    const name = nameInp ? nameInp.value.trim() : 'Pengguna Baru';
+    const email = emailInp ? emailInp.value.trim() : 'pengguna@smartgrocery.app';
 
-    state.isLoggedIn = true;
-    state.currentUser = {
+    handleUserAuthenticated({
       name: name,
       email: email,
-      avatar: (name.charAt(0) || 'S').toUpperCase(),
-      provider: 'registered',
-      loginAt: Date.now()
-    };
-
-    saveStateToStorage();
-
-    // JIKA JENDELA INI DIBUKA SEBAGAI POPUP OLEH TAB UTAMA:
-    if (window.opener && window.opener !== window) {
-      try {
-        window.opener.postMessage({
-          type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
-          user: state.currentUser,
-          token: user.access_token || null
-        }, '*');
-        localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
-      } catch (e) {
-        console.warn('postMessage to opener notice:', e);
-      }
-      setTimeout(() => {
-        window.close();
-      }, 150);
-      return;
-    }
-
-    hideLoginScreen();
-    updateUserProfileUI();
-    showToast(`🎉 Akun ${name} berhasil dibuat!`);
+      avatar: (name.charAt(0) || 'P').toUpperCase()
+    }, 'registered');
   }
 
   function loginAsGuest() {
-    state.isLoggedIn = true;
-    state.currentUser = {
+    handleUserAuthenticated({
       name: 'Pengguna Tamu',
       email: 'guest@smartgrocery.app',
-      avatar: 'G',
-      provider: 'guest',
-      loginAt: Date.now()
-    };
-    saveStateToStorage();
-
-    // JIKA JENDELA INI DIBUKA SEBAGAI POPUP OLEH TAB UTAMA:
-    if (window.opener && window.opener !== window) {
-      try {
-        window.opener.postMessage({
-          type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
-          user: state.currentUser,
-          token: null
-        }, '*');
-        localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
-      } catch (e) {
-        console.warn('postMessage to opener notice:', e);
-      }
-      setTimeout(() => {
-        window.close();
-      }, 150);
-      return;
-    }
-
-    hideLoginScreen();
-    updateUserProfileUI();
-    showToast('🟢 Masuk sebagai Pengguna Tamu!');
+      avatar: 'G'
+    }, 'guest');
   }
 
   async function logoutToLoginScreen() {
     state.isLoggedIn = false;
     localStorage.removeItem('smart_grocery_logged_in');
     localStorage.removeItem('smart_grocery_user');
-    if (state.supabase) {
+
+    if (state.supabase && state.realtimeChannel) {
       try {
-        await state.supabase.auth.signOut();
+        state.supabase.removeChannel(state.realtimeChannel);
+        state.realtimeChannel = null;
+        state.isRealtimeConnected = false;
       } catch (e) {}
     }
+
+    // Reset in-memory state cleanly so no data bleeds across users
+    state.currentUser = null;
+    state.cart = [];
+    state.budgetLimit = 100000;
+    state.historySessions = [];
+    state.catalog = JSON.parse(JSON.stringify(MASTER_CATALOG));
+    renderAll();
+
     showLoginScreen();
     showToast('Anda telah keluar dari aplikasi.');
   }
@@ -823,7 +753,148 @@
     if (box) box.classList.toggle('hidden');
   }
 
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function getUserStorageKey(userOrEmail) {
+    let email = '';
+    if (typeof userOrEmail === 'string') {
+      email = userOrEmail;
+    } else if (userOrEmail && userOrEmail.email) {
+      email = userOrEmail.email;
+    } else if (state.currentUser && state.currentUser.email) {
+      email = state.currentUser.email;
+    }
+    if (!email) return 'guest';
+    return email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+  }
+
+  function getKnownAccounts() {
+    try {
+      const raw = localStorage.getItem('smart_grocery_known_accounts');
+      if (raw) {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) return list;
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  function recordKnownAccount(user) {
+    if (!user || !user.email) return;
+    const cleanEmail = user.email.trim().toLowerCase();
+    const list = getKnownAccounts();
+    const existingIndex = list.findIndex(acc => acc.email.toLowerCase() === cleanEmail);
+    const entry = {
+      name: user.name || cleanEmail.split('@')[0],
+      email: cleanEmail,
+      avatar: user.avatar || (user.name ? user.name.charAt(0) : 'G').toUpperCase(),
+      themeColor: user.themeColor || 'pink',
+      lastLogin: Date.now()
+    };
+    if (existingIndex >= 0) {
+      list[existingIndex] = { ...list[existingIndex], ...entry };
+    } else {
+      list.unshift(entry);
+    }
+    localStorage.setItem('smart_grocery_known_accounts', JSON.stringify(list.slice(0, 6)));
+  }
+
+  function removeKnownAccount(email, event) {
+    if (event) event.stopPropagation();
+    let list = getKnownAccounts();
+    list = list.filter(acc => acc.email.toLowerCase() !== email.toLowerCase());
+    localStorage.setItem('smart_grocery_known_accounts', JSON.stringify(list));
+    renderGoogleAccountsChooser();
+  }
+
+  function renderGoogleAccountsChooser() {
+    const container = document.getElementById('googleAccountsChooserList');
+    if (!container) return;
+
+    const accounts = getKnownAccounts();
+    const activeEmail = (state.isLoggedIn && state.currentUser && state.currentUser.email) ? state.currentUser.email.toLowerCase() : '';
+
+    let html = '';
+
+    if (accounts.length > 0) {
+      html += `<div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Pilih Akun Tersimpan di Perangkat:</div>`;
+      html += `<div class="space-y-2 mb-3">`;
+      accounts.forEach(acc => {
+        const isActive = activeEmail && acc.email.toLowerCase() === activeEmail;
+        const initial = (acc.name ? acc.name.charAt(0) : (acc.email ? acc.email.charAt(0) : 'G')).toUpperCase();
+        const safeName = escapeHtml(acc.name || acc.email.split('@')[0]);
+        const safeEmail = escapeHtml(acc.email);
+
+        html += `
+          <div class="google-account-card ${isActive ? 'ring-2 ring-pink-500/50 bg-pink-50/30' : ''}"
+               onclick="app.selectGoogleAccount('${safeName}', '${safeEmail}', '${initial}', 'pink')">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-pink-500/20">
+              ${initial}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm font-bold text-ink truncate">${safeName}</span>
+                ${isActive ? '<span class="px-1.5 py-0.2 rounded-full bg-pink-100 text-pink-700 text-[9px] font-bold">Sedang Aktif</span>' : ''}
+              </div>
+              <div class="text-xs text-slate-500 truncate">${safeEmail}</div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="app.removeKnownAccount('${safeEmail}', event)" title="Hapus dari daftar" class="w-7 h-7 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center cursor-pointer">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+              </button>
+              <span class="material-symbols-outlined text-pink-500 text-[18px]">chevron_right</span>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+
+    html += `
+      <div class="p-3.5 rounded-2xl bg-pink-50/40 border border-pink-200 space-y-2.5">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-pink-700">
+          <span class="material-symbols-outlined text-[16px]">person_add</span>
+          <span>Masuk dengan Akun Google Lain / Baru</span>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-600 mb-0.5 uppercase tracking-wider">Email Google</label>
+          <input type="email" id="customGoogleEmail" placeholder="contoh: nama@gmail.com"
+                 class="w-full px-3 py-2 rounded-xl border border-pink-200 text-xs font-semibold focus:outline-none focus:border-pink-500 bg-white">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-600 mb-0.5 uppercase tracking-wider">Nama Tampilan</label>
+          <input type="text" id="customGoogleName" placeholder="Contoh: Budi Santoso"
+                 class="w-full px-3 py-2 rounded-xl border border-pink-200 text-xs font-semibold focus:outline-none focus:border-pink-500 bg-white">
+        </div>
+        <button type="button" onclick="app.submitCustomGoogleAccount()"
+                class="w-full py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold shadow-sm shadow-pink-500/20 cursor-pointer flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">login</span>
+          <span>Masuk &amp; Sinkronkan Akun</span>
+        </button>
+      </div>
+
+      <div class="pt-2 text-center">
+        <button type="button" onclick="app.triggerGcpOAuthPopup()"
+                class="text-[11px] font-bold text-slate-400 hover:text-pink-600 inline-flex items-center gap-1 cursor-pointer">
+          <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+          <span>Buka Jendela Google Cloud OAuth Popup</span>
+        </button>
+      </div>
+    `;
+
+    container.innerHTML = html;
+  }
+
   function openGoogleOAuthModal() {
+    renderGoogleAccountsChooser();
     const modal = document.getElementById('modalOurGoogleOAuth');
     if (modal) modal.classList.add('show');
   }
@@ -834,21 +905,24 @@
   }
 
   function selectGoogleAccount(name, email, avatarSymbol, themeColor) {
-    state.isLoggedIn = true;
-    state.currentUser = {
-      name,
-      email,
-      avatar: avatarSymbol || name.charAt(0).toUpperCase(),
-      provider: 'google',
-      themeColor: themeColor || 'pink',
-      loginAt: Date.now()
-    };
+    if (!email || !email.includes('@')) {
+      showToast('⚠️ Masukkan email yang valid!', 'danger');
+      return;
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanName = name || cleanEmail.split('@')[0];
+    const initial = avatarSymbol || (cleanName.charAt(0) || 'G').toUpperCase();
 
-    saveStateToStorage();
+    handleUserAuthenticated({
+      name: cleanName,
+      email: cleanEmail,
+      avatar: initial,
+      themeColor: themeColor || 'pink',
+      provider: 'google',
+      id: 'usr_' + btoa(cleanEmail).replace(/=/g, '').slice(0, 16)
+    }, 'google');
+
     closeGoogleOAuthModal();
-    hideLoginScreen();
-    updateUserProfileUI();
-    showToast(`🟢 Berhasil masuk sebagai ${name} (${email})!`);
   }
 
   function toggleCustomGoogleInput() {
@@ -857,14 +931,19 @@
   }
 
   function submitCustomGoogleAccount() {
-    const nameInput = document.getElementById('customGoogleName');
     const emailInput = document.getElementById('customGoogleEmail');
-    const name = nameInput ? nameInput.value.trim() : '';
-    const email = emailInput ? emailInput.value.trim() : '';
+    const nameInput = document.getElementById('customGoogleName');
+    const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+    let name = nameInput ? nameInput.value.trim() : '';
 
-    if (!name || !email || !email.includes('@')) {
-      showToast('⚠️ Masukkan Nama dan Email Google yang valid!', 'danger');
+    if (!email || !email.includes('@')) {
+      showToast('⚠️ Masukkan Email Google yang valid!', 'danger');
       return;
+    }
+
+    if (!name) {
+      name = email.split('@')[0];
+      name = name.charAt(0).toUpperCase() + name.slice(1);
     }
 
     selectGoogleAccount(name, email, name.charAt(0).toUpperCase(), 'pink');
@@ -1011,25 +1090,88 @@
   }
 
   // =========================================================================
-  // SRS F-06A: PERSISTENSI DATA LOKAL (LocalStorage & F5 Anti-Reset Protection)
+  // SRS F-06A: PERSISTENSI DATA LOKAL TERISOLASI PER AKUN (Anti-Leak & F5 Guard)
   // =========================================================================
   function saveStateToStorage() {
     try {
-      localStorage.setItem('smart_grocery_cart', JSON.stringify(state.cart));
-      localStorage.setItem('smart_grocery_catalog', JSON.stringify(state.catalog));
-      localStorage.setItem('smart_grocery_budget', String(state.budgetLimit));
-      localStorage.setItem('smart_grocery_store', state.storeLocation);
-      localStorage.setItem('smart_grocery_date', state.shoppingDate);
+      const userKey = getUserStorageKey(state.currentUser);
+      localStorage.setItem(`sg_${userKey}_cart`, JSON.stringify(state.cart));
+      localStorage.setItem(`sg_${userKey}_catalog`, JSON.stringify(state.catalog));
+      localStorage.setItem(`sg_${userKey}_budget`, String(state.budgetLimit));
+      localStorage.setItem(`sg_${userKey}_store`, state.storeLocation);
+      localStorage.setItem(`sg_${userKey}_date`, state.shoppingDate);
+      localStorage.setItem(`sg_${userKey}_history`, JSON.stringify(state.historySessions));
+
       if (state.isLoggedIn && state.currentUser) {
         localStorage.setItem('smart_grocery_user', JSON.stringify(state.currentUser));
+        localStorage.setItem('smart_grocery_logged_in', 'true');
+        recordKnownAccount(state.currentUser);
       } else {
         localStorage.removeItem('smart_grocery_user');
+        localStorage.setItem('smart_grocery_logged_in', 'false');
       }
-      localStorage.setItem('smart_grocery_history', JSON.stringify(state.historySessions));
-      localStorage.setItem('smart_grocery_logged_in', state.isLoggedIn ? 'true' : 'false');
     } catch (e) {
       console.warn('LocalStorage save notice:', e);
     }
+  }
+
+  function loadStateForUser(user) {
+    const userKey = getUserStorageKey(user);
+
+    // 1. Cart terisolasi: Akun baru selalu mulai dari keranjang kosong
+    const savedCart = localStorage.getItem(`sg_${userKey}_cart`);
+    if (savedCart) {
+      try { state.cart = JSON.parse(savedCart); } catch (e) { state.cart = []; }
+    } else {
+      // Migrasi data lama jika ada
+      const legacyCart = localStorage.getItem('smart_grocery_cart');
+      if (legacyCart && userKey !== 'guest') {
+        try {
+          state.cart = JSON.parse(legacyCart);
+          localStorage.setItem(`sg_${userKey}_cart`, legacyCart);
+        } catch (e) { state.cart = []; }
+      } else {
+        state.cart = [];
+      }
+    }
+
+    // 2. Katalog terisolasi
+    const savedCatalog = localStorage.getItem(`sg_${userKey}_catalog`);
+    if (savedCatalog) {
+      try {
+        const parsedCat = JSON.parse(savedCatalog);
+        if (Array.isArray(parsedCat) && parsedCat.length > 0) state.catalog = parsedCat;
+      } catch (e) {
+        state.catalog = JSON.parse(JSON.stringify(MASTER_CATALOG));
+      }
+    } else {
+      state.catalog = JSON.parse(JSON.stringify(MASTER_CATALOG));
+    }
+
+    // 3. Batas Anggaran terisolasi: default Rp 100.000 untuk akun baru
+    const savedBudget = localStorage.getItem(`sg_${userKey}_budget`);
+    if (savedBudget && !isNaN(parseFloat(savedBudget)) && parseFloat(savedBudget) > 0) {
+      state.budgetLimit = parseFloat(savedBudget);
+    } else {
+      state.budgetLimit = 100000;
+    }
+
+    // 4. Toko & Tanggal
+    const savedStore = localStorage.getItem(`sg_${userKey}_store`);
+    if (savedStore) state.storeLocation = savedStore;
+    const savedDate = localStorage.getItem(`sg_${userKey}_date`);
+    if (savedDate) state.shoppingDate = savedDate;
+
+    // 5. Riwayat transaksi & struk terisolasi
+    const savedHistory = localStorage.getItem(`sg_${userKey}_history`);
+    if (savedHistory) {
+      try { state.historySessions = JSON.parse(savedHistory); } catch (e) { state.historySessions = []; }
+    } else {
+      state.historySessions = [];
+    }
+
+    // Render ulang seluruh komponen UI dengan data user ini
+    renderAll();
   }
 
   function loadStateFromStorage() {
@@ -1037,43 +1179,24 @@
       const savedLoggedIn = localStorage.getItem('smart_grocery_logged_in');
       state.isLoggedIn = savedLoggedIn === 'true';
 
-      const savedCart = localStorage.getItem('smart_grocery_cart');
-      if (savedCart) {
-        try { state.cart = JSON.parse(savedCart); } catch (e) { state.cart = []; }
-      }
-
-      const savedCatalog = localStorage.getItem('smart_grocery_catalog');
-      if (savedCatalog) {
-        try {
-          const parsedCat = JSON.parse(savedCatalog);
-          if (Array.isArray(parsedCat) && parsedCat.length > 0) state.catalog = parsedCat;
-        } catch (e) {}
-      }
-      if (!state.catalog || state.catalog.length === 0) {
-        state.catalog = JSON.parse(JSON.stringify(MASTER_CATALOG));
-      }
-
-      const savedBudget = localStorage.getItem('smart_grocery_budget');
-      if (savedBudget && !isNaN(parseFloat(savedBudget))) {
-        state.budgetLimit = parseFloat(savedBudget);
-      }
-
-      const savedStore = localStorage.getItem('smart_grocery_store');
-      if (savedStore) state.storeLocation = savedStore;
-
-      const savedDate = localStorage.getItem('smart_grocery_date');
-      if (savedDate) state.shoppingDate = savedDate;
-
       if (state.isLoggedIn) {
-        const savedUser = localStorage.getItem('smart_grocery_user');
-        if (savedUser) {
-          try { state.currentUser = JSON.parse(savedUser); } catch (e) {}
+        const savedUserStr = localStorage.getItem('smart_grocery_user');
+        if (savedUserStr) {
+          try {
+            state.currentUser = JSON.parse(savedUserStr);
+          } catch (e) {
+            state.currentUser = null;
+            state.isLoggedIn = false;
+          }
+        } else {
+          state.isLoggedIn = false;
         }
       }
 
-      const savedHistory = localStorage.getItem('smart_grocery_history');
-      if (savedHistory) {
-        try { state.historySessions = JSON.parse(savedHistory); } catch (e) { state.historySessions = []; }
+      if (state.isLoggedIn && state.currentUser && state.currentUser.email) {
+        loadStateForUser(state.currentUser);
+      } else {
+        loadStateForUser({ email: 'guest@smartgrocery.app', name: 'Pengguna Tamu' });
       }
     } catch (e) {
       console.warn('LocalStorage load notice:', e);
@@ -1081,7 +1204,7 @@
   }
 
   // =========================================================================
-  // SRS F-06B: SINKRONISASI REALTIME CLOUD MULTI-DEVICE (Supabase WebSocket)
+  // SRS F-06B: SINKRONISASI REALTIME CLOUD TERISOLASI PER AKUN (Supabase WebSocket)
   // =========================================================================
   async function initSupabaseRealtime() {
     if (!window.supabase) return;
@@ -1090,19 +1213,18 @@
         state.supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
       }
 
-      // Channel name can scope to logged in account or default channel
-      let channelName = SUPABASE_CONFIG.CHANNEL;
-      if (state.isLoggedIn && state.currentUser && state.currentUser.email) {
-        const cleanEmail = state.currentUser.email.replace(/[^a-zA-Z0-9]/g, '_');
-        channelName = `sync_${cleanEmail}`;
-      }
+      // Channel name terisolasi strictly berdasarkan email akun pengguna
+      const userKey = getUserStorageKey(state.currentUser);
+      const channelName = state.isLoggedIn && state.currentUser?.email
+        ? `sync_account_${userKey}`
+        : 'sync_account_guest';
 
-      // Unsubscribe existing if changing channel
+      // Hentikan langganan channel sebelumnya jika berganti akun
       if (state.realtimeChannel) {
         try { state.supabase.removeChannel(state.realtimeChannel); } catch (e) {}
       }
 
-      // Subscribe to Realtime Broadcast Channel
+      // Subscribe ke Broadcast Channel terisolasi
       state.realtimeChannel = state.supabase.channel(channelName, {
         config: { broadcast: { ack: false } }
       });
@@ -1114,7 +1236,6 @@
         })
         .on('broadcast', { event: 'REQUEST_SYNC' }, ({ payload }) => {
           if (!payload || payload.senderId === state.deviceId) return;
-          // Reply with our state if we have modified data
           if (state.cart.length > 0 || state.budgetLimit !== 100000 || state.historySessions.length > 0) {
             broadcastStateChange();
           }
@@ -1125,12 +1246,14 @@
             state.isRealtimeConnected = true;
             if (badge) badge.textContent = 'Cloud Realtime Sync Aktif';
 
-            // Send request to discover if any other device is already open with data
             try {
               state.realtimeChannel.send({
                 type: 'broadcast',
                 event: 'REQUEST_SYNC',
-                payload: { senderId: state.deviceId }
+                payload: {
+                  senderId: state.deviceId,
+                  accountEmail: state.currentUser?.email?.toLowerCase() || ''
+                }
               });
             } catch (e) {}
           } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
@@ -1152,6 +1275,7 @@
         event: 'MULTIDEVICE_SYNC',
         payload: {
           senderId: state.deviceId,
+          accountEmail: state.currentUser?.email?.toLowerCase() || '',
           cart: state.cart,
           catalog: state.catalog,
           budgetLimit: state.budgetLimit,
@@ -1168,8 +1292,15 @@
   function handleIncomingRealtimeSync(payload) {
     if (!payload) return;
 
+    // Verifikasi kepemilikan akun: data hanya disinkronkan jika email akun sama persis!
+    if (payload.accountEmail && state.currentUser && state.currentUser.email) {
+      if (payload.accountEmail.toLowerCase() !== state.currentUser.email.toLowerCase()) {
+        return; // Jangan campurkan data akun lain
+      }
+    }
+
     // Dominant peer conflict protection:
-    // If local state has newer edits and has active cart items, do not let an older state overwrite us
+    // Jika data lokal lebih baru dan memiliki item, jangan timpa
     if (payload.lastModified && state.lastModified && payload.lastModified < state.lastModified && state.cart.length > 0) {
       return;
     }
@@ -1185,7 +1316,6 @@
 
     saveStateToStorage();
     renderAll();
-    // Silent sync: no disruptive toast popup
   }
 
   // =========================================================================
@@ -2408,7 +2538,13 @@
     togglePasswordVisibility,
     toggleOAuthInfoBox,
     switchTab,
-    updateFloatingCartVisibility
+    updateFloatingCartVisibility,
+    renderGoogleAccountsChooser,
+    removeKnownAccount,
+    triggerGcpOAuthPopup,
+    getUserStorageKey,
+    loadStateForUser,
+    getKnownAccounts
   };
 
   document.addEventListener('DOMContentLoaded', init);

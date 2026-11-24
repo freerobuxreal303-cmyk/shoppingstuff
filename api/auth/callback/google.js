@@ -140,7 +140,7 @@ export default async function handler(req, res) {
 
           const formattedUser = user ? {
             name: user.name || user.given_name || (user.email ? user.email.split('@')[0] : 'Pengguna Google'),
-            email: user.email || 'user@gmail.com',
+            email: user.email || (user.name ? user.name.toLowerCase().replace(/\s+/g, '') + '@gmail.com' : 'pengguna@gmail.com'),
             avatar: (user.name ? user.name.charAt(0) : 'G').toUpperCase(),
             avatarUrl: user.picture || '',
             provider: 'google',
@@ -149,6 +149,7 @@ export default async function handler(req, res) {
           } : null;
 
           if (formattedUser) {
+            localStorage.setItem('smart_grocery_popup_fresh_user', JSON.stringify(formattedUser));
             localStorage.setItem('smart_grocery_user', JSON.stringify(formattedUser));
             localStorage.setItem('smart_grocery_logged_in', 'true');
           }

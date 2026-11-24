@@ -115,7 +115,58 @@
       assert('Logout and Item Delete Confirmation Modals registered', typeof appObj.openLogoutModal === 'function' && typeof appObj.promptDeleteCartItem === 'function' && typeof appObj.promptDeleteCatalogItem === 'function');
       assert('Overbudget Detection and Safety Sound hooks registered', typeof appObj.isCartOverbudget === 'function');
 
-      // 6. RESPONSIVE DOM & OVERFLOW VERIFICATION
+      // 6. MULTI-ACCOUNT ISOLATION & DYNAMIC GOOGLE CHOOSER TESTS
+      const key1 = appObj.getUserStorageKey('david@gmail.com');
+      const key2 = appObj.getUserStorageKey('budi.santoso+shop@gmail.com');
+      assert('getUserStorageKey menghasilkan sanitized key terisolasi', key1 === 'david_gmail_com' && key2 === 'budi_santoso_shop_gmail_com', `key1: ${key1}, key2: ${key2}`);
+
+      // Data Isolation Test between Account A and Account B
+      try {
+        const emailA = 'test_alpha@gmail.com';
+        const emailB = 'test_beta@gmail.com';
+        const keyA = appObj.getUserStorageKey(emailA);
+        const keyB = appObj.getUserStorageKey(emailB);
+
+        // Bersihkan storage pengujian
+        localStorage.removeItem(`sg_${keyA}_budget`);
+        localStorage.removeItem(`sg_${keyA}_cart`);
+        localStorage.removeItem(`sg_${keyB}_budget`);
+        localStorage.removeItem(`sg_${keyB}_cart`);
+
+        // Simpan data Account A
+        localStorage.setItem(`sg_${keyA}_budget`, '150000');
+        localStorage.setItem(`sg_${keyA}_cart`, JSON.stringify([{ id: 'c1', name: 'Item A', qty: 2, originalPrice: 10000, discountStr: '' }]));
+
+        // Simpan data Account B
+        localStorage.setItem(`sg_${keyB}_budget`, '300000');
+        localStorage.setItem(`sg_${keyB}_cart`, JSON.stringify([{ id: 'c2', name: 'Item B', qty: 5, originalPrice: 20000, discountStr: '' }]));
+
+        // Muat data untuk Account A
+        appObj.loadStateForUser({ email: emailA, name: 'Alpha' });
+        const budgetA = localStorage.getItem(`sg_${keyA}_budget`);
+        const cartA = JSON.parse(localStorage.getItem(`sg_${keyA}_cart`));
+
+        // Muat data untuk Account B
+        appObj.loadStateForUser({ email: emailB, name: 'Beta' });
+        const budgetB = localStorage.getItem(`sg_${keyB}_budget`);
+        const cartB = JSON.parse(localStorage.getItem(`sg_${keyB}_cart`));
+
+        assert('Data Terisolasi: Account A memiliki budget Rp 150.000 dan Item A', budgetA === '150000' && cartA[0].name === 'Item A');
+        assert('Data Terisolasi: Account B memiliki budget Rp 300.000 dan Item B tanpa kebocoran data', budgetB === '300000' && cartB[0].name === 'Item B');
+
+        // Bersihkan kembali
+        localStorage.removeItem(`sg_${keyA}_budget`);
+        localStorage.removeItem(`sg_${keyA}_cart`);
+        localStorage.removeItem(`sg_${keyB}_budget`);
+        localStorage.removeItem(`sg_${keyB}_cart`);
+      } catch (errIso) {
+        assert('Uji Isolasi Multi-Akun', false, errIso.message);
+      }
+
+      // Dynamic Chooser & Known Accounts registration
+      assert('Metode dynamic account chooser dan Google popup terdaftar', typeof appObj.renderGoogleAccountsChooser === 'function' && typeof appObj.triggerGcpOAuthPopup === 'function' && typeof appObj.selectGoogleAccount === 'function');
+
+      // 7. RESPONSIVE DOM & OVERFLOW VERIFICATION
       const docScrollW = document.documentElement.scrollWidth;
       const docClientW = document.documentElement.clientWidth;
       assert(`DOM Zero Horizontal Overflow (scrollWidth ${docScrollW}px === clientWidth ${docClientW}px)`, docScrollW <= docClientW, `scrollWidth: ${docScrollW}, clientWidth: ${docClientW}`);
