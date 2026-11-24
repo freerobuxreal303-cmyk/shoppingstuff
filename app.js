@@ -2473,12 +2473,68 @@
     }
   }
 
+  // =========================================================================
+  // CUTE PINK CLICK PARTICLE EFFECT (Mikro-Interaksi Partikel Bulat Pink)
+  // =========================================================================
+  const PARTICLE_COLORS = [
+    'rgba(244, 114, 182, 0.7)',   // pink-400
+    'rgba(236, 72, 153, 0.6)',    // pink-500
+    'rgba(251, 182, 206, 0.75)',  // pastel soft pink
+    'rgba(249, 168, 212, 0.7)'    // rose-300
+  ];
+
+  function spawnParticles(x, y) {
+    if (x === undefined || y === undefined || !document.body) return;
+    const count = 6;
+    for (let i = 0; i < count; i++) {
+      const bubble = document.createElement('span');
+      bubble.className = 'click-particle-bubble';
+      const size = Math.floor(Math.random() * 5) + 5; // 5px to 9px
+      const color = PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)];
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 14 + Math.random() * 22; // 14px to 36px
+      const destX = Math.cos(angle) * distance;
+      const destY = Math.sin(angle) * distance;
+
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.backgroundColor = color;
+      bubble.style.left = `${x - size / 2}px`;
+      bubble.style.top = `${y - size / 2}px`;
+
+      document.body.appendChild(bubble);
+
+      if (typeof bubble.animate === 'function') {
+        const anim = bubble.animate([
+          { transform: 'translate(0, 0) scale(1)', opacity: 0.8 },
+          { transform: `translate(${destX}px, ${destY}px) scale(0.2)`, opacity: 0 }
+        ], {
+          duration: 380 + Math.random() * 120, // 380ms - 500ms
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          fill: 'forwards'
+        });
+        anim.onfinish = () => bubble.remove();
+      } else {
+        setTimeout(() => bubble.remove(), 450);
+      }
+    }
+  }
+
+  function initClickParticleEffect() {
+    window.addEventListener('pointerdown', (e) => {
+      if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+      spawnParticles(e.clientX, e.clientY);
+    }, { passive: true });
+    window.spawnParticles = spawnParticles;
+  }
+
   // Initializing App
   async function init() {
     loadStateFromStorage();
     setupNavigation();
     setupClock();
     setupEventListeners();
+    initClickParticleEffect();
     renderAll();
 
     // Check login state
@@ -2544,8 +2600,11 @@
     triggerGcpOAuthPopup,
     getUserStorageKey,
     loadStateForUser,
-    getKnownAccounts
+    getKnownAccounts,
+    spawnParticles
   };
+
+  initClickParticleEffect();
 
   document.addEventListener('DOMContentLoaded', init);
 

@@ -166,7 +166,21 @@
       // Dynamic Chooser & Known Accounts registration
       assert('Metode dynamic account chooser dan Google popup terdaftar', typeof appObj.renderGoogleAccountsChooser === 'function' && typeof appObj.triggerGcpOAuthPopup === 'function' && typeof appObj.selectGoogleAccount === 'function');
 
-      // 7. RESPONSIVE DOM & OVERFLOW VERIFICATION
+      // 7. CLICK PARTICLE EFFECT & MODAL STACKING
+      const spawnFn = appObj.spawnParticles || window.spawnParticles;
+      assert('Click Particle effect initialized and spawnable', typeof spawnFn === 'function');
+      try {
+        if (typeof spawnFn === 'function') {
+          spawnFn(100, 100);
+          const particles = document.querySelectorAll('.click-particle-bubble');
+          assert('Partikel bulat pink ter-generate di DOM saat klik', particles.length > 0, `Jumlah partikel: ${particles.length}`);
+          particles.forEach(p => p.remove());
+        }
+      } catch (errP) {
+        assert('Partikel bulat pink ter-generate', false, errP.message);
+      }
+
+      // 8. RESPONSIVE DOM & OVERFLOW VERIFICATION
       const docScrollW = document.documentElement.scrollWidth;
       const docClientW = document.documentElement.clientWidth;
       assert(`DOM Zero Horizontal Overflow (scrollWidth ${docScrollW}px === clientWidth ${docClientW}px)`, docScrollW <= docClientW, `scrollWidth: ${docScrollW}, clientWidth: ${docClientW}`);

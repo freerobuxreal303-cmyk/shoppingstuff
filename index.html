@@ -580,10 +580,13 @@
         </div>
       </nav>
 
-      <!-- ==============================================================
-           MODAL: INPUT ITEM BELANJA MANUAL (SRS F-01 & F-03)
-           ============================================================== -->
-      <div id="modalItemBackdrop" class="modal-backdrop">
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       MODAL: INPUT ITEM BELANJA MANUAL (SRS F-01 & F-03)
+       ============================================================== -->
+  <div id="modalItemBackdrop" class="modal-backdrop" onclick="if (event.target === this) app.closeItemModal()">
         <div class="modal-sheet">
           <div class="flex items-center justify-between mb-4 pb-2 border-b border-pink-100">
             <h3 class="font-display text-base font-bold text-ink flex items-center gap-2" id="modalItemHeaderTitle">
@@ -715,10 +718,10 @@
         </div>
       </div>
 
-      <!-- ==============================================================
-           MODAL: OUR WORKING GOOGLE OAUTH MODAL
-           ============================================================== -->
-      <div id="modalOurGoogleOAuth" class="modal-backdrop">
+  <!-- ==============================================================
+       MODAL: OUR WORKING GOOGLE OAUTH MODAL
+       ============================================================== -->
+  <div id="modalOurGoogleOAuth" class="modal-backdrop" onclick="if (event.target === this) app.closeGoogleOAuthModal()">
         <div class="modal-sheet">
           <div class="text-center mb-5 pb-3 border-b border-slate-100">
             <svg class="w-8 h-8 mx-auto mb-2" viewBox="0 0 24 24">
@@ -948,13 +951,10 @@
         </div>
       </div>
 
-      <!-- Non-blocking Toast Notification (SRS UX) -->
-      <div id="appToast" class="app-toast-container">
-        <span id="toastIcon">🛒</span>
-        <span id="toastMessage">Pemberitahuan sistem</span>
-      </div>
-
-    </div>
+  <!-- Non-blocking Toast Notification (SRS UX) -->
+  <div id="appToast" class="app-toast-container">
+    <span id="toastIcon">🛒</span>
+    <span id="toastMessage">Pemberitahuan sistem</span>
   </div>
 
   <!-- Supabase JS Client & Main Application Logic -->
