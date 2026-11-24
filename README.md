@@ -22,7 +22,7 @@ Aplikasi dirancang dengan tema **Pink & White** modern yang bersih, kontras ting
 | **SRS F-04** | Komparator Fluktuasi Harga | 15 Poin | ✅ Komparasi harga bulan ini vs bulan lalu: Beras (+Rp 6.000 ↑ Merah), Telur (-Rp 4.000 ↓ Hijau), Garam (= Abu-abu Stabil). |
 | **SRS F-05** | Safety Cap Pengendali Anggaran | 15 Poin | ✅ Limit saldo dompet Rp 100.000: bar kuning pada ≥ 90%, banner merah tegas pada > 100% dengan teks exact: *"Total belanja melebihi batas saldo dompet! Kurangi kuantitas atau batalkan barang sekunder."* |
 | **SRS F-06A** | Persistensi Data Lokal (F5 Guard) | 10 Poin | ✅ Seluruh data keranjang, pilihan toko Lotte Mart, tanggal, dan limit dompet tersimpan di `localStorage` & tahan reload F5 100%. Tombol hapus baris berfungsi. |
-| **SRS F-06B** | Sinkronisasi Cloud Multi-Device | 10 Poin | ✅ Sinkronisasi live antar HP dan PC lewat Supabase WebSocket Broadcast channel `dt2_rian_live_sync` (≤ 2 detik) tanpa perlu reload F5. |
+| **SRS F-06B** | Sinkronisasi Cloud Multi-Device | 10 Poin | ✅ Sinkronisasi live antar HP dan PC lewat Supabase WebSocket Broadcast channel `smart_grocery_live_sync` (≤ 2 detik) tanpa perlu reload F5. |
 | **UX** | Ergonomi Sentuh Mobile | 5 Poin | ✅ Keyboard numerik mobile (`inputmode="numeric"`), touch target minimal 44x44px, feedback toast non-blocking (bebas `window.alert()`), modal konfirmasi hapus aman. |
 | **UI/Code** | Mobile PWA & Deliverable | 5 Poin | ✅ Canvas mobile 375px rapi tanpa horizontal scrollbar, Service Worker PWA offline, struktur kode bersih. |
 

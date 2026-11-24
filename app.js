@@ -60,7 +60,7 @@
   const SUPABASE_CONFIG = {
     URL: 'https://jnluauwepczsglnzckdw.supabase.co',
     KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpubHVhdXdlcGN6c2dsbnpja2R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NDM1MDEsImV4cCI6MjEwODExOTUwMX0.VK1Qo2I3ePs_lhtnY08rRm7WEJd1tco7HSEagoUPmF8',
-    CHANNEL: 'dt2_rian_live_sync',
+    CHANNEL: 'smart_grocery_live_sync',
     GOOGLE_PROJECT: 'maximal-zoo-512303-m3'
   };
 
@@ -169,6 +169,12 @@
     realtimeChannel: null,
     isRealtimeConnected: false
   };
+
+  // High-performance cached currency formatter (eliminates Intl GC thrashing)
+  const ID_CURRENCY_FORMATTER = new Intl.NumberFormat('id-ID');
+  function formatIDR(num) {
+    return ID_CURRENCY_FORMATTER.format(Math.round(num || 0));
+  }
 
   // Audio synthesizer for non-blocking feedback
   const AudioEngine = {
@@ -699,17 +705,21 @@
       let finalPrice = originalPrice;
       const steps = [];
 
-      parts.forEach((p, idx) => {
+      parts.forEach((p) => {
         const pct = parseFloat(p.replace(/[^0-9.]/g, ''));
         if (!isNaN(pct) && pct > 0) {
           finalPrice = finalPrice * (1 - pct / 100);
-          steps.push(`Diskon ke-${idx + 1} (${pct}%): Rp ${Math.round(finalPrice).toLocaleString('id-ID')}`);
+          steps.push(`Diskon ke-${steps.length + 1} (${pct}%): Rp ${formatIDR(finalPrice)}`);
         }
       });
 
-      const roundedFinal = Math.round(finalPrice);
+      if (steps.length === 0) {
+        return { finalUnitPrice: originalPrice, discountAmount: 0, discountPercentTotal: 0, breakdownText: 'Tanpa Diskon' };
+      }
+
+      const roundedFinal = Math.max(0, Math.round(finalPrice));
       const totalHemat = originalPrice - roundedFinal;
-      const effectivePct = Math.round((totalHemat / originalPrice) * 100);
+      const effectivePct = Math.min(100, Math.round((totalHemat / originalPrice) * 100));
 
       return {
         finalUnitPrice: roundedFinal,
@@ -729,7 +739,7 @@
           finalUnitPrice: roundedFinal,
           discountAmount: totalHemat,
           discountPercentTotal: Math.round(pct),
-          breakdownText: `Diskon ${pct}% (Hemat Rp ${totalHemat.toLocaleString('id-ID')})`
+          breakdownText: `Diskon ${pct}% (Hemat Rp ${formatIDR(totalHemat)})`
         };
       }
     }
@@ -744,7 +754,7 @@
         finalUnitPrice: roundedFinal,
         discountAmount: pot,
         discountPercentTotal: effectivePct,
-        breakdownText: `Potongan Langsung Rp ${pot.toLocaleString('id-ID')} (${effectivePct}%)`
+        breakdownText: `Potongan Langsung Rp ${formatIDR(pot)} (${effectivePct}%)`
       };
     }
 
@@ -755,7 +765,8 @@
   // SRS F-04: INDIKATOR KOMPARASI FLUKTUASI HARGA REALTIME
   // =========================================================================
   function comparePriceWithLastMonth(finalUnitPrice, lastMonthPrice) {
-    if (!lastMonthPrice || lastMonthPrice <= 0) {
+    const lastNum = parseFloat(lastMonthPrice);
+    if (isNaN(lastNum) || lastNum <= 0) {
       return {
         type: 'new',
         badgeClass: 'price-same',
@@ -764,15 +775,16 @@
       };
     }
 
-    const diff = finalUnitPrice - lastMonthPrice;
-    const lastFormatted = lastMonthPrice.toLocaleString('id-ID');
+    const currentNum = parseFloat(finalUnitPrice) || 0;
+    const diff = currentNum - lastNum;
+    const lastFormatted = formatIDR(lastNum);
 
     if (diff > 0) {
       // 1. KONDISI HARGA NAIK (Merah Tegas: Beras 5kg 68k -> 74k = +Rp 6.000)
       return {
         type: 'up',
         badgeClass: 'price-up',
-        text: `↑ +Rp ${diff.toLocaleString('id-ID')} (Naik dari Rp ${lastFormatted})`,
+        text: `↑ +Rp ${formatIDR(diff)} (Naik dari Rp ${lastFormatted})`,
         diff
       };
     } else if (diff < 0) {
@@ -781,7 +793,7 @@
       return {
         type: 'down',
         badgeClass: 'price-down',
-        text: `↓ -Rp ${absDiff.toLocaleString('id-ID')} (Turun dari Rp ${lastFormatted})`,
+        text: `↓ -Rp ${formatIDR(absDiff)} (Turun dari Rp ${lastFormatted})`,
         diff
       };
     } else {
@@ -822,7 +834,9 @@
       state.isLoggedIn = savedLoggedIn === 'true';
 
       const savedCart = localStorage.getItem('smart_grocery_cart');
-      if (savedCart) state.cart = JSON.parse(savedCart);
+      if (savedCart) {
+        try { state.cart = JSON.parse(savedCart); } catch (e) { state.cart = []; }
+      }
 
       const savedBudget = localStorage.getItem('smart_grocery_budget');
       if (savedBudget && !isNaN(parseFloat(savedBudget))) {
@@ -837,11 +851,15 @@
 
       if (state.isLoggedIn) {
         const savedUser = localStorage.getItem('smart_grocery_user');
-        if (savedUser) state.currentUser = JSON.parse(savedUser);
+        if (savedUser) {
+          try { state.currentUser = JSON.parse(savedUser); } catch (e) {}
+        }
       }
 
       const savedHistory = localStorage.getItem('smart_grocery_history');
-      if (savedHistory) state.historySessions = JSON.parse(savedHistory);
+      if (savedHistory) {
+        try { state.historySessions = JSON.parse(savedHistory); } catch (e) { state.historySessions = []; }
+      }
     } catch (e) {
       console.warn('LocalStorage load notice:', e);
     }
@@ -938,11 +956,11 @@
     const hudHematText = document.getElementById('budgetHematText');
     const bannerEl = document.getElementById('budgetAlertBanner');
 
-    if (hudLimit) hudLimit.textContent = `Rp ${state.budgetLimit.toLocaleString('id-ID')}`;
-    if (hudSpend) hudSpend.textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
-    if (hudRemaining) hudRemaining.textContent = `Rp ${remaining.toLocaleString('id-ID')}`;
+    if (hudLimit) hudLimit.textContent = `Rp ${formatIDR(state.budgetLimit)}`;
+    if (hudSpend) hudSpend.textContent = `Rp ${formatIDR(grandTotal)}`;
+    if (hudRemaining) hudRemaining.textContent = `Rp ${formatIDR(remaining)}`;
     if (hudPercentText) hudPercentText.textContent = `${usagePercent}% Terpakai`;
-    if (hudHematText) hudHematText.textContent = `Total Hemat Promo: Rp ${totalDiscountSaved.toLocaleString('id-ID')}`;
+    if (hudHematText) hudHematText.textContent = `Total Hemat Promo: Rp ${formatIDR(totalDiscountSaved)}`;
 
     // Progress Bar Fill & Color
     if (hudProgressBar) {
@@ -1042,15 +1060,15 @@
               </div>
 
               <div class="flex items-center gap-2 mt-1 flex-wrap text-xs">
-                <span class="font-mono font-bold text-ink">Rp ${disc.finalUnitPrice.toLocaleString('id-ID')}</span>
+                <span class="font-mono font-bold text-ink">Rp ${formatIDR(disc.finalUnitPrice)}</span>
                 ${item.originalPrice !== disc.finalUnitPrice ? `
-                  <span class="line-through text-slate-400 font-mono text-[11px]">Rp ${item.originalPrice.toLocaleString('id-ID')}</span>
+                  <span class="line-through text-slate-400 font-mono text-[11px]">Rp ${formatIDR(item.originalPrice)}</span>
                   <span class="px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 font-bold text-[9px]">${escapeHtml(item.discountStr)}</span>
                 ` : ''}
               </div>
             </div>
 
-            <button type="button" class="w-8 h-8 rounded-lg bg-pink-50 hover:bg-rose-100 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer shrink-0" onclick="app.deleteCartItem('${item.id}')" title="Hapus dari troli">
+            <button type="button" class="w-8 h-8 rounded-lg bg-pink-50 hover:bg-rose-100 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer shrink-0" onclick="app.deleteCartItem('${item.id}')" title="Hapus dari troli" aria-label="Hapus ${escapeHtml(item.name)} dari troli">
               <span class="material-symbols-outlined text-[18px]">delete</span>
             </button>
           </div>
@@ -1063,14 +1081,14 @@
 
           <div class="flex items-center justify-between pt-2 border-t border-pink-50">
             <div class="flex items-center gap-1.5 bg-pink-50/60 p-1 rounded-xl border border-pink-100">
-              <button type="button" class="stepper-btn shrink-0" onclick="app.updateItemQty('${item.id}', ${item.qty - 1})">&minus;</button>
+              <button type="button" class="stepper-btn shrink-0" onclick="app.updateItemQty('${item.id}', ${item.qty - 1})" aria-label="Kurangi kuantitas ${escapeHtml(item.name)}">&minus;</button>
               <input type="number" inputmode="numeric" value="${item.qty}" min="1" class="w-12 text-center py-1 bg-white rounded-lg border border-pink-200 font-mono font-bold text-xs text-ink focus:outline-none" oninput="app.updateItemQty('${item.id}', parseInt(this.value) || 1)" onchange="app.updateItemQty('${item.id}', parseInt(this.value) || 1)">
-              <button type="button" class="stepper-btn shrink-0" onclick="app.updateItemQty('${item.id}', ${item.qty + 1})">&plus;</button>
+              <button type="button" class="stepper-btn shrink-0" onclick="app.updateItemQty('${item.id}', ${item.qty + 1})" aria-label="Tambah kuantitas ${escapeHtml(item.name)}">&plus;</button>
             </div>
 
             <div class="text-right">
               <span class="block text-[10px] text-slate-400 font-bold uppercase">Subtotal</span>
-              <strong class="font-mono text-sm font-extrabold text-pink-600">Rp ${lineSubtotal.toLocaleString('id-ID')}</strong>
+              <strong class="font-mono text-sm font-extrabold text-pink-600">Rp ${formatIDR(lineSubtotal)}</strong>
             </div>
           </div>
         </div>
@@ -1100,14 +1118,14 @@
               <div class="font-display text-xs sm:text-sm font-bold text-ink truncate">${escapeHtml(item.name)}</div>
               <div class="text-[10px] text-pink-600 font-semibold">${escapeHtml(item.desc)}</div>
               <div class="flex items-center gap-2 mt-1 flex-wrap">
-                <span class="font-mono text-xs font-bold text-ink">Rp ${disc.finalUnitPrice.toLocaleString('id-ID')}</span>
+                <span class="font-mono text-xs font-bold text-ink">Rp ${formatIDR(disc.finalUnitPrice)}</span>
                 ${item.discountStr ? `<span class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 text-[9px] font-bold">${item.discountStr}</span>` : ''}
                 <span class="price-indicator-badge ${fluc.badgeClass} text-[9px] py-0.5 px-1.5">${fluc.text}</span>
               </div>
             </div>
           </div>
 
-          <button type="button" class="stepper-btn bg-pink-500 hover:bg-pink-600 text-white border-pink-500 shrink-0 shadow-sm" onclick="app.addCatalogItemToCart('${item.id}')" title="Tambah ke Troli">
+          <button type="button" class="stepper-btn bg-pink-500 hover:bg-pink-600 text-white border-pink-500 shrink-0 shadow-sm" onclick="app.addCatalogItemToCart('${item.id}')" title="Tambah ke Troli" aria-label="Tambah ${escapeHtml(item.name)} ke Troli">
             &plus;
           </button>
         </div>
@@ -1143,10 +1161,10 @@
               <span class="font-mono text-xs font-bold text-ink">${escapeHtml(s.date)}</span>
               <span class="block text-[10px] text-slate-400 font-medium">${escapeHtml(s.store || state.storeLocation)}</span>
             </div>
-            <strong class="font-mono text-sm font-black text-pink-600">Rp ${s.totalCost.toLocaleString('id-ID')}</strong>
+            <strong class="font-mono text-sm font-black text-pink-600">Rp ${formatIDR(s.totalCost)}</strong>
           </div>
           <div class="text-xs text-slate-600 font-medium">
-            ${s.items.length} Barang Belanja &bull; Hemat Promo: Rp ${(s.totalSaved || 0).toLocaleString('id-ID')}
+            ${s.items.length} Barang Belanja &bull; Hemat Promo: Rp ${formatIDR(s.totalSaved || 0)}
           </div>
         </div>
       `;
@@ -1342,9 +1360,9 @@
     if (!modal) return;
 
     if (timeEl) timeEl.textContent = session.date;
-    if (limitEl) limitEl.textContent = `Rp ${state.budgetLimit.toLocaleString('id-ID')}`;
-    if (savedEl) savedEl.textContent = `Rp ${(session.totalSaved || 0).toLocaleString('id-ID')}`;
-    if (totalEl) totalEl.textContent = `Rp ${session.totalCost.toLocaleString('id-ID')}`;
+    if (limitEl) limitEl.textContent = `Rp ${formatIDR(state.budgetLimit)}`;
+    if (savedEl) savedEl.textContent = `Rp ${formatIDR(session.totalSaved || 0)}`;
+    if (totalEl) totalEl.textContent = `Rp ${formatIDR(session.totalCost)}`;
 
     if (container) {
       let html = '';
@@ -1355,7 +1373,7 @@
               <span class="font-bold text-ink">${escapeHtml(i.name)}</span>
               <span class="text-slate-400 text-[10px]"> x${i.qty}</span>
             </div>
-            <span class="font-bold text-pink-600">Rp ${i.subtotal.toLocaleString('id-ID')}</span>
+            <span class="font-bold text-pink-600">Rp ${formatIDR(i.subtotal)}</span>
           </div>
         `;
       });
@@ -1451,12 +1469,12 @@
     const subtotal = disc.finalUnitPrice * qty;
 
     if (discBox) discBox.textContent = disc.breakdownText;
-    if (finalPriceBox) finalPriceBox.textContent = `Rp ${disc.finalUnitPrice.toLocaleString('id-ID')}`;
+    if (finalPriceBox) finalPriceBox.textContent = `Rp ${formatIDR(disc.finalUnitPrice)}`;
     if (flucBox) {
       flucBox.textContent = fluc.text;
       flucBox.className = `font-mono font-semibold ${fluc.badgeClass} text-[11px] py-0.5 px-1.5 rounded`;
     }
-    if (subtotalBox) subtotalBox.textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
+    if (subtotalBox) subtotalBox.textContent = `Rp ${formatIDR(subtotal)}`;
   }
 
   function openClearCartModal() {
@@ -1606,7 +1624,9 @@
           saveStateToStorage();
           broadcastStateChange();
           renderAll();
-          showToast(`💰 Batas saldo dompet disimpan: Rp ${val.toLocaleString('id-ID')}`);
+          showToast(`💰 Batas saldo dompet disimpan: Rp ${formatIDR(val)}`);
+        } else {
+          showToast('⚠️ Masukkan nominal batas anggaran yang valid!', 'danger');
         }
       });
     }
@@ -1621,7 +1641,7 @@
           saveStateToStorage();
           broadcastStateChange();
           renderAll();
-          showToast(`💰 Batas saldo dompet disetel: Rp ${p.toLocaleString('id-ID')}`);
+          showToast(`💰 Batas saldo dompet disetel: Rp ${formatIDR(p)}`);
         }
       });
     });

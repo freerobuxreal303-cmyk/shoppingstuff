@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Grocery Automated Stress-Test & Quality Verification</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; background: #fff0f5; padding: 24px; color: #1e293b; max-width: 800px; margin: 0 auto; }
+    h1 { color: #db2777; font-size: 20px; }
+    .test-box { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid #fce7f3; box-shadow: 0 4px 12px rgba(236,72,153,0.06); }
+    .pass { color: #059669; font-weight: bold; }
+    .fail { color: #dc2626; font-weight: bold; }
+    pre { background: #fdf2f8; padding: 8px 12px; border-radius: 8px; font-size: 12px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Smart Grocery Automated Stress-Test & Quality Verification</h1>
+  <div id="results">Running automated test battery...</div>
+
+  <!-- Hidden Sandbox DOM elements to test real DOM updates -->
+  <div id="testSandbox" style="display:none;">
+    <span id="hudBudgetLimit"></span>
+    <span id="hudTotalSpend"></span>
+    <span id="hudRemaining"></span>
+    <div id="budgetProgressBar" style="width:0%;"></div>
+    <span id="budgetHealthPill"></span>
+    <span id="budgetUsagePercentText"></span>
+    <span id="budgetHematText"></span>
+    <div id="budgetAlertBanner" class="hidden"></div>
+    <div id="appToast"><span id="toastIcon"></span><span id="toastMessage"></span></div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    (function runTestSuite() {
+      const resultsEl = document.getElementById('results');
+      try {
+        const tests = [];
+        let passed = 0;
+        let failed = 0;
+
+        function assert(name, condition, details = '') {
+          if (condition) {
+            passed++;
+            tests.push(`<div class="test-box"><span class="pass">✔ PASS:</span> <strong>${name}</strong>${details ? `<pre>${details}</pre>` : ''}</div>`);
+          } else {
+            failed++;
+            tests.push(`<div class="test-box"><span class="fail">✘ FAIL:</span> <strong>${name}</strong><pre>${details}</pre></div>`);
+          }
+        }
+
+        console.log('--- STARTING COMPREHENSIVE STRESS TEST BATTERY ---');
+        const appObj = window.app || {};
+
+      // 1. DISCOUNT CALCULATOR TESTS (SRS F-03)
+      const d1 = appObj.calculateDiscount(100000, '50%+20%');
+      assert('Diskon Kompound 50%+20% pada Rp 100.000 = Rp 40.000 (Bukan linier Rp 30.000)', d1 && d1.finalUnitPrice === 40000 && d1.discountAmount === 60000 && d1.discountPercentTotal === 60, JSON.stringify(d1));
+
+      const d2 = appObj.calculateDiscount(20000, '25%');
+      assert('Diskon Tunggal 25% pada Rp 20.000 = Rp 15.000', d2 && d2.finalUnitPrice === 15000 && d2.discountAmount === 5000, JSON.stringify(d2));
+
+      const d3 = appObj.calculateDiscount(100000, '50%+20%+10%');
+      assert('Diskon Kompound 3 Tingkat (50%+20%+10%) pada Rp 100.000 = Rp 36.000', d3 && d3.finalUnitPrice === 36000 && d3.discountAmount === 64000, JSON.stringify(d3));
+
+      const d4 = appObj.calculateDiscount(50000, '15000');
+      assert('Potongan Nominal Langsung Rp 15.000 pada Rp 50.000 = Rp 35.000', d4 && d4.finalUnitPrice === 35000 && d4.discountAmount === 15000, JSON.stringify(d4));
+
+      const d5 = appObj.calculateDiscount(0, '50%');
+      assert('Harga Nol (0) ditangani tanpa error', d5 && d5.finalUnitPrice === 0, JSON.stringify(d5));
+
+      const d6 = appObj.calculateDiscount(-10000, '50%');
+      assert('Harga Negatif ditangani dengan aman tanpa crash', d6 && d6.finalUnitPrice === 0, JSON.stringify(d6));
+
+      const d7 = appObj.calculateDiscount(100000, 'invalid++--');
+      assert('String Diskon Malformed/Simbol Acak fallback ke harga awal tanpa exception', d7 && d7.finalUnitPrice === 100000, JSON.stringify(d7));
+
+      // 2. PRICE FLUCTUATION COMPARATOR TESTS (SRS F-04)
+      const f1 = appObj.comparePriceWithLastMonth(74000, 68000);
+      assert('Harga Naik: Beras 74k vs 68k (↑ Merah +Rp 6.000)', f1 && f1.type === 'up' && f1.badgeClass === 'price-up' && f1.diff === 6000, JSON.stringify(f1));
+
+      const f2 = appObj.comparePriceWithLastMonth(28000, 32000);
+      assert('Harga Turun: Telur 28k vs 32k (↓ Hijau -Rp 4.000)', f2 && f2.type === 'down' && f2.badgeClass === 'price-down' && f2.diff === -4000, JSON.stringify(f2));
+
+      const f3 = appObj.comparePriceWithLastMonth(5000, 5000);
+      assert('Harga Stabil: Garam 5k vs 5k (= Stabil Abu-abu)', f3 && f3.type === 'same' && f3.badgeClass === 'price-same' && f3.diff === 0, JSON.stringify(f3));
+
+      const f4 = appObj.comparePriceWithLastMonth(15000, 0);
+      assert('Barang Baru: Last month price 0/empty (✨ Barang Baru)', f4 && f4.type === 'new' && f4.badgeClass === 'price-same', JSON.stringify(f4));
+
+      const f5 = appObj.comparePriceWithLastMonth('74000', '68000');
+      assert('String numbers parsed cleanly without string-concatenation bug', f5 && f5.type === 'up' && f5.diff === 6000, JSON.stringify(f5));
+
+      // 3. RAPID STEPPER & STRESS TEST
+      const start = performance.now();
+      for (let i = 0; i < 1000; i++) {
+        appObj.calculateDiscount(100000 + i, '50%+20%');
+        appObj.comparePriceWithLastMonth(74000, 68000);
+      }
+      const dur = performance.now() - start;
+      assert(`Performance Benchmark: 1000 kalkulasi diskon & komparator selesai dalam ${dur.toFixed(2)}ms (Target < 50ms)`, dur < 50, `Durasi: ${dur.toFixed(2)}ms`);
+
+      // 4. STORAGE ROUND-TRIP RESILIENCE
+      try {
+        localStorage.setItem('smart_grocery_test', JSON.stringify({ test: 123 }));
+        const readBack = JSON.parse(localStorage.getItem('smart_grocery_test'));
+        localStorage.removeItem('smart_grocery_test');
+        assert('LocalStorage read/write serialisasi berfungsi normal', readBack.test === 123);
+      } catch (e) {
+        assert('LocalStorage serialisasi', false, e.message);
+      }
+
+      // 5. RESPONSIVE DOM & OVERFLOW VERIFICATION
+      const docScrollW = document.documentElement.scrollWidth;
+      const docClientW = document.documentElement.clientWidth;
+      assert(`DOM Zero Horizontal Overflow (scrollWidth ${docScrollW}px === clientWidth ${docClientW}px)`, docScrollW <= docClientW, `scrollWidth: ${docScrollW}, clientWidth: ${docClientW}`);
+
+      // RENDER SUMMARY
+      const summaryHeader = `
+        <div style="background:${failed === 0 ? '#ecfdf5' : '#fef2f2'}; border:2px solid ${failed === 0 ? '#10b981' : '#ef4444'}; padding:16px; border-radius:16px; margin-bottom:20px;">
+          <h2 style="margin:0; color:${failed === 0 ? '#047857' : '#b91c1c'}; font-size:16px;">
+            ${failed === 0 ? '🎉 SELURUH PENGUJIAN BERHASIL (100% PASS)' : `⚠️ DITEMUKAN ${failed} KEGAGALAN`}
+          </h2>
+          <p style="margin:4px 0 0; font-size:13px; font-weight:600; color:#4b5563;">
+            Total Uji: ${passed + failed} | Berhasil: ${passed} | Gagal: ${failed}
+          </p>
+        </div>
+      `;
+
+      resultsEl.innerHTML = summaryHeader + tests.join('');
+      document.title = failed === 0 ? 'ALL_TESTS_PASSED' : 'TESTS_FAILED';
+    } catch (globalErr) {
+      document.getElementById('results').innerHTML = `<div class="fail" style="background:#fee2e2;padding:20px;border-radius:12px;">CRITICAL TEST ERROR: ${globalErr.message}<pre>${globalErr.stack}</pre></div>`;
+      document.title = 'TEST_CRASHED';
+    }
+  })();
+  </script>
+</body>
+</html>
