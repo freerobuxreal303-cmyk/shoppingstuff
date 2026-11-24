@@ -574,3 +574,94 @@ html, body {
   will-change: transform, opacity;
   box-shadow: 0 1px 4px rgba(236, 72, 153, 0.25);
 }
+
+/* ==========================================================================
+   EASTER EGG: REVERSE PINK & WHITE THEME (4G 4x CLICK)
+   Pink becomes White, White becomes Pink
+   ========================================================================== */
+body.theme-reversed {
+  background: #db2777 !important;
+  color: #ffffff !important;
+}
+
+body.theme-reversed .desktop-viewport-wrapper {
+  background: #be185d !important;
+}
+
+body.theme-reversed .mobile-app-container {
+  background: #db2777 !important;
+  border-color: #f472b6 !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.theme-reversed header,
+body.theme-reversed nav,
+body.theme-reversed .phone-status-bar {
+  background: #be185d !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.theme-reversed .phone-status-bar,
+body.theme-reversed #liveClockDisplay,
+body.theme-reversed #indicator4G {
+  color: #ffffff !important;
+}
+
+body.theme-reversed .bg-white {
+  background-color: #f43f8e !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+body.theme-reversed .bg-pink-50,
+body.theme-reversed .bg-pink-50\/70,
+body.theme-reversed .bg-pink-50\/30,
+body.theme-reversed .bg-pink-100 {
+  background-color: #ffffff !important;
+  color: #db2777 !important;
+}
+
+body.theme-reversed .bg-pink-500,
+body.theme-reversed .bg-pink-600 {
+  background-color: #ffffff !important;
+  color: #db2777 !important;
+  border-color: #ffffff !important;
+}
+
+body.theme-reversed .text-ink,
+body.theme-reversed h1,
+body.theme-reversed h2,
+body.theme-reversed h3,
+body.theme-reversed p:not(.text-slate-400),
+body.theme-reversed span:not(.bg-pink-500):not(.bg-white):not(.rounded-full) {
+  color: #ffffff !important;
+}
+
+body.theme-reversed .stepper-btn.bg-pink-500 {
+  background-color: #ffffff !important;
+  color: #db2777 !important;
+}
+
+body.theme-reversed .stepper-btn:not(.bg-pink-500) {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+body.theme-reversed .nav-item-btn.active {
+  background: #ffffff !important;
+  color: #db2777 !important;
+}
+
+body.theme-reversed .nav-item-btn:not(.active) {
+  color: #fce7f3 !important;
+}
+
+body.theme-reversed .floating-cart-bar {
+  background: #ffffff !important;
+  color: #db2777 !important;
+  border-color: #fce7f3 !important;
+}
+
+body.theme-reversed .floating-cart-bar * {
+  color: #db2777 !important;
+}

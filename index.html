@@ -89,7 +89,7 @@
           <img src="logo_shopping.svg" alt="Smart Grocery Logo" class="w-full h-full object-contain drop-shadow-md">
         </div>
         <h1 class="font-display text-[22px] font-black text-ink tracking-tight">Smart Grocery</h1>
-        <p class="text-xs font-semibold text-pink-600 mt-0.5">Budget Safety Cap &amp; Realtime Cloud</p>
+        <p class="text-xs font-semibold text-pink-600 mt-0.5">Smart Budgeting App &amp; Grocery Tracker</p>
       </div>
 
       <!-- Main Auth Card -->
@@ -248,7 +248,6 @@
         <span id="liveClockDisplay">09:41</span>
         <div class="notch-pill">
           <div class="notch-dot"></div>
-          <span style="font-size: 9px; color: #db2777; font-weight: 800; letter-spacing: 0.5px;">SMART PWA</span>
         </div>
         <div class="flex items-center gap-2">
           <span id="indicator4G" class="text-emerald-600 font-mono text-[10px] font-bold cursor-pointer select-none px-1" title="Sinyal 4G">● 4G</span>
@@ -876,9 +875,12 @@
             </div>
 
             <div>
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga Baru (Rp)</label>
-              <input type="number" id="editCatalogItemPrice" min="0" required placeholder="Masukkan harga baru..." class="w-full px-3 py-2.5 rounded-xl border border-pink-200 text-xs font-bold font-mono text-ink focus:outline-none focus:border-pink-500">
-              <p class="text-[10px] text-slate-400 mt-1">Harga sebelumnya otomatis tersimpan sebagai harga lama untuk komparasi naik/turun.</p>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[11px] font-bold text-slate-600">Harga Baru (Rp)</label>
+                <span class="text-[10px] text-slate-500 font-mono" id="editCatalogOldPriceDisplay">Harga Lama: Rp 0</span>
+              </div>
+              <input type="text" id="editCatalogItemPrice" required placeholder="00000" value="00000" class="w-full px-3 py-2.5 rounded-xl border border-pink-200 text-xs font-bold font-mono text-slate-400 focus:outline-none focus:border-pink-500">
+              <p class="text-[10px] text-slate-400 mt-1">Ketikkan harga baru (harga sebelumnya otomatis tercatat sebagai perbandingan naik/turun).</p>
             </div>
 
             <div>

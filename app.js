@@ -78,7 +78,8 @@
       lastMonthPrice: 68000,
       discountStr: '',
       icon: '🌾',
-      desc: 'Beras pulen kemasan 5kg kualitas pilihan super'
+      desc: 'Beras pulen kemasan 5kg kualitas pilihan super',
+      isDefault: true
     },
     {
       id: 'dt2_item_2',
@@ -89,7 +90,8 @@
       lastMonthPrice: 45000,
       discountStr: '',
       icon: '🌻',
-      desc: 'Minyak kelapa sawit murni 2 kali penyaringan'
+      desc: 'Minyak kelapa sawit murni 2 kali penyaringan',
+      isDefault: true
     },
     {
       id: 'dt2_item_3',
@@ -100,7 +102,8 @@
       lastMonthPrice: 32000,
       discountStr: '',
       icon: '🥚',
-      desc: 'Telur ayam negeri segar pilihan peternakan higienis'
+      desc: 'Telur ayam negeri segar pilihan peternakan higienis',
+      isDefault: true
     },
     {
       id: 'dt2_item_4',
@@ -111,7 +114,8 @@
       lastMonthPrice: 5000,
       discountStr: '',
       icon: '🧂',
-      desc: 'Garam beryodium gurih alami untuk masakan'
+      desc: 'Garam beryodium gurih alami untuk masakan',
+      isDefault: true
     },
     {
       id: 'dt2_item_5',
@@ -122,7 +126,8 @@
       lastMonthPrice: 20000,
       discountStr: '25%',
       icon: '🧼',
-      desc: 'Deterjen pembersih noda wangi tahan lama'
+      desc: 'Deterjen pembersih noda wangi tahan lama',
+      isDefault: true
     },
     {
       id: 'dt2_item_6',
@@ -133,7 +138,8 @@
       lastMonthPrice: 100000,
       discountStr: '50%+20%',
       icon: '🍳',
-      desc: 'Wajan teflon anti gores hemat minyak'
+      desc: 'Wajan teflon anti gores hemat minyak',
+      isDefault: true
     },
     {
       id: 'dt2_item_7',
@@ -144,9 +150,17 @@
       lastMonthPrice: 15000,
       discountStr: '',
       icon: '🫧',
-      desc: 'Sabun mandi cair wangi lembut melembapkan kulit'
+      desc: 'Sabun mandi cair wangi lembut melembapkan kulit',
+      isDefault: true
     }
   ];
+
+  function isDefaultCatalogItem(item) {
+    if (!item) return false;
+    if (item.isDefault === true) return true;
+    if (typeof item.id === 'string' && item.id.startsWith('dt2_item_')) return true;
+    return MASTER_CATALOG.some(m => m.id === item.id || m.name.toLowerCase() === item.name.toLowerCase());
+  }
 
   // Supermarket Store Profiles (Used for Realistic Thermal Receipts)
   const STORE_DETAILS = {
@@ -1559,6 +1573,7 @@
     state.catalog.forEach(item => {
       const disc = calculateDiscount(item.price, item.discountStr);
       const fluc = comparePriceWithLastMonth(disc.finalUnitPrice, item.lastMonthPrice);
+      const isDefault = isDefaultCatalogItem(item);
 
       html += `
         <div class="bg-white rounded-2xl p-3.5 border border-pink-100 shadow-sm flex items-center justify-between gap-3 transition-all hover:border-pink-300">
@@ -1568,6 +1583,7 @@
               <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="font-display text-xs sm:text-sm font-bold text-ink truncate">${escapeHtml(item.name)}</span>
                 <span class="px-1.5 py-0.2 rounded bg-pink-50 text-pink-700 font-mono text-[9px] font-bold border border-pink-200">${escapeHtml(item.unit || 'pcs')}</span>
+                ${!isDefault ? '<span class="px-1.5 py-0.2 rounded bg-pink-100 text-pink-700 font-bold text-[9px]">Baru</span>' : ''}
               </div>
               <div class="text-[10px] text-pink-600 font-semibold line-clamp-1">${escapeHtml(item.desc || 'Kebutuhan belanja pokok')}</div>
               <div class="flex items-center gap-2 mt-1 flex-wrap">
@@ -1583,10 +1599,16 @@
             <button type="button" class="w-8 h-8 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 flex items-center justify-center cursor-pointer transition-colors" onclick="app.openEditCatalogModal('${item.id}')" title="Edit Harga Barang" aria-label="Edit Harga ${escapeHtml(item.name)}">
               <span class="material-symbols-outlined text-[16px]">edit</span>
             </button>
-            <!-- Tombol Hapus dari Katalog -->
-            <button type="button" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 flex items-center justify-center cursor-pointer transition-colors" onclick="app.promptDeleteCatalogItem('${item.id}')" title="Hapus dari Katalog" aria-label="Hapus ${escapeHtml(item.name)} dari Katalog">
-              <span class="material-symbols-outlined text-[16px]">delete</span>
-            </button>
+            <!-- Tombol Hapus dari Katalog: HANYA untuk barang baru -->
+            ${!isDefault ? `
+              <button type="button" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 flex items-center justify-center cursor-pointer transition-colors" onclick="app.promptDeleteCatalogItem('${item.id}')" title="Hapus dari Katalog" aria-label="Hapus ${escapeHtml(item.name)} dari Katalog">
+                <span class="material-symbols-outlined text-[16px]">delete</span>
+              </button>
+            ` : `
+              <span class="w-8 h-8 rounded-xl bg-slate-50 text-slate-300 border border-slate-100 flex items-center justify-center select-none" title="Barang bawaan katalog default tidak dapat dihapus">
+                <span class="material-symbols-outlined text-[14px]">lock</span>
+              </span>
+            `}
             <!-- Tombol Tambah ke Troli -->
             <button type="button" class="stepper-btn bg-pink-500 hover:bg-pink-600 text-white border-pink-500 shadow-sm" onclick="app.addCatalogItemToCart('${item.id}')" title="Tambah ke Troli" aria-label="Tambah ${escapeHtml(item.name)} ke Troli">
               &plus;
@@ -1738,11 +1760,11 @@
       state.catalog.unshift(newCatItem); // Terlihat di bagian paling atas katalog!
     }
 
-    if (wasCartEmpty) AudioEngine.playEmptyCartAdd();
-    else AudioEngine.playAddItem();
-
     if (isCartOverbudget()) {
-      setTimeout(() => AudioEngine.playOverbudgetBuzzer(), 130);
+      AudioEngine.playOverbudgetBuzzer();
+    } else {
+      if (wasCartEmpty) AudioEngine.playEmptyCartAdd();
+      else AudioEngine.playAddItem();
     }
 
     closeItemModal();
@@ -1771,9 +1793,14 @@
 
     const isIncreasing = newQty > item.qty;
     item.qty = newQty;
-    AudioEngine.playTap();
-    if (isIncreasing && isCartOverbudget()) {
-      setTimeout(() => AudioEngine.playOverbudgetBuzzer(), 100);
+    if (isIncreasing) {
+      if (isCartOverbudget()) {
+        AudioEngine.playOverbudgetBuzzer();
+      } else {
+        AudioEngine.playAddItem();
+      }
+    } else {
+      AudioEngine.playTap();
     }
 
     saveStateToStorage();
@@ -1808,9 +1835,27 @@
     const item = state.catalog.find(c => c.id === catalogId);
     if (!item) return;
 
+    if (isDefaultCatalogItem(item)) {
+      AudioEngine.playTap();
+      showToast('⚠️ Barang bawaan katalog default tidak dapat dihapus.', 'info');
+      return;
+    }
+
     pendingDeleteTarget = { type: 'catalog', id: catalogId, name: item.name };
     const modal = document.getElementById('modalConfirmDeleteItem');
     const titleEl = document.getElementById('deleteItemModalTitle');
+    const descEl = document.getElementById('deleteItemModalDesc');
+    const confirmBtn = document.getElementById('btnExecuteConfirmDelete');
+
+    if (titleEl) titleEl.textContent = 'Hapus dari Katalog?';
+    if (descEl) descEl.textContent = `Yakin ingin menghapus "${item.name}" dari daftar katalog?`;
+    if (confirmBtn) {
+      confirmBtn.onclick = () => executeDeleteItem();
+    }
+
+    AudioEngine.playTap();
+    if (modal) modal.classList.add('show');
+  }
     const descEl = document.getElementById('deleteItemModalDesc');
     const confirmBtn = document.getElementById('btnExecuteConfirmDelete');
 
@@ -1879,11 +1924,11 @@
       showToast(`🛒 ${catItem.name} masuk ke troli!`);
     }
 
-    if (wasCartEmpty) AudioEngine.playEmptyCartAdd();
-    else AudioEngine.playAddItem();
-
     if (isCartOverbudget()) {
-      setTimeout(() => AudioEngine.playOverbudgetBuzzer(), 130);
+      AudioEngine.playOverbudgetBuzzer();
+    } else {
+      if (wasCartEmpty) AudioEngine.playEmptyCartAdd();
+      else AudioEngine.playAddItem();
     }
 
     saveStateToStorage();
@@ -1894,7 +1939,12 @@
   function deleteCatalogItem(catalogId) {
     const idx = state.catalog.findIndex(c => c.id === catalogId);
     if (idx !== -1) {
-      const name = state.catalog[idx].name;
+      const item = state.catalog[idx];
+      if (isDefaultCatalogItem(item)) {
+        showToast('⚠️ Barang bawaan katalog default tidak dapat dihapus.', 'info');
+        return;
+      }
+      const name = item.name;
       state.catalog.splice(idx, 1);
       AudioEngine.playRemoveItem();
       saveStateToStorage();
@@ -1913,10 +1963,15 @@
     const nameEl = document.getElementById('editCatalogItemName');
     const priceEl = document.getElementById('editCatalogItemPrice');
     const discEl = document.getElementById('editCatalogItemDiscount');
+    const oldPriceDisplay = document.getElementById('editCatalogOldPriceDisplay');
 
     if (idEl) idEl.value = item.id;
     if (nameEl) nameEl.value = item.name;
-    if (priceEl) priceEl.value = item.price;
+    if (oldPriceDisplay) oldPriceDisplay.textContent = `Harga Lama: Rp ${formatIDR(item.price)}`;
+    if (priceEl) {
+      priceEl.value = '00000';
+      priceEl.style.color = '#94a3b8';
+    }
     if (discEl) discEl.value = item.discountStr || '';
 
     AudioEngine.playTap();
@@ -1937,7 +1992,14 @@
     const item = state.catalog.find(c => c.id === idEl.value);
     if (!item) return;
 
-    const newPrice = parseFloat(priceEl ? priceEl.value : 0);
+    const rawPriceStr = priceEl ? priceEl.value.trim() : '';
+    if (rawPriceStr === '00000' || !rawPriceStr) {
+      showToast('⚠️ Silakan masukkan harga baru terlebih dahulu!', 'danger');
+      if (priceEl) priceEl.focus();
+      return;
+    }
+
+    const newPrice = parseFloat(rawPriceStr.replace(/[^0-9.]/g, ''));
     const newDiscount = discEl ? discEl.value.trim() : '';
 
     if (isNaN(newPrice) || newPrice < 0) {
@@ -2396,6 +2458,12 @@
       if (clickCount >= 4) {
         clickCount = 0;
         AudioEngine.playEasterEgg();
+
+        // Reverse warna: pink jadi putih, putih jadi pink
+        document.body.classList.toggle('theme-reversed');
+        const isReversed = document.body.classList.contains('theme-reversed');
+        showToast(isReversed ? '🌸 Mode Reverse: Pink jadi Putih, Putih jadi Pink!' : '⚪ Kembali ke Tema Standar!');
+
         owl.classList.remove('active');
         // Force browser reflow to restart CSS animation cleanly
         void owl.offsetWidth;
@@ -2533,6 +2601,28 @@
         el.addEventListener('input', updateModalLiveCalculations);
       }
     });
+
+    // Edit Catalog Price gray placeholder listener
+    const editPriceInput = document.getElementById('editCatalogItemPrice');
+    if (editPriceInput) {
+      editPriceInput.addEventListener('focus', () => {
+        if (editPriceInput.value === '00000') {
+          editPriceInput.value = '';
+          editPriceInput.style.color = '#0f172a';
+        }
+      });
+      editPriceInput.addEventListener('input', () => {
+        if (editPriceInput.value !== '00000') {
+          editPriceInput.style.color = '#0f172a';
+        }
+      });
+      editPriceInput.addEventListener('blur', () => {
+        if (!editPriceInput.value.trim()) {
+          editPriceInput.value = '00000';
+          editPriceInput.style.color = '#94a3b8';
+        }
+      });
+    }
   }
 
   function renderAll() {
@@ -2695,6 +2785,7 @@
     getUserStorageKey,
     loadStateForUser,
     getKnownAccounts,
+    isDefaultCatalogItem,
     spawnParticles
   };
 

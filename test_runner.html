@@ -177,6 +177,26 @@
         assert('confirmLogout() dieksekusi instan tanpa rekursi', false, errLogout.message);
       }
 
+      // Default catalog delete protection verification
+      try {
+        const isDef1 = appObj.isDefaultCatalogItem({ id: 'dt2_item_1', name: 'Beras Rojolele 5kg' });
+        const isDefNew = appObj.isDefaultCatalogItem({ id: 'cat_99999', name: 'Barang Tambahan Baru' });
+        assert('Barang bawaan katalog default terproteksi tidak bisa dihapus', isDef1 === true && isDefNew === false);
+      } catch (errCat) {
+        assert('Barang bawaan katalog default terproteksi', false, errCat.message);
+      }
+
+      // Reverse pink-white theme toggle verification
+      try {
+        document.body.classList.remove('theme-reversed');
+        document.body.classList.add('theme-reversed');
+        const hasReversed = document.body.classList.contains('theme-reversed');
+        document.body.classList.remove('theme-reversed');
+        assert('Easter Egg 4G Reverse Warna (Pink-Putih) aktif di DOM', hasReversed === true);
+      } catch (errRev) {
+        assert('Easter Egg 4G Reverse Warna', false, errRev.message);
+      }
+
       // 7. CLICK PARTICLE EFFECT & MODAL STACKING
       const spawnFn = appObj.spawnParticles || window.spawnParticles;
       assert('Click Particle effect initialized and spawnable', typeof spawnFn === 'function');
