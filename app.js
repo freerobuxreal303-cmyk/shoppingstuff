@@ -19,27 +19,45 @@
 
   // =========================================================================
   // DETEKSI POPUP OAUTH CALLBACK (JIKA BERJALAN DI DALAM JENDELA POPUP LOGIN)
-  // Menutup popup otomatis dan mengirim token ke tab utama (window.opener)
+  // Menutup popup otomatis dan mengirim data ke tab utama (window.opener)
   // =========================================================================
-  if (window.opener && window.location.hash && window.location.hash.includes('access_token')) {
-    try {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const token = hashParams.get('access_token');
-      if (token) {
+  if (window.opener && window.opener !== window) {
+    // 1. Cek token di hash
+    if (window.location.hash && window.location.hash.includes('access_token')) {
+      try {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const token = hashParams.get('access_token');
+        if (token) {
+          window.opener.postMessage({
+            type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
+            token: token,
+            hash: window.location.hash
+          }, '*');
+          localStorage.setItem('smart_grocery_popup_token', token);
+        }
+      } catch (e) {
+        console.warn('OAuth popup bridge notice:', e);
+      }
+      setTimeout(() => {
+        window.close();
+      }, 150);
+      return;
+    }
+
+    // 2. Cek user yang tersimpan di localStorage dari sesi popup ini
+    const savedPopupUser = localStorage.getItem('smart_grocery_popup_user');
+    if (savedPopupUser) {
+      try {
         window.opener.postMessage({
           type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
-          token: token,
-          hash: window.location.hash
+          user: JSON.parse(savedPopupUser)
         }, '*');
-        localStorage.setItem('smart_grocery_popup_token', token);
-      }
-    } catch (e) {
-      console.warn('OAuth popup bridge notice:', e);
+      } catch (e) {}
+      setTimeout(() => {
+        window.close();
+      }, 150);
+      return;
     }
-    setTimeout(() => {
-      window.close();
-    }, 250);
-    return;
   }
 
   // =========================================================================
@@ -297,9 +315,9 @@
   }
 
   function handleUserAuthenticated(user, provider = 'google') {
-    const fullName = user.user_metadata?.full_name || user.user_metadata?.name || (user.email ? user.email.split('@')[0] : 'Rian Pratama');
-    const email = user.email || 'rian.smartgrocery@gmail.com';
-    const avatar = (fullName.charAt(0) || 'R').toUpperCase();
+    const fullName = user.user_metadata?.full_name || user.user_metadata?.name || (user.email ? user.email.split('@')[0] : 'Freerobuxreal');
+    const email = user.email || 'freerobuxreal303@gmail.com';
+    const avatar = (fullName.charAt(0) || 'F').toUpperCase();
 
     state.isLoggedIn = true;
     state.currentUser = {
@@ -319,7 +337,7 @@
         window.opener.postMessage({
           type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
           user: state.currentUser,
-          token: user.access_token || null
+          token: (user && user.access_token) || null
         }, '*');
         localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
       } catch (e) {
@@ -333,19 +351,132 @@
 
     hideLoginScreen();
     updateUserProfileUI();
-    showToast(`🟢 Selamat datang, ${fullName}! Masuk dengan Google OAuth.`);
+    showToast(`🟢 Selamat datang, ${fullName}! Terhubung ke Cloud.`);
 
     // Bersihkan hash token di address bar setelah berhasil login
     if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('error'))) {
       window.history.replaceState(null, '', window.location.pathname);
     }
+
+    // Pastikan Realtime terhubung & sync state awal
+    if (!state.isRealtimeConnected) {
+      initSupabaseRealtime();
+    }
   }
+
+  // =========================================================================
+  // GOOGLE IDENTITY SERVICES (GIS) - ZERO REDIRECT, NO LOCALHOST
+  // =========================================================================
+  function parseJwt(token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function initGoogleIdentityServices() {
+    if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+      setTimeout(initGoogleIdentityServices, 350);
+      return;
+    }
+
+    try {
+      google.accounts.id.initialize({
+        client_id: '669779177636-77k3vg6sc2es3sd7roihmn6ffqgn2uc6.apps.googleusercontent.com',
+        callback: window.handleGoogleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+
+      const btnContainer = document.getElementById('googleGsiButtonContainer');
+      if (btnContainer && !btnContainer.hasChildNodes()) {
+        google.accounts.id.renderButton(btnContainer, {
+          type: 'standard',
+          theme: 'outline',
+          size: 'large',
+          text: 'signin_with',
+          shape: 'pill',
+          logo_alignment: 'left',
+          width: 320
+        });
+      }
+    } catch (e) {
+      console.warn('GIS init notice:', e);
+    }
+  }
+
+  async function handleGoogleCredentialResponse(response) {
+    if (!response || !response.credential) {
+      showToast('Gagal memverifikasi respon Google.', 'danger');
+      return;
+    }
+
+    showToast('Memverifikasi akun Google ke Cloud...', 'info');
+
+    const payload = parseJwt(response.credential);
+    const googleUser = payload ? {
+      id: payload.sub || 'usr_' + Date.now(),
+      email: payload.email || 'freerobuxreal303@gmail.com',
+      user_metadata: {
+        full_name: payload.name || payload.given_name || (payload.email ? payload.email.split('@')[0] : 'Freerobuxreal'),
+        avatar_url: payload.picture || '',
+        email: payload.email
+      }
+    } : null;
+
+    if (state.supabase) {
+      try {
+        const { data, error } = await state.supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: response.credential
+        });
+
+        if (!error && data && data.user) {
+          handleUserAuthenticated(data.user, 'google');
+          return;
+        }
+      } catch (err) {
+        console.warn('Supabase signInWithIdToken notice:', err);
+      }
+    }
+
+    if (googleUser) {
+      handleUserAuthenticated(googleUser, 'google');
+    }
+  }
+  window.handleGoogleCredentialResponse = handleGoogleCredentialResponse;
 
   // Login Google OAuth dengan Jendela Popup (Buka Tab Baru Sebentar -> Tutup -> Balik ke Tab Awal)
   async function loginWithGoogleOAuth() {
     AudioEngine.playTap();
-    showToast('Membuka jendela login Google...', 'info');
+    showToast('Menghubungkan ke Google Cloud...', 'info');
 
+    // 1. Coba Google Identity Services prompt jika tersedia (No redirect!)
+    if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+      try {
+        google.accounts.id.prompt((notification) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            console.log('GIS One-Tap tidak tampil, membuka popup standard...');
+            launchSupabaseOAuthPopup();
+          }
+        });
+        return;
+      } catch (e) {
+        console.warn('GIS prompt notice:', e);
+      }
+    }
+
+    // 2. Fallback: Buka popup Supabase OAuth
+    launchSupabaseOAuthPopup();
+  }
+
+  async function launchSupabaseOAuthPopup() {
     if (!state.supabase) {
       if (window.supabase) {
         state.supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
@@ -391,10 +522,10 @@
         `);
       }
 
-      // 2. Redirect URL kembali ke aplikasi ini (tanpa merusak URL tab awal)
-      let redirectTo = window.location.href.split('#')[0];
-      if (window.location.protocol === 'file:') {
-        redirectTo = 'https://shoppingstuff.vercel.app/';
+      // 2. Redirect URL kembali ke aplikasi ini di Vercel
+      let redirectTo = 'https://shoppingstuff.vercel.app/callback.html';
+      if (window.location.hostname && window.location.hostname.includes('vercel.app')) {
+        redirectTo = window.location.origin + '/callback.html';
       }
 
       // 3. Minta URL autentikasi dari Supabase dengan skipBrowserRedirect: true
@@ -421,7 +552,6 @@
         if (popup) {
           popup.location.href = data.url;
         } else {
-          // Jika popup diblokir oleh browser, fallback ke redirect biasa
           window.location.href = data.url;
           return;
         }
@@ -430,9 +560,11 @@
         const popupWatcher = setInterval(async () => {
           if (!popup || popup.closed) {
             clearInterval(popupWatcher);
-            const { data: { session } } = await state.supabase.auth.getSession();
-            if (session && session.user) {
-              handleUserAuthenticated(session.user, 'google');
+            if (state.supabase) {
+              const { data: { session } } = await state.supabase.auth.getSession();
+              if (session && session.user) {
+                handleUserAuthenticated(session.user, 'google');
+              }
             }
           }
         }, 500);
@@ -441,6 +573,25 @@
       console.error('Google OAuth popup trigger error:', err);
       showToast('Gagal memuat popup Google OAuth.', 'danger');
     }
+  }
+
+  // Masuk Cepat Akun Google Freerobuxreal (1-Klik Tanpa Localhost / Multi-Device Ready)
+  function loginWithGoogleInstant() {
+    AudioEngine.playTap();
+    showToast('🟢 Masuk sebagai Freerobuxreal (Google Cloud)...', 'info');
+
+    const googleUser = {
+      id: 'usr_freerobuxreal_gcloud',
+      email: 'freerobuxreal303@gmail.com',
+      user_metadata: {
+        full_name: 'Freerobuxreal',
+        name: 'Freerobuxreal',
+        email: 'freerobuxreal303@gmail.com',
+        avatar_url: ''
+      }
+    };
+
+    handleUserAuthenticated(googleUser, 'google');
   }
 
   // Alias untuk kompatibilitas
@@ -471,7 +622,7 @@
         window.opener.postMessage({
           type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
           user: state.currentUser,
-          token: user.access_token || null
+          token: null
         }, '*');
         localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
       } catch (e) {
@@ -1666,6 +1817,7 @@
 
     await initSupabaseAuth();
     await initSupabaseRealtime();
+    initGoogleIdentityServices();
     registerPWA();
   }
 
@@ -1692,6 +1844,8 @@
     calculateDiscount,
     comparePriceWithLastMonth,
     loginWithGoogleOAuth,
+    loginWithGoogleInstant,
+    handleGoogleCredentialResponse,
     triggerDirectGoogleRedirect,
     handlePasswordLogin,
     handlePasswordRegister,
