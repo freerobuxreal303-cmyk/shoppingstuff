@@ -1,118 +1,129 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 140" width="100%" height="100%">
   <defs>
+    <!-- Mascot color palette strictly matching media_1795538333314_a47ab7de.png -->
     <linearGradient id="emptyOwlGrad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#ff6fa9"/>
       <stop offset="100%" stop-color="#f4478f"/>
     </linearGradient>
-    <linearGradient id="emptyBowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="emptyBowMintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#6ee7b7"/>
       <stop offset="100%" stop-color="#34d399"/>
     </linearGradient>
-    <linearGradient id="cartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="cartMetallicGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#f472b6"/>
       <stop offset="100%" stop-color="#db2777"/>
     </linearGradient>
   </defs>
 
-  <!-- SOFT SHADOW GROUND -->
-  <ellipse cx="120" cy="126" rx="95" ry="8" fill="#fce7f3" opacity="0.85"/>
+  <!-- SOFT COZY GROUND SHADOW -->
+  <ellipse cx="120" cy="126" rx="100" ry="8" fill="#fce7f3" opacity="0.9"/>
 
-  <!-- EMPTY MODERN WIRE SHOPPING CART (LEFT) -->
-  <g transform="translate(18, 30)">
+  <!-- EMPTY WIRE SHOPPING CART (LEFT) -->
+  <g id="wireShoppingCart" transform="translate(14, 28)">
     <!-- Cart Wheels -->
-    <circle cx="24" cy="80" r="5.5" fill="#64748b"/>
-    <circle cx="24" cy="80" r="2.8" fill="#f8fafc"/>
-    <circle cx="68" cy="80" r="5.5" fill="#64748b"/>
-    <circle cx="68" cy="80" r="2.8" fill="#f8fafc"/>
+    <circle cx="22" cy="84" r="6" fill="#64748b"/>
+    <circle cx="22" cy="84" r="2.8" fill="#f8fafc"/>
+    <circle cx="68" cy="84" r="6" fill="#64748b"/>
+    <circle cx="68" cy="84" r="2.8" fill="#f8fafc"/>
     
     <!-- Cart Under-chassis frame -->
-    <path d="M 14 76 L 74 76 L 68 52" fill="none" stroke="#db2777" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M 12 80 L 74 80 L 68 54" fill="none" stroke="#db2777" stroke-width="3" stroke-linecap="round"/>
     
     <!-- Wire basket outline -->
-    <path d="M 20 22 L 78 22 L 66 60 L 26 60 Z" fill="#fff5f9" fill-opacity="0.6" stroke="#ec4899" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M 18 24 L 78 24 L 66 64 L 24 64 Z" fill="#fff5f9" fill-opacity="0.65" stroke="#ec4899" stroke-width="2.8" stroke-linejoin="round"/>
     <!-- Wire grid horizontals -->
-    <path d="M 22 35 L 74 35 M 24 48 L 70 48" stroke="#f472b6" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M 20 37 L 74 37 M 22 51 L 70 51" stroke="#f472b6" stroke-width="1.8" stroke-linecap="round"/>
     <!-- Wire grid verticals -->
-    <path d="M 36 22 L 36 60 M 50 22 L 50 60 M 64 22 L 62 60" stroke="#f472b6" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M 34 24 L 34 64 M 48 24 L 48 64 M 62 24 L 60 64" stroke="#f472b6" stroke-width="1.8" stroke-linecap="round"/>
     
     <!-- Handle bar with comfortable pink grip -->
-    <path d="M 20 22 L 8 12" fill="none" stroke="#db2777" stroke-width="2.8" stroke-linecap="round"/>
-    <rect x="2" y="7" width="11" height="8" rx="4" fill="#f43f8e"/>
+    <path d="M 18 24 L 6 14" fill="none" stroke="#db2777" stroke-width="3" stroke-linecap="round"/>
+    <rect x="1" y="8" width="11" height="9" rx="4.5" fill="#f43f8e"/>
   </g>
 
-  <!-- AUTHENTIC PINK OWL MASCOT (RIGHT) -->
-  <!-- Exactly matching the Duolingo-style proportions from media_1795538333314_a47ab7de.png -->
-  <g transform="translate(122, 12)">
-    <!-- FEET -->
-    <ellipse cx="44" cy="112" rx="9" ry="5" fill="#ff9800"/>
-    <ellipse cx="68" cy="112" rx="9" ry="5" fill="#ff9800"/>
+  <!-- AUTHENTIC DUOLINGO PINK OWL (RELAXING & LYING DOWN PLEASANTLY ON THE RIGHT) -->
+  <g id="relaxingPinkOwl" transform="translate(108, 32)">
+    
+    <!-- Orange little feet tucked comfortably underneath -->
+    <ellipse cx="88" cy="88" rx="10" ry="5.5" fill="#ff9800" transform="rotate(-10 88 88)"/>
+    <ellipse cx="106" cy="84" rx="9" ry="5" fill="#ff9800" transform="rotate(-20 106 84)"/>
 
-    <!-- BODY WITH EAR TUFTS -->
-    <path d="M 34 30 
-             C 22 36, 16 60, 16 82 
-             C 16 104, 32 112, 56 112 
-             C 80 112, 96 104, 96 82 
-             C 96 60, 90 36, 78 30 
-             C 70 25, 62 31, 56 31 
-             C 50 31, 42 25, 34 30 Z" 
+    <!-- Plump rounded pink body lounging comfortably horizontally -->
+    <path d="M 16 72 
+             C 10 52, 24 22, 54 22 
+             C 74 22, 102 38, 106 62 
+             C 110 84, 88 92, 54 92 
+             C 28 92, 18 84, 16 72 Z" 
           fill="url(#emptyOwlGrad)"/>
 
-    <!-- LEFT WING RESTING ON CART HANDLE -->
-    <path d="M 20 68 C 4 72, -8 56, -6 44 C -4 38, 10 48, 14 60 Z" fill="#ff4d94"/>
-    <circle cx="-6" cy="42" r="3.5" fill="#ff6fa9"/>
+    <!-- Ear tufts on head (top-left angled) -->
+    <path d="M 28 28 C 22 14, 34 8, 40 22 Z" fill="#ff6fa9"/>
+    <path d="M 52 22 C 60 10, 72 16, 64 28 Z" fill="#f4478f"/>
 
-    <!-- RIGHT WING WAVING -->
-    <path d="M 92 68 C 104 62, 114 74, 106 84 C 98 90, 90 80, 90 70 Z" fill="#ff4d94"/>
+    <!-- Relaxing Back Wing resting over body -->
+    <path d="M 62 52 C 78 46, 96 56, 90 74 C 84 80, 70 78, 58 68 Z" fill="#ff4d94"/>
 
-    <!-- LIGHT PINK FACIAL MASK -->
-    <path d="M 32 38 
-             C 24 47, 24 73, 38 76 
-             C 46 77, 52 72, 56 67 
-             C 60 72, 66 77, 74 76 
-             C 88 73, 88 47, 80 38 
-             C 72 32, 64 36, 56 36 
-             C 48 36, 40 32, 32 38 Z" 
+    <!-- Front Wing propping chin in relaxed happy pose -->
+    <path d="M 28 68 C 20 74, 12 78, 16 84 C 20 88, 30 84, 38 78 Z" fill="#ff4d94"/>
+
+    <!-- Light Pink Facial Mask -->
+    <path d="M 22 34 
+             C 16 44, 20 64, 36 66 
+             C 44 67, 50 62, 54 58 
+             C 58 62, 64 67, 72 66 
+             C 84 64, 84 44, 76 34 
+             C 68 28, 60 32, 54 32 
+             C 46 32, 34 26, 22 34 Z" 
           fill="#ffb3d5"/>
 
-    <!-- BELLY PATCH -->
-    <path d="M 36 78 C 36 66, 76 66, 76 78 C 76 98, 70 108, 56 108 C 42 108, 36 98, 36 78 Z" fill="#ffd4e5"/>
+    <!-- Light Pink Belly Patch -->
+    <path d="M 44 64 C 44 56, 82 56, 82 68 C 82 86, 74 90, 56 90 C 44 90, 44 80, 44 64 Z" fill="#ffd4e5"/>
 
-    <!-- BELLY FEATHER SCALLOPS -->
-    <path d="M 48 86 Q 56 90 64 86" stroke="#f472b6" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-    <path d="M 44 94 Q 56 98 68 94" stroke="#f472b6" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-    <path d="M 50 101 Q 56 105 62 101" stroke="#f472b6" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <!-- Feather Scallops on chest -->
+    <path d="M 50 72 Q 58 76 66 72" stroke="#f472b6" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M 54 80 Q 62 84 70 80" stroke="#f472b6" stroke-width="1.8" fill="none" stroke-linecap="round"/>
 
-    <!-- BIG EXPRESSIVE EYES (Wide open, adorable & curious) -->
+    <!-- ADORABLE BIG DUOLINGO EYES (Wide happy anime sparkle) -->
     <!-- Left Eye -->
-    <ellipse cx="42" cy="57" rx="12" ry="14" fill="#ffffff"/>
-    <ellipse cx="43" cy="57" rx="8.5" ry="10.5" fill="#2d3748"/>
-    <circle cx="40" cy="53" r="3.6" fill="#ffffff"/>
-    <circle cx="45" cy="60" r="1.8" fill="#ffffff"/>
+    <ellipse cx="36" cy="48" rx="11" ry="13" fill="#ffffff"/>
+    <ellipse cx="37" cy="48" rx="7.5" ry="9.5" fill="#2d3748"/>
+    <circle cx="34" cy="44" r="3.2" fill="#ffffff"/>
+    <circle cx="39" cy="51" r="1.6" fill="#ffffff"/>
 
-    <!-- Right Eye -->
-    <ellipse cx="70" cy="57" rx="12" ry="14" fill="#ffffff"/>
-    <ellipse cx="69" cy="57" rx="8.5" ry="10.5" fill="#2d3748"/>
-    <circle cx="66" cy="53" r="3.6" fill="#ffffff"/>
-    <circle cx="71" cy="60" r="1.8" fill="#ffffff"/>
+    <!-- Right Eye (Cheerful gentle wink / sparkling open) -->
+    <ellipse cx="62" cy="48" rx="11" ry="13" fill="#ffffff"/>
+    <ellipse cx="61" cy="48" rx="7.5" ry="9.5" fill="#2d3748"/>
+    <circle cx="58" cy="44" r="3.2" fill="#ffffff"/>
+    <circle cx="63" cy="51" r="1.6" fill="#ffffff"/>
 
-    <!-- ORANGE BEAK -->
-    <path d="M 51 61 Q 56 60 61 61 C 62 67, 58 73, 56 73 C 54 73, 50 67, 51 61 Z" fill="#ff9800"/>
-    <path d="M 52 62 Q 56 64 60 62" fill="#ffb300"/>
+    <!-- ORANGE BEAK (Cute small curved triangle) -->
+    <path d="M 44 52 Q 49 50 54 52 C 55 58, 51 63, 49 63 C 47 63, 43 58, 44 52 Z" fill="#ff9800"/>
+    <path d="M 45 53 Q 49 55 53 53" fill="#ffb300"/>
 
-    <!-- MINT GREEN BOW TIE ON FOREHEAD -->
-    <g transform="translate(56, 30)">
-      <path d="M 0 0 C -8 -6, -14 -4, -13 2 C -12 7, -5 4, 0 0 Z" fill="url(#emptyBowGrad)"/>
-      <path d="M 0 0 C 8 -6, 14 -4, 13 2 C 12 7, 5 4, 0 0 Z" fill="url(#emptyBowGrad)"/>
-      <circle cx="0" cy="0" r="3" fill="#10b981"/>
+    <!-- SIGNATURE MINT GREEN BOW TIE ON FOREHEAD (User's reference) -->
+    <g transform="translate(48, 24)">
+      <!-- Left bow wing -->
+      <path d="M 0 0 C -9 -7, -15 -4, -14 3 C -13 8, -6 5, 0 0 Z" fill="url(#emptyBowMintGrad)"/>
+      <!-- Right bow wing -->
+      <path d="M 0 0 C 9 -7, 15 -4, 14 3 C 13 8, 6 5, 0 0 Z" fill="url(#emptyBowMintGrad)"/>
+      <!-- Center mint knot -->
+      <circle cx="0" cy="0" r="3.2" fill="#10b981"/>
       <circle cx="-0.4" cy="-0.4" r="1.8" fill="#6ee7b7"/>
     </g>
+
+    <!-- Cute rosy cheek blushes -->
+    <ellipse cx="26" cy="56" rx="4" ry="2.5" fill="#f43f8e" opacity="0.35"/>
+    <ellipse cx="72" cy="56" rx="4" ry="2.5" fill="#f43f8e" opacity="0.35"/>
   </g>
 
-  <!-- CUTE SPARKLES AROUND CART -->
-  <g transform="translate(45, 24)" fill="#f472b6" opacity="0.8">
+  <!-- CHEERFUL MAGICAL SPARKLES -->
+  <g transform="translate(42, 20)" fill="#f472b6" opacity="0.85">
     <path d="M 0 -4 Q 0 0 4 0 Q 0 0 0 4 Q 0 0 -4 0 Q 0 0 0 -4 Z"/>
   </g>
-  <g transform="translate(98, 18)" fill="#fb7185" opacity="0.85">
+  <g transform="translate(100, 16)" fill="#fb7185" opacity="0.9">
+    <path d="M 0 -3.5 Q 0 0 3.5 0 Q 0 0 0 3.5 Q 0 0 -3.5 0 Q 0 0 0 -3.5 Z"/>
+  </g>
+  <g transform="translate(216, 42)" fill="#34d399" opacity="0.85">
     <path d="M 0 -3 Q 0 0 3 0 Q 0 0 0 3 Q 0 0 -3 0 Q 0 0 0 -3 Z"/>
   </g>
 </svg>

@@ -31,6 +31,15 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
+/* Guaranteed Display Helpers & Screen Stacking */
+.hidden,
+#loginScreen.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
 /* Base Reset & Setup */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -322,7 +331,7 @@ html, body {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 500; /* Higher than loginScreen (z-100) and app headers */
+  z-index: 10000; /* Highest priority: above login screen (z-100) and all app headers */
   background: rgba(30, 41, 59, 0.45);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
@@ -340,7 +349,8 @@ html, body {
 }
 
 .modal-backdrop.show {
-  display: flex;
+  display: flex !important;
+  z-index: 10000 !important;
 }
 
 .modal-sheet {

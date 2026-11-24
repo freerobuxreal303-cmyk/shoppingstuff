@@ -165,6 +165,17 @@
 
       // Dynamic Chooser & Known Accounts registration
       assert('Metode dynamic account chooser dan Google popup terdaftar', typeof appObj.renderGoogleAccountsChooser === 'function' && typeof appObj.triggerGcpOAuthPopup === 'function' && typeof appObj.selectGoogleAccount === 'function');
+      assert('Metode direct Google Account view switch pada login screen terdaftar', typeof appObj.showGoogleAccountsSection === 'function' && typeof appObj.showDefaultLoginSection === 'function');
+
+      // Logout non-recursive instant verification
+      try {
+        localStorage.setItem('smart_grocery_logged_in', 'true');
+        appObj.confirmLogout();
+        const isLoggedOut = localStorage.getItem('smart_grocery_logged_in') === null;
+        assert('confirmLogout() dieksekusi instan tanpa rekursi & membersihkan sesi login', isLoggedOut);
+      } catch (errLogout) {
+        assert('confirmLogout() dieksekusi instan tanpa rekursi', false, errLogout.message);
+      }
 
       // 7. CLICK PARTICLE EFFECT & MODAL STACKING
       const spawnFn = appObj.spawnParticles || window.spawnParticles;

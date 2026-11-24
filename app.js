@@ -596,8 +596,10 @@
       return;
     }
 
+    closeGoogleOAuthModal();
     hideLoginScreen();
-    updateUserProfileUI();
+    renderAll();
+    renderGoogleAccountsChooser();
     showToast(`🟢 Selamat datang, ${fullName}! (${email})`);
 
     // Bersihkan hash token di address bar setelah berhasil login
@@ -612,9 +614,37 @@
   // =========================================================================
   // LOGIN GOOGLE OAUTH 2.0 (SESUAI PANDUAN MR. TIO • MULTI-ACCOUNT DYNAMIC CHOOSER)
   // =========================================================================
+  function showGoogleAccountsSection() {
+    AudioEngine.playTap();
+    const defaultSection = document.getElementById('loginDefaultAuthSection');
+    const googleSection = document.getElementById('loginGoogleAccountsSection');
+    if (defaultSection && googleSection) {
+      defaultSection.classList.add('hidden');
+      googleSection.classList.remove('hidden');
+    }
+    renderGoogleAccountsChooser();
+  }
+
+  function showDefaultLoginSection() {
+    AudioEngine.playTap();
+    const defaultSection = document.getElementById('loginDefaultAuthSection');
+    const googleSection = document.getElementById('loginGoogleAccountsSection');
+    if (defaultSection && googleSection) {
+      googleSection.classList.add('hidden');
+      defaultSection.classList.remove('hidden');
+    }
+  }
+
   function loginWithGoogleOAuth() {
     AudioEngine.playTap();
-    openGoogleOAuthModal();
+    const screen = document.getElementById('loginScreen');
+    const isLoginScreenVisible = screen && !screen.classList.contains('hidden') && screen.style.display !== 'none';
+
+    if (isLoginScreenVisible) {
+      showGoogleAccountsSection();
+    } else {
+      openGoogleOAuthModal();
+    }
   }
 
   // Alias untuk kompatibilitas
@@ -707,38 +737,28 @@
   }
 
   async function logoutToLoginScreen() {
-    state.isLoggedIn = false;
-    localStorage.removeItem('smart_grocery_logged_in');
-    localStorage.removeItem('smart_grocery_user');
-
-    if (state.supabase && state.realtimeChannel) {
-      try {
-        state.supabase.removeChannel(state.realtimeChannel);
-        state.realtimeChannel = null;
-        state.isRealtimeConnected = false;
-      } catch (e) {}
-    }
-
-    // Reset in-memory state cleanly so no data bleeds across users
-    state.currentUser = null;
-    state.cart = [];
-    state.budgetLimit = 100000;
-    state.historySessions = [];
-    state.catalog = JSON.parse(JSON.stringify(MASTER_CATALOG));
-    renderAll();
-
-    showLoginScreen();
-    showToast('Anda telah keluar dari aplikasi.');
+    confirmLogout();
   }
 
   function showLoginScreen() {
     const screen = document.getElementById('loginScreen');
-    if (screen) screen.classList.remove('hidden');
+    if (screen) {
+      screen.classList.remove('hidden');
+      screen.style.removeProperty('display');
+      screen.style.display = 'flex';
+      screen.style.visibility = 'visible';
+      screen.style.opacity = '1';
+    }
   }
 
   function hideLoginScreen() {
     const screen = document.getElementById('loginScreen');
-    if (screen) screen.classList.add('hidden');
+    if (screen) {
+      screen.classList.add('hidden');
+      screen.style.display = 'none';
+      screen.style.visibility = 'hidden';
+      screen.style.opacity = '0';
+    }
     localStorage.setItem('smart_grocery_logged_in', 'true');
   }
 
@@ -781,10 +801,17 @@
       const raw = localStorage.getItem('smart_grocery_known_accounts');
       if (raw) {
         const list = JSON.parse(raw);
-        if (Array.isArray(list)) return list;
+        if (Array.isArray(list) && list.length > 0) return list;
       }
     } catch (e) {}
-    return [];
+
+    // Starter Google accounts ready to pick immediately
+    const defaults = [
+      { name: 'David', email: 'david@gmail.com', avatar: 'D', themeColor: 'pink', lastLogin: Date.now() },
+      { name: 'Akun Google 2', email: 'user2@gmail.com', avatar: 'G', themeColor: 'blue', lastLogin: Date.now() - 1000 }
+    ];
+    localStorage.setItem('smart_grocery_known_accounts', JSON.stringify(defaults));
+    return defaults;
   }
 
   function recordKnownAccount(user) {
@@ -800,10 +827,9 @@
       lastLogin: Date.now()
     };
     if (existingIndex >= 0) {
-      list[existingIndex] = { ...list[existingIndex], ...entry };
-    } else {
-      list.unshift(entry);
+      list.splice(existingIndex, 1);
     }
+    list.unshift(entry); // Pin newly used account to the VERY TOP
     localStorage.setItem('smart_grocery_known_accounts', JSON.stringify(list.slice(0, 6)));
   }
 
@@ -816,81 +842,91 @@
   }
 
   function renderGoogleAccountsChooser() {
-    const container = document.getElementById('googleAccountsChooserList');
-    if (!container) return;
+    const listContainers = [
+      document.getElementById('googleAccountsChooserList'),
+      document.getElementById('loginScreenGoogleAccountsList')
+    ].filter(Boolean);
+    if (listContainers.length === 0) return;
 
     const accounts = getKnownAccounts();
     const activeEmail = (state.isLoggedIn && state.currentUser && state.currentUser.email) ? state.currentUser.email.toLowerCase() : '';
 
     let html = '';
 
-    if (accounts.length > 0) {
-      html += `<div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Pilih Akun Tersimpan di Perangkat:</div>`;
-      html += `<div class="space-y-2 mb-3">`;
-      accounts.forEach(acc => {
-        const isActive = activeEmail && acc.email.toLowerCase() === activeEmail;
-        const initial = (acc.name ? acc.name.charAt(0) : (acc.email ? acc.email.charAt(0) : 'G')).toUpperCase();
-        const safeName = escapeHtml(acc.name || acc.email.split('@')[0]);
-        const safeEmail = escapeHtml(acc.email);
-
-        html += `
-          <div class="google-account-card ${isActive ? 'ring-2 ring-pink-500/50 bg-pink-50/30' : ''}"
-               onclick="app.selectGoogleAccount('${safeName}', '${safeEmail}', '${initial}', 'pink')">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-pink-500/20">
-              ${initial}
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-1.5">
-                <span class="text-sm font-bold text-ink truncate">${safeName}</span>
-                ${isActive ? '<span class="px-1.5 py-0.2 rounded-full bg-pink-100 text-pink-700 text-[9px] font-bold">Sedang Aktif</span>' : ''}
-              </div>
-              <div class="text-xs text-slate-500 truncate">${safeEmail}</div>
-            </div>
-            <div class="flex items-center gap-1">
-              <button type="button" onclick="app.removeKnownAccount('${safeEmail}', event)" title="Hapus dari daftar" class="w-7 h-7 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center cursor-pointer">
-                <span class="material-symbols-outlined text-[16px]">close</span>
-              </button>
-              <span class="material-symbols-outlined text-pink-500 text-[18px]">chevron_right</span>
-            </div>
-          </div>
-        `;
-      });
-      html += `</div>`;
-    }
-
     html += `
-      <div class="p-3.5 rounded-2xl bg-pink-50/40 border border-pink-200 space-y-2.5">
-        <div class="flex items-center gap-1.5 text-xs font-bold text-pink-700">
-          <span class="material-symbols-outlined text-[16px]">person_add</span>
-          <span>Masuk dengan Akun Google Lain / Baru</span>
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold text-slate-600 mb-0.5 uppercase tracking-wider">Email Google</label>
-          <input type="email" id="customGoogleEmail" placeholder="contoh: nama@gmail.com"
-                 class="w-full px-3 py-2 rounded-xl border border-pink-200 text-xs font-semibold focus:outline-none focus:border-pink-500 bg-white">
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold text-slate-600 mb-0.5 uppercase tracking-wider">Nama Tampilan</label>
-          <input type="text" id="customGoogleName" placeholder="Contoh: Budi Santoso"
-                 class="w-full px-3 py-2 rounded-xl border border-pink-200 text-xs font-semibold focus:outline-none focus:border-pink-500 bg-white">
-        </div>
-        <button type="button" onclick="app.submitCustomGoogleAccount()"
-                class="w-full py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold shadow-sm shadow-pink-500/20 cursor-pointer flex items-center justify-center gap-1.5">
-          <span class="material-symbols-outlined text-[16px]">login</span>
-          <span>Masuk &amp; Sinkronkan Akun</span>
-        </button>
-      </div>
-
-      <div class="pt-2 text-center">
-        <button type="button" onclick="app.triggerGcpOAuthPopup()"
-                class="text-[11px] font-bold text-slate-400 hover:text-pink-600 inline-flex items-center gap-1 cursor-pointer">
-          <span class="material-symbols-outlined text-[14px]">open_in_new</span>
-          <span>Buka Jendela Google Cloud OAuth Popup</span>
-        </button>
+      <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+        <span>Pilih Akun Google:</span>
+        <span class="text-[10px] text-pink-600 font-semibold">${accounts.length} Akun Tersedia</span>
       </div>
     `;
 
-    container.innerHTML = html;
+    html += `<div class="space-y-2 mb-3 max-h-60 overflow-y-auto pr-0.5">`;
+    accounts.forEach(acc => {
+      const isActive = activeEmail && acc.email.toLowerCase() === activeEmail;
+      const initial = (acc.name ? acc.name.charAt(0) : (acc.email ? acc.email.charAt(0) : 'G')).toUpperCase();
+      const safeName = escapeHtml(acc.name || acc.email.split('@')[0]);
+      const safeEmail = escapeHtml(acc.email);
+
+      html += `
+        <div class="google-account-card ${isActive ? 'ring-2 ring-emerald-500/60 bg-emerald-50/40' : ''}"
+             onclick="app.selectGoogleAccount('${safeName}', '${safeEmail}', '${initial}', 'pink')">
+          <div class="w-10 h-10 rounded-full ${isActive ? 'bg-emerald-600' : 'bg-gradient-to-br from-pink-500 to-rose-500'} text-white font-bold flex items-center justify-center shrink-0 shadow-sm">
+            ${initial}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm font-bold text-ink truncate">${safeName}</span>
+              ${isActive ? '<span class="px-2 py-0.2 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-extrabold flex items-center gap-0.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Aktif</span>' : ''}
+            </div>
+            <div class="text-xs text-slate-500 truncate">${safeEmail}</div>
+          </div>
+          <div class="flex items-center gap-1">
+            ${accounts.length > 1 ? `
+              <button type="button" onclick="app.removeKnownAccount('${safeEmail}', event)" title="Hapus dari daftar" class="w-7 h-7 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center cursor-pointer">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            ` : ''}
+            <span class="material-symbols-outlined ${isActive ? 'text-emerald-600' : 'text-pink-500'} text-[20px]">
+              ${isActive ? 'check_circle' : 'login'}
+            </span>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+
+    // Collapsible for Adding Another Account
+    html += `
+      <div class="pt-2 border-t border-slate-100">
+        <button type="button" onclick="app.toggleCustomGoogleInput()"
+                class="w-full py-2.5 px-3 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+          <span class="material-symbols-outlined text-[18px]">person_add</span>
+          <span>Gunakan Akun Google Lain</span>
+        </button>
+
+        <div id="customGoogleInputBox" class="hidden mt-2.5 p-3.5 rounded-2xl bg-white border border-pink-200 shadow-sm space-y-2.5">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 mb-0.5 uppercase tracking-wider">Email Google</label>
+            <input type="email" id="customGoogleEmail" placeholder="contoh: nama@gmail.com"
+                   class="w-full px-3 py-2 rounded-xl border border-pink-200 text-xs font-semibold focus:outline-none focus:border-pink-500 bg-pink-50/20">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 mb-0.5 uppercase tracking-wider">Nama Tampilan</label>
+            <input type="text" id="customGoogleName" placeholder="Contoh: Budi Santoso"
+                   class="w-full px-3 py-2 rounded-xl border border-pink-200 text-xs font-semibold focus:outline-none focus:border-pink-500 bg-pink-50/20">
+          </div>
+          <button type="button" onclick="app.submitCustomGoogleAccount()"
+                  class="w-full py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold shadow-sm shadow-pink-500/20 cursor-pointer flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">check_circle</span>
+            <span>Masuk dengan Akun Ini &amp; Sinkronkan</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    listContainers.forEach(c => {
+      c.innerHTML = html;
+    });
   }
 
   function openGoogleOAuthModal() {
@@ -913,6 +949,9 @@
     const cleanName = name || cleanEmail.split('@')[0];
     const initial = avatarSymbol || (cleanName.charAt(0) || 'G').toUpperCase();
 
+    // Close Google OAuth modal immediately
+    closeGoogleOAuthModal();
+
     handleUserAuthenticated({
       name: cleanName,
       email: cleanEmail,
@@ -921,8 +960,6 @@
       provider: 'google',
       id: 'usr_' + btoa(cleanEmail).replace(/=/g, '').slice(0, 16)
     }, 'google');
-
-    closeGoogleOAuthModal();
   }
 
   function toggleCustomGoogleInput() {
@@ -955,12 +992,33 @@
     const dAvatar = document.getElementById('dompetUserAvatar');
     const dName = document.getElementById('dompetUserName');
     const dEmail = document.getElementById('dompetUserEmail');
+    const dBadge = document.getElementById('dompetUserStatusBadge');
 
-    if (hAvatar) hAvatar.textContent = state.currentUser.avatar;
-    if (hName) hName.textContent = state.currentUser.name.split(' ')[0];
-    if (dAvatar) dAvatar.textContent = state.currentUser.avatar;
-    if (dName) dName.textContent = state.currentUser.name;
-    if (dEmail) dEmail.textContent = state.currentUser.email;
+    if (!state.currentUser) {
+      if (hAvatar) hAvatar.textContent = 'U';
+      if (hName) hName.textContent = 'Masuk';
+      if (dAvatar) dAvatar.textContent = 'U';
+      if (dName) dName.textContent = 'Belum Masuk';
+      if (dEmail) dEmail.textContent = 'Silakan masuk dengan akun Google';
+      if (dBadge) {
+        dBadge.textContent = 'Belum Masuk';
+        dBadge.className = 'inline-block mt-0.5 px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[9px] font-extrabold uppercase';
+      }
+      return;
+    }
+
+    const initial = state.currentUser.avatar || (state.currentUser.name ? state.currentUser.name.charAt(0) : 'G').toUpperCase();
+    const shortName = (state.currentUser.name || 'Pengguna').split(' ')[0];
+
+    if (hAvatar) hAvatar.textContent = initial;
+    if (hName) hName.textContent = shortName;
+    if (dAvatar) dAvatar.textContent = initial;
+    if (dName) dName.textContent = state.currentUser.name || 'Pengguna';
+    if (dEmail) dEmail.textContent = state.currentUser.email || '';
+    if (dBadge) {
+      dBadge.textContent = '● Akun Google Aktif';
+      dBadge.className = 'inline-block mt-0.5 px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[9px] font-extrabold uppercase';
+    }
   }
 
   // =========================================================================
@@ -1925,7 +1983,41 @@
 
   function confirmLogout() {
     closeLogoutModal();
-    logoutToLoginScreen();
+    AudioEngine.playTap();
+
+    // 1. Reset memory state
+    state.isLoggedIn = false;
+    state.currentUser = null;
+    state.cart = [];
+
+    // 2. Clear persisted login session
+    localStorage.removeItem('smart_grocery_logged_in');
+    localStorage.removeItem('smart_grocery_auth_token');
+    localStorage.removeItem('smart_grocery_current_user');
+
+    // 3. Close any active modals
+    closeGoogleOAuthModal();
+    closeEditCatalogModal();
+    closeClearCartModal();
+    closeReceiptModal();
+    closeDeleteItemModal();
+
+    // 4. Reset to Cart tab
+    switchTab('tabCart');
+
+    // 5. Update user profile display to guest/empty
+    updateUserProfileUI();
+
+    // 6. Reset login screen view to default auth form
+    showDefaultLoginSection();
+
+    // 7. Instantly show login screen
+    showLoginScreen();
+
+    // 8. Re-render chooser for next login
+    renderGoogleAccountsChooser();
+
+    showToast('👋 Berhasil keluar dari akun.', 'info');
   }
 
   function openClearCartModal() {
@@ -2586,6 +2678,8 @@
     calculateDiscount,
     comparePriceWithLastMonth,
     loginWithGoogleOAuth,
+    showGoogleAccountsSection,
+    showDefaultLoginSection,
     triggerDirectGoogleRedirect,
     handlePasswordLogin,
     handlePasswordRegister,
