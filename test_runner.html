@@ -112,6 +112,8 @@
       assert('Catalog Edit & Delete methods registered on app', typeof appObj.openEditCatalogModal === 'function' && typeof appObj.submitEditCatalogPrice === 'function' && typeof appObj.deleteCatalogItem === 'function');
       assert('Receipt Cancel/Edit and Archive methods registered', typeof appObj.cancelAndEditReceipt === 'function' && typeof appObj.viewArchivedReceipt === 'function');
       assert('Tab Switch and Floating Cart Bar methods registered', typeof appObj.switchTab === 'function' && typeof appObj.updateFloatingCartVisibility === 'function');
+      assert('Logout and Item Delete Confirmation Modals registered', typeof appObj.openLogoutModal === 'function' && typeof appObj.promptDeleteCartItem === 'function' && typeof appObj.promptDeleteCatalogItem === 'function');
+      assert('Overbudget Detection and Safety Sound hooks registered', typeof appObj.isCartOverbudget === 'function');
 
       // 6. RESPONSIVE DOM & OVERFLOW VERIFICATION
       const docScrollW = document.documentElement.scrollWidth;

@@ -360,25 +360,70 @@
         });
       } catch (e) {}
     },
-    // Easter Egg cheerful owl slide chirp
+    // Easter Egg: Cute anime mascot / sweet little girl voice greeting ("H-i!~") + cheerful chime
     playEasterEgg() {
       if (!state.soundEnabled) return;
       this.init();
       if (!this.ctx) return;
       try {
         const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, now);
-        osc.frequency.exponentialRampToValueAtTime(1600, now + 0.12);
-        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.22);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.25);
+
+        // Vowel formant bandpass filter (formant F2 ~2450Hz for sweet "i" vowel)
+        const formantFilter = this.ctx.createBiquadFilter();
+        formantFilter.type = 'bandpass';
+        formantFilter.frequency.setValueAtTime(2450, now);
+        formantFilter.Q.setValueAtTime(3.2, now);
+
+        const voiceOsc = this.ctx.createOscillator();
+        const voiceGain = this.ctx.createGain();
+        voiceOsc.type = 'triangle'; // triangle has pleasant voice-like harmonics
+
+        // Cute sweet upward inflection: ~780Hz rising to 1260Hz with cheerful lilt
+        voiceOsc.frequency.setValueAtTime(780, now);
+        voiceOsc.frequency.exponentialRampToValueAtTime(1260, now + 0.16);
+        voiceOsc.frequency.exponentialRampToValueAtTime(1100, now + 0.30);
+
+        voiceGain.gain.setValueAtTime(0.001, now);
+        voiceGain.gain.linearRampToValueAtTime(0.24, now + 0.05);
+        voiceGain.gain.exponentialRampToValueAtTime(0.001, now + 0.36);
+
+        voiceOsc.connect(formantFilter);
+        formantFilter.connect(voiceGain);
+        voiceGain.connect(this.ctx.destination);
+
+        // Fundamental body warmth (pure sweet sine)
+        const bodyOsc = this.ctx.createOscillator();
+        const bodyGain = this.ctx.createGain();
+        bodyOsc.type = 'sine';
+        bodyOsc.frequency.setValueAtTime(780, now);
+        bodyOsc.frequency.exponentialRampToValueAtTime(1260, now + 0.16);
+        bodyOsc.frequency.exponentialRampToValueAtTime(1100, now + 0.30);
+
+        bodyGain.gain.setValueAtTime(0.001, now);
+        bodyGain.gain.linearRampToValueAtTime(0.20, now + 0.05);
+        bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        bodyOsc.connect(bodyGain);
+        bodyGain.connect(this.ctx.destination);
+
+        // Sweet sparkling fairy chimes right on the greeting peak
+        [1567.98, 1975.53, 2349.32].forEach((freq, idx) => {
+          const chimeOsc = this.ctx.createOscillator();
+          const chimeGain = this.ctx.createGain();
+          chimeOsc.type = 'sine';
+          chimeOsc.frequency.setValueAtTime(freq, now + 0.14 + idx * 0.06);
+          chimeGain.gain.setValueAtTime(0.08, now + 0.14 + idx * 0.06);
+          chimeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14 + idx * 0.06 + 0.28);
+          chimeOsc.connect(chimeGain);
+          chimeGain.connect(this.ctx.destination);
+          chimeOsc.start(now + 0.14 + idx * 0.06);
+          chimeOsc.stop(now + 0.14 + idx * 0.06 + 0.28);
+        });
+
+        voiceOsc.start(now);
+        voiceOsc.stop(now + 0.38);
+        bodyOsc.start(now);
+        bodyOsc.stop(now + 0.38);
       } catch (e) {}
     }
   };
@@ -1281,7 +1326,7 @@
               </div>
             </div>
 
-            <button type="button" class="w-8 h-8 rounded-lg bg-pink-50 hover:bg-rose-100 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer shrink-0" onclick="app.deleteCartItem('${item.id}')" title="Hapus dari troli" aria-label="Hapus ${escapeHtml(item.name)} dari troli">
+            <button type="button" class="w-8 h-8 rounded-lg bg-pink-50 hover:bg-rose-100 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer shrink-0" onclick="app.promptDeleteCartItem('${item.id}')" title="Hapus dari troli" aria-label="Hapus ${escapeHtml(item.name)} dari troli">
               <span class="material-symbols-outlined text-[18px]">delete</span>
             </button>
           </div>
@@ -1351,7 +1396,7 @@
               <span class="material-symbols-outlined text-[16px]">edit</span>
             </button>
             <!-- Tombol Hapus dari Katalog -->
-            <button type="button" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 flex items-center justify-center cursor-pointer transition-colors" onclick="app.deleteCatalogItem('${item.id}')" title="Hapus dari Katalog" aria-label="Hapus ${escapeHtml(item.name)} dari Katalog">
+            <button type="button" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 flex items-center justify-center cursor-pointer transition-colors" onclick="app.promptDeleteCatalogItem('${item.id}')" title="Hapus dari Katalog" aria-label="Hapus ${escapeHtml(item.name)} dari Katalog">
               <span class="material-symbols-outlined text-[16px]">delete</span>
             </button>
             <!-- Tombol Tambah ke Troli -->
@@ -1508,10 +1553,23 @@
     if (wasCartEmpty) AudioEngine.playEmptyCartAdd();
     else AudioEngine.playAddItem();
 
+    if (isCartOverbudget()) {
+      setTimeout(() => AudioEngine.playOverbudgetBuzzer(), 130);
+    }
+
     closeItemModal();
     saveStateToStorage();
     broadcastStateChange();
     renderAll();
+  }
+
+  function isCartOverbudget() {
+    let grandTotal = 0;
+    state.cart.forEach(item => {
+      const disc = calculateDiscount(item.originalPrice, item.discountStr);
+      grandTotal += disc.finalUnitPrice * item.qty;
+    });
+    return grandTotal > state.budgetLimit;
   }
 
   function updateItemQty(itemId, newQty) {
@@ -1519,15 +1577,81 @@
     if (!item) return;
 
     if (newQty <= 0) {
-      deleteCartItem(itemId);
+      promptDeleteCartItem(itemId);
       return;
     }
 
+    const isIncreasing = newQty > item.qty;
     item.qty = newQty;
     AudioEngine.playTap();
+    if (isIncreasing && isCartOverbudget()) {
+      setTimeout(() => AudioEngine.playOverbudgetBuzzer(), 100);
+    }
+
     saveStateToStorage();
     broadcastStateChange();
     renderAll();
+  }
+
+  // Pending target for delete confirmation modal: { type: 'cart'|'catalog', id: string, name: string }
+  let pendingDeleteTarget = null;
+
+  function promptDeleteCartItem(itemId) {
+    const item = state.cart.find(i => i.id === itemId);
+    if (!item) return;
+
+    pendingDeleteTarget = { type: 'cart', id: itemId, name: item.name };
+    const modal = document.getElementById('modalConfirmDeleteItem');
+    const titleEl = document.getElementById('deleteItemModalTitle');
+    const descEl = document.getElementById('deleteItemModalDesc');
+    const confirmBtn = document.getElementById('btnExecuteConfirmDelete');
+
+    if (titleEl) titleEl.textContent = 'Hapus dari Troli?';
+    if (descEl) descEl.textContent = `Yakin ingin menghapus "${item.name}" dari keranjang belanja?`;
+    if (confirmBtn) {
+      confirmBtn.onclick = () => executeDeleteItem();
+    }
+
+    AudioEngine.playTap();
+    if (modal) modal.classList.add('show');
+  }
+
+  function promptDeleteCatalogItem(catalogId) {
+    const item = state.catalog.find(c => c.id === catalogId);
+    if (!item) return;
+
+    pendingDeleteTarget = { type: 'catalog', id: catalogId, name: item.name };
+    const modal = document.getElementById('modalConfirmDeleteItem');
+    const titleEl = document.getElementById('deleteItemModalTitle');
+    const descEl = document.getElementById('deleteItemModalDesc');
+    const confirmBtn = document.getElementById('btnExecuteConfirmDelete');
+
+    if (titleEl) titleEl.textContent = 'Hapus dari Katalog?';
+    if (descEl) descEl.textContent = `Yakin ingin menghapus "${item.name}" dari daftar katalog?`;
+    if (confirmBtn) {
+      confirmBtn.onclick = () => executeDeleteItem();
+    }
+
+    AudioEngine.playTap();
+    if (modal) modal.classList.add('show');
+  }
+
+  function closeDeleteItemModal() {
+    pendingDeleteTarget = null;
+    const modal = document.getElementById('modalConfirmDeleteItem');
+    if (modal) modal.classList.remove('show');
+  }
+
+  function executeDeleteItem() {
+    if (!pendingDeleteTarget) return;
+    const target = { ...pendingDeleteTarget };
+    closeDeleteItemModal();
+
+    if (target.type === 'cart') {
+      deleteCartItem(target.id);
+    } else if (target.type === 'catalog') {
+      deleteCatalogItem(target.id);
+    }
   }
 
   function deleteCartItem(itemId) {
@@ -1570,6 +1694,10 @@
     if (wasCartEmpty) AudioEngine.playEmptyCartAdd();
     else AudioEngine.playAddItem();
 
+    if (isCartOverbudget()) {
+      setTimeout(() => AudioEngine.playOverbudgetBuzzer(), 130);
+    }
+
     saveStateToStorage();
     broadcastStateChange();
     renderAll();
@@ -1596,13 +1724,11 @@
     const idEl = document.getElementById('editCatalogItemId');
     const nameEl = document.getElementById('editCatalogItemName');
     const priceEl = document.getElementById('editCatalogItemPrice');
-    const lastPriceEl = document.getElementById('editCatalogItemLastPrice');
     const discEl = document.getElementById('editCatalogItemDiscount');
 
     if (idEl) idEl.value = item.id;
     if (nameEl) nameEl.value = item.name;
     if (priceEl) priceEl.value = item.price;
-    if (lastPriceEl) lastPriceEl.value = item.lastMonthPrice || item.price;
     if (discEl) discEl.value = item.discountStr || '';
 
     AudioEngine.playTap();
@@ -1617,7 +1743,6 @@
   function submitEditCatalogPrice() {
     const idEl = document.getElementById('editCatalogItemId');
     const priceEl = document.getElementById('editCatalogItemPrice');
-    const lastPriceEl = document.getElementById('editCatalogItemLastPrice');
     const discEl = document.getElementById('editCatalogItemDiscount');
 
     if (!idEl) return;
@@ -1625,7 +1750,6 @@
     if (!item) return;
 
     const newPrice = parseFloat(priceEl ? priceEl.value : 0);
-    const newLastPrice = parseFloat(lastPriceEl ? lastPriceEl.value : 0);
     const newDiscount = discEl ? discEl.value.trim() : '';
 
     if (isNaN(newPrice) || newPrice < 0) {
@@ -1633,18 +1757,19 @@
       return;
     }
 
+    // Previous price is automatically preserved as the last month price!
     const oldPrice = item.price;
-    item.lastMonthPrice = !isNaN(newLastPrice) && newLastPrice > 0 ? newLastPrice : oldPrice;
+    item.lastMonthPrice = oldPrice;
     item.price = newPrice;
     item.discountStr = newDiscount;
     if (!Array.isArray(item.priceHistory)) item.priceHistory = [];
-    item.priceHistory.push({ date: new Date().toISOString(), price: newPrice });
+    item.priceHistory.push({ date: new Date().toISOString(), price: newPrice, lastPrice: oldPrice });
 
     // Sinkronkan ke keranjang aktif jika barang sedang ada di troli
     state.cart.forEach(cartItem => {
       if (cartItem.name.toLowerCase() === item.name.toLowerCase()) {
         cartItem.originalPrice = newPrice;
-        cartItem.lastMonthPrice = item.lastMonthPrice;
+        cartItem.lastMonthPrice = oldPrice;
         cartItem.discountStr = newDiscount;
       }
     });
@@ -1655,6 +1780,22 @@
     broadcastStateChange();
     renderAll();
     showToast(`✏️ Harga "${item.name}" berhasil diubah ke Rp ${formatIDR(newPrice)}!`);
+  }
+
+  function openLogoutModal() {
+    const modal = document.getElementById('modalConfirmLogout');
+    AudioEngine.playTap();
+    if (modal) modal.classList.add('show');
+  }
+
+  function closeLogoutModal() {
+    const modal = document.getElementById('modalConfirmLogout');
+    if (modal) modal.classList.remove('show');
+  }
+
+  function confirmLogout() {
+    closeLogoutModal();
+    logoutToLoginScreen();
   }
 
   function openClearCartModal() {
@@ -2238,6 +2379,14 @@
     openClearCartModal,
     closeClearCartModal,
     confirmClearCart,
+    openLogoutModal,
+    closeLogoutModal,
+    confirmLogout,
+    promptDeleteCartItem,
+    promptDeleteCatalogItem,
+    closeDeleteItemModal,
+    executeDeleteItem,
+    isCartOverbudget,
     openReceiptModal,
     closeReceiptModal,
     cancelAndEditReceipt,

@@ -1,75 +1,109 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
   <defs>
-    <linearGradient id="owlPinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff75b3"/>
-      <stop offset="100%" stop-color="#f43f8e"/>
+    <!-- Mascot color palette strictly matching media_1795538333314_a47ab7de.png -->
+    <linearGradient id="owlBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff6fa9"/>
+      <stop offset="100%" stop-color="#f4478f"/>
     </linearGradient>
-    <linearGradient id="bellyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffe4f0"/>
-      <stop offset="100%" stop-color="#ffd0e5"/>
+    <linearGradient id="bowMintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ee7b7"/>
+      <stop offset="100%" stop-color="#34d399"/>
     </linearGradient>
-    <linearGradient id="bowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#48dbb4"/>
-      <stop offset="100%" stop-color="#1eb58e"/>
-    </linearGradient>
-    <linearGradient id="bagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="shoppingBagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#ec4899"/>
       <stop offset="100%" stop-color="#be185d"/>
     </linearGradient>
+    <filter id="softMascotShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4.5" flood-color="#ec4899" flood-opacity="0.28"/>
+    </filter>
   </defs>
 
-  <rect width="200" height="200" rx="44" fill="#fff0f5"/>
+  <g filter="url(#softMascotShadow)">
+    <!-- FEET (Orange rounded paws) -->
+    <ellipse cx="78" cy="178" rx="13" ry="7" fill="#ff9800"/>
+    <ellipse cx="114" cy="178" rx="13" ry="7" fill="#ff9800"/>
 
-  <!-- FEET -->
-  <ellipse cx="78" cy="172" rx="14" ry="7" fill="#ff9900"/>
-  <ellipse cx="112" cy="172" rx="14" ry="7" fill="#ff9900"/>
+    <!-- MAIN BODY (Classic Duolingo Owl Silhouette with top ear tufts) -->
+    <path d="M 62 50 
+             C 44 60, 36 94, 36 128 
+             C 36 164, 60 178, 96 178 
+             C 132 178, 156 164, 156 128 
+             C 156 94, 148 60, 130 50 
+             C 118 43, 106 51, 96 51 
+             C 86 51, 74 43, 62 50 Z" 
+          fill="url(#owlBodyGrad)"/>
 
-  <!-- MAIN BODY -->
-  <path d="M 60 46 C 42 56, 38 94, 38 126 C 38 159, 62 172, 95 172 C 128 172, 152 159, 152 126 C 152 94, 148 56, 130 46 C 114 38, 102 48, 95 48 C 88 48, 76 38, 60 46 Z" fill="url(#owlPinkGrad)"/>
+    <!-- LEFT WING (Flaring out cute stubby wing) -->
+    <path d="M 40 106 C 20 116, 14 140, 26 152 C 36 160, 48 144, 48 128 Z" fill="#ff4d94"/>
 
-  <!-- LEFT WING -->
-  <path d="M 40 102 C 22 112, 18 136, 32 146 C 40 152, 48 139, 48 126 Z" fill="#ff5c9d"/>
+    <!-- LIGHT PINK FACIAL MASK (Distinct Duolingo eye patch) -->
+    <path d="M 60 62 
+             C 48 76, 48 116, 70 120 
+             C 82 122, 90 114, 96 106 
+             C 102 114, 110 122, 122 120 
+             C 144 116, 144 76, 132 62 
+             C 120 52, 108 59, 96 59 
+             C 84 59, 72 52, 60 62 Z" 
+          fill="#ffb3d5"/>
 
-  <!-- BELLY PATCH -->
-  <path d="M 62 112 C 62 92, 128 92, 128 112 C 128 146, 118 166, 95 166 C 72 166, 62 146, 62 112 Z" fill="url(#bellyGrad)"/>
-  <path d="M 85 124 Q 95 130 105 124" stroke="#f472b6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-  <path d="M 80 138 Q 95 144 110 138" stroke="#f472b6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- BELLY PATCH (Light pink chest) -->
+    <path d="M 66 124 C 66 106, 126 106, 126 124 C 126 156, 116 172, 96 172 C 76 172, 66 156, 66 124 Z" fill="#ffd4e5"/>
 
-  <!-- EYES -->
-  <circle cx="74" cy="88" r="22" fill="#ffffff"/>
-  <circle cx="116" cy="88" r="22" fill="#ffffff"/>
-  <ellipse cx="76" cy="88" rx="14" ry="16" fill="#2d3748"/>
-  <ellipse cx="114" cy="88" rx="14" ry="16" fill="#2d3748"/>
-  <circle cx="72" cy="82" r="6" fill="#ffffff"/>
-  <circle cx="78" cy="92" r="2.5" fill="#ffffff"/>
-  <circle cx="110" cy="82" r="6" fill="#ffffff"/>
-  <circle cx="116" cy="92" r="2.5" fill="#ffffff"/>
+    <!-- BELLY FEATHER SCALLOPS -->
+    <path d="M 86 136 Q 96 141 106 136" stroke="#f472b6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M 80 148 Q 96 154 112 148" stroke="#f472b6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M 88 158 Q 96 163 104 158" stroke="#f472b6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
 
-  <!-- BEAK -->
-  <path d="M 88 94 Q 95 92 102 94 C 103 104, 98 112, 95 112 C 92 112, 87 104, 88 94 Z" fill="#ff9900"/>
+    <!-- BIG EXPRESSIVE DUOLINGO EYES -->
+    <!-- Left Eye -->
+    <ellipse cx="74" cy="92" rx="19" ry="21" fill="#ffffff"/>
+    <ellipse cx="76" cy="92" rx="13" ry="16" fill="#2d3748"/>
+    <circle cx="72" cy="86" r="5.5" fill="#ffffff"/>
+    <circle cx="78" cy="96" r="2.8" fill="#ffffff"/>
 
-  <!-- TURQUOISE BOW -->
-  <g transform="translate(95, 42)">
-    <path d="M 0 0 C -12 -10, -22 -6, -20 2 C -18 9, -8 4, 0 0 Z" fill="url(#bowGrad)"/>
-    <path d="M 0 0 C 12 -10, 22 -6, 20 2 C 18 9, 8 4, 0 0 Z" fill="url(#bowGrad)"/>
-    <circle cx="0" cy="0" r="4.5" fill="#38cfab"/>
-  </g>
+    <!-- Right Eye -->
+    <ellipse cx="118" cy="92" rx="19" ry="21" fill="#ffffff"/>
+    <ellipse cx="116" cy="92" rx="13" ry="16" fill="#2d3748"/>
+    <circle cx="112" cy="86" r="5.5" fill="#ffffff"/>
+    <circle cx="118" cy="96" r="2.8" fill="#ffffff"/>
 
-  <!-- RIGHT WING HOLDING SHOPPING BAG -->
-  <g transform="translate(138, 104)">
-    <path d="M 0 0 C 14 6, 24 20, 18 34 C 12 40, -4 28, -6 16 Z" fill="#ff5c9d"/>
-    <circle cx="18" cy="30" r="5" fill="#ff75b3"/>
-    <path d="M 12 30 C 12 18, 26 18, 26 30" fill="none" stroke="#fbcfe8" stroke-width="3" stroke-linecap="round"/>
-    <path d="M 6 30 L 32 30 L 36 65 C 36 67, 34 69, 31 69 L 7 69 C 4 69, 2 67, 2 65 Z" fill="url(#bagGrad)"/>
-    <g transform="translate(19, 48) scale(0.7)">
-      <circle cx="0" cy="0" r="9" fill="#ffffff"/>
-      <path d="M -5 -3 L -3 -3 L -1 3 L 5 3 L 6 -1 L -2 -1" fill="none" stroke="#db2777" stroke-width="1.8" stroke-linecap="round"/>
-      <circle cx="0" cy="5" r="1.5" fill="#db2777"/>
-      <circle cx="4" cy="5" r="1.5" fill="#db2777"/>
+    <!-- BEAK (Golden-yellow rounded triangle) -->
+    <path d="M 89 98 Q 96 96 103 98 C 104 107, 99 116, 96 116 C 93 116, 88 107, 89 98 Z" fill="#ff9800"/>
+    <path d="M 91 99 Q 96 102 101 99" fill="#ffb300"/>
+
+    <!-- MINT GREEN BOW TIE ON FOREHEAD -->
+    <g transform="translate(96, 50)">
+      <!-- Left bow loop -->
+      <path d="M 0 0 C -12 -9, -21 -5, -19 3 C -17 10, -7 5, 0 0 Z" fill="url(#bowMintGrad)"/>
+      <!-- Right bow loop -->
+      <path d="M 0 0 C 12 -9, 21 -5, 19 3 C 17 10, 7 5, 0 0 Z" fill="url(#bowMintGrad)"/>
+      <!-- Center knot -->
+      <circle cx="0" cy="0" r="4.2" fill="#10b981"/>
+      <circle cx="-0.5" cy="-0.5" r="2.8" fill="#6ee7b7"/>
+    </g>
+
+    <!-- RIGHT WING HOLDING SHOPPING BAG -->
+    <g transform="translate(142, 108)">
+      <!-- Wing curve -->
+      <path d="M 0 0 C 14 6, 22 20, 16 34 C 10 40, -4 28, -6 16 Z" fill="#ff4d94"/>
+      <!-- Wing tip clutching handle -->
+      <circle cx="16" cy="30" r="5" fill="#ff6fa9"/>
+      
+      <!-- CHIC SHOPPING BAG -->
+      <!-- Handles -->
+      <path d="M 10 30 C 10 18, 24 18, 24 30" fill="none" stroke="#fce7f3" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 12 30 C 12 20, 22 20, 22 30" fill="none" stroke="#be185d" stroke-width="2" stroke-linecap="round"/>
+      <!-- Bag Body -->
+      <path d="M 4 30 L 30 30 L 34 64 C 34 66, 32 68, 29 68 L 5 68 C 2 68, 0 66, 0 64 Z" fill="url(#shoppingBagGrad)"/>
+      <!-- Bag Highlight -->
+      <path d="M 6 32 L 28 32 L 31 64 L 3 64 Z" fill="none" stroke="#f472b6" stroke-width="1" opacity="0.6"/>
+      <!-- Shopping Cart Emblem on Bag -->
+      <g transform="translate(17, 48) scale(0.65)">
+        <circle cx="0" cy="0" r="10" fill="#ffffff" opacity="0.95"/>
+        <path d="M -5 -3 L -3 -3 L -1 3 L 5 3 L 6 -1 L -2 -1" fill="none" stroke="#db2777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="-0.5" cy="5" r="1.2" fill="#db2777"/>
+        <circle cx="4" cy="5" r="1.2" fill="#db2777"/>
+      </g>
     </g>
   </g>
-
-  <!-- CHEEK BLUSH -->
-  <ellipse cx="56" cy="106" rx="7" ry="4" fill="#ff3385" opacity="0.3"/>
-  <ellipse cx="134" cy="106" rx="7" ry="4" fill="#ff3385" opacity="0.3"/>
 </svg>
