@@ -71,3 +71,11 @@
 - **Entity Anonymization:** Completely removed references to "Rian", "Studi Kasus Rian", and hardcoded dummy credentials across `app.js`, `manifest.json`, `index.html`, and `README.md`.
 - **Channel Renaming:** Renamed real-time synchronization channel from `dt2_rian_live_sync` to `smart_grocery_live_sync`.
 - **Deployment Status:** Synchronized with GitHub and deployed live to Vercel at `https://shoppingstuff.vercel.app/`.
+
+### Phase 5: Multi-Account Data Scoping & Account Isolation Architecture
+- **Elimination of Hardcoded Google Account:** Removed all hardcoded occurrences and fallback values of `freerobuxreal303@gmail.com` across `app.js`, `index.html`, and `api/auth/callback/google.js`.
+- **User-Scoped Storage (`sg_<userKey>_*`):** Cart, catalog, budget limit, shopping location, date, and receipt history are now scoped strictly per-account (`getUserStorageKey(email)`). Switching accounts or logging in as a new user never leaks another user's cart or budget.
+- **Supabase Realtime Channel Scoping:** Synchronizations are now pinned strictly to `sync_account_<userKey>`. Payloads carry `accountEmail` and are ignored if received by another user account, ensuring real-time multi-device sync happens ONLY between devices authenticated with the exact same Google account.
+- **Dynamic Google Account Chooser:** Replaced hardcoded account cards in `#modalOurGoogleOAuth` with dynamic remembered accounts list (`smart_grocery_known_accounts`), clean removal/switch capabilities, and a direct Google Account Sign-In input form.
+- **Zero Stale Popup Leak:** Eliminated the popup closure watcher bug that fell back to stale `localStorage` user objects.
+- **Automated Verification:** 24/24 automated tests passed in `test_runner.html` via Chrome Headless.
