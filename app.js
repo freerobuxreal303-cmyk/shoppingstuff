@@ -22,40 +22,34 @@
   // Menutup popup otomatis dan mengirim data ke tab utama (window.opener)
   // =========================================================================
   if (window.opener && window.opener !== window) {
-    // 1. Cek token di hash
-    if (window.location.hash && window.location.hash.includes('access_token')) {
+    // 1. Cek token di hash (#access_token=... atau #id_token=...)
+    if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('id_token'))) {
       try {
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const token = hashParams.get('access_token');
-        if (token) {
-          window.opener.postMessage({
-            type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
-            token: token,
-            hash: window.location.hash
-          }, '*');
-          localStorage.setItem('smart_grocery_popup_token', token);
-        }
+        window.opener.postMessage({
+          type: 'GOOGLE_OAUTH_SUCCESS',
+          hash: window.location.hash
+        }, '*');
       } catch (e) {
         console.warn('OAuth popup bridge notice:', e);
       }
       setTimeout(() => {
         window.close();
-      }, 150);
+      }, 100);
       return;
     }
 
     // 2. Cek user yang tersimpan di localStorage dari sesi popup ini
-    const savedPopupUser = localStorage.getItem('smart_grocery_popup_user');
+    const savedPopupUser = localStorage.getItem('smart_grocery_user');
     if (savedPopupUser) {
       try {
         window.opener.postMessage({
-          type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
+          type: 'GOOGLE_OAUTH_SUCCESS',
           user: JSON.parse(savedPopupUser)
         }, '*');
       } catch (e) {}
       setTimeout(() => {
         window.close();
-      }, 150);
+      }, 100);
       return;
     }
   }
@@ -226,106 +220,125 @@
   };
 
   // =========================================================================
-  // AUTHENTICATION & SUPABASE GOOGLE OAUTH (POPUP + AUTO-SYNC BRIDGE)
+  // GOOGLE OAUTH 2.0 (SESUAI PANDUAN RESMI MR. TIO • MUTIARA BANGSA 2)
+  // Alur: Buka tab/popup -> Pilih Akun Google -> Callback /api/auth/callback/google -> Tutup & Kembali
   // =========================================================================
-  async function initSupabaseAuth() {
-    if (!window.supabase) return;
-    try {
-      state.supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+  const GOOGLE_OAUTH_CONFIG = {
+    CLIENT_ID: '669779177636-77k3vg6sc2es3sd7roihmn6ffqgn2uc6.apps.googleusercontent.com',
+    AUTH_URI: 'https://accounts.google.com/o/oauth2/v2/auth',
+    SCOPES: 'openid email profile'
+  };
 
-      // 1. Tangkap pesan dari jendela Popup Login Google (window.opener postMessage)
-      window.addEventListener('message', async (event) => {
-        if (event.data && event.data.type === 'SUPABASE_OAUTH_POPUP_SUCCESS') {
-          if (event.data.user) {
-            state.isLoggedIn = true;
-            state.currentUser = event.data.user;
-            saveStateToStorage();
-            hideLoginScreen();
-            updateUserProfileUI();
-            showToast(`🟢 Selamat datang, ${state.currentUser.name}! Masuk dengan Google OAuth.`);
-            renderAll();
+  function getGoogleRedirectUri() {
+    if (typeof window !== 'undefined' && window.location) {
+      return `${window.location.origin}/api/auth/callback/google`;
+    }
+    return 'https://shoppingstuff.vercel.app/api/auth/callback/google';
+  }
+
+  function parseJwt(token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function initGoogleAuth() {
+    // 1. Tangkap pesan dari jendela Popup Login Google (window.opener postMessage)
+    window.addEventListener('message', async (event) => {
+      if (event.data && event.data.type === 'GOOGLE_OAUTH_SUCCESS') {
+        if (event.data.user) {
+          handleUserAuthenticated(event.data.user, 'google');
+          return;
+        }
+        if (event.data.hash) {
+          await processOAuthHash(event.data.hash);
+        }
+      }
+    });
+
+    // 2. Periksa apakah URL saat ini mengandung hash token dari Google OAuth
+    if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('id_token'))) {
+      await processOAuthHash(window.location.hash);
+      return;
+    }
+
+    // 3. Periksa session tersimpan di localStorage (Anti-Reset F5 Guard)
+    const savedUserStr = localStorage.getItem('smart_grocery_user');
+    if (savedUserStr) {
+      try {
+        const savedUser = JSON.parse(savedUserStr);
+        if (savedUser && (savedUser.email || savedUser.name)) {
+          handleUserAuthenticated(savedUser, savedUser.provider || 'google');
+        }
+      } catch (e) {}
+    }
+  }
+
+  async function processOAuthHash(hashStr) {
+    try {
+      const hashParams = new URLSearchParams(hashStr.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const idToken = hashParams.get('id_token');
+
+      // Ambil profil dari Google UserInfo endpoint
+      if (accessToken) {
+        try {
+          const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          const profile = await res.json();
+          if (profile && (profile.name || profile.email)) {
+            handleUserAuthenticated({
+              name: profile.name || profile.given_name || (profile.email ? profile.email.split('@')[0] : 'Pengguna Google'),
+              email: profile.email || 'freerobuxreal303@gmail.com',
+              avatar: (profile.name ? profile.name.charAt(0) : 'G').toUpperCase(),
+              avatarUrl: profile.picture || '',
+              id: profile.sub || 'usr_' + Date.now()
+            }, 'google');
             return;
           }
-          const token = event.data.token;
-          if (token && state.supabase) {
-            try {
-              const { data } = await state.supabase.auth.getUser(token);
-              if (data && data.user) {
-                handleUserAuthenticated(data.user, 'google');
-              }
-            } catch (e) {
-              console.warn('PostMessage getUser notice:', e);
-            }
-          }
-        }
-      });
-
-      // 2. Tangkap event storage antar-tab/popup
-      window.addEventListener('storage', async (e) => {
-        if (e.key === 'smart_grocery_popup_token' && e.newValue) {
-          const token = e.newValue;
-          localStorage.removeItem('smart_grocery_popup_token');
-          if (state.supabase && token) {
-            try {
-              const { data } = await state.supabase.auth.getUser(token);
-              if (data && data.user) {
-                handleUserAuthenticated(data.user, 'google');
-              }
-            } catch (err) {}
-          }
-        }
-      });
-
-      // 3. Prioritas Utama: Periksa URL Hash dari Redirect Google OAuth (#access_token=...)
-      if (window.location.hash && window.location.hash.includes('access_token')) {
-        const hashStr = window.location.hash.substring(1);
-        const hashParams = new URLSearchParams(hashStr);
-        const token = hashParams.get('access_token');
-        if (token) {
-          try {
-            const { data, error } = await state.supabase.auth.getUser(token);
-            if (data && data.user) {
-              handleUserAuthenticated(data.user, 'google');
-              return;
-            }
-          } catch (e) {
-            console.warn('Direct token validation notice:', e);
-          }
+        } catch (e) {
+          console.warn('Google userinfo fetch notice:', e);
         }
       }
 
-      // 4. Periksa session tersimpan atau session aktif dari Supabase Client
-      const { data: { session } } = await state.supabase.auth.getSession();
-      if (session && session.user) {
-        handleUserAuthenticated(session.user, 'google');
-        return;
-      }
-
-      // 5. Listener perubahan status autentikasi Supabase
-      state.supabase.auth.onAuthStateChange((event, session) => {
-        if (session && session.user) {
-          handleUserAuthenticated(session.user, 'google');
-        } else if (event === 'SIGNED_OUT') {
-          state.isLoggedIn = false;
+      // Fallback: parse JWT ID Token
+      if (idToken) {
+        const p = parseJwt(idToken);
+        if (p) {
+          handleUserAuthenticated({
+            name: p.name || p.given_name || (p.email ? p.email.split('@')[0] : 'Pengguna Google'),
+            email: p.email || 'freerobuxreal303@gmail.com',
+            avatar: (p.name ? p.name.charAt(0) : 'G').toUpperCase(),
+            avatarUrl: p.picture || '',
+            id: p.sub || 'usr_' + Date.now()
+          }, 'google');
         }
-      });
-    } catch (e) {
-      console.warn('Supabase auth init notice:', e);
+      }
+    } catch (err) {
+      console.warn('OAuth hash processing error:', err);
     }
   }
 
   function handleUserAuthenticated(user, provider = 'google') {
-    const fullName = user.user_metadata?.full_name || user.user_metadata?.name || (user.email ? user.email.split('@')[0] : 'Freerobuxreal');
+    const fullName = user.name || user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] : 'Freerobuxreal');
     const email = user.email || 'freerobuxreal303@gmail.com';
     const avatar = (fullName.charAt(0) || 'F').toUpperCase();
+    const avatarUrl = user.avatarUrl || user.picture || user.user_metadata?.avatar_url || '';
 
     state.isLoggedIn = true;
     state.currentUser = {
       name: fullName,
       email: email,
       avatar: avatar,
+      avatarUrl: avatarUrl,
       provider: provider,
-      id: user.id || 'usr_' + Date.now(),
+      id: user.id || user.sub || 'usr_' + Date.now(),
       loginAt: Date.now()
     };
 
@@ -335,53 +348,39 @@
     if (window.opener && window.opener !== window) {
       try {
         window.opener.postMessage({
-          type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
-          user: state.currentUser,
-          token: (user && user.access_token) || null
+          type: 'GOOGLE_OAUTH_SUCCESS',
+          user: state.currentUser
         }, '*');
-        localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
       } catch (e) {
         console.warn('postMessage to opener notice:', e);
       }
       setTimeout(() => {
         window.close();
-      }, 150);
+      }, 100);
       return;
     }
 
     hideLoginScreen();
     updateUserProfileUI();
-    showToast(`🟢 Selamat datang, ${fullName}! Terhubung ke Cloud.`);
+    showToast(`🟢 Selamat datang, ${fullName}! Masuk dengan Google.`);
 
     // Bersihkan hash token di address bar setelah berhasil login
-    if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('error'))) {
+    if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('id_token') || window.location.hash.includes('error'))) {
       window.history.replaceState(null, '', window.location.pathname);
     }
 
-    // Pastikan Realtime terhubung & sync state awal
+    // Pastikan Multi-Device Realtime Sync terhubung
     if (!state.isRealtimeConnected) {
       initSupabaseRealtime();
     }
   }
 
   // =========================================================================
-  // LOGIN GOOGLE OAUTH POPUP (SATU-SATUNYA METODE LOGIN GOOGLE RESMI)
-  // Alur: Buka tab/popup sebentar -> User login Google -> Popup tertutup otomatis -> Kembali ke tab awal
+  // LOGIN GOOGLE OAUTH 2.0 (SESUAI PANDUAN MR. TIO • POPUP OTOMATIS)
   // =========================================================================
   async function loginWithGoogleOAuth() {
     AudioEngine.playTap();
     showToast('Membuka Google Sign-In...', 'info');
-
-    if (!state.supabase) {
-      if (window.supabase) {
-        state.supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
-      }
-    }
-
-    if (!state.supabase) {
-      showToast('Koneksi Supabase belum siap.', 'danger');
-      return;
-    }
 
     try {
       const width = 500;
@@ -389,7 +388,7 @@
       const left = window.screenX + (window.outerWidth - width) / 2;
       const top = window.screenY + (window.outerHeight - height) / 2;
 
-      // 1. Buka popup window langsung dari event klik tombol
+      // 1. Langsung buka popup window saat tombol ditekan
       const popup = window.open(
         'about:blank',
         'GoogleSignInPopup',
@@ -411,62 +410,49 @@
           </head>
           <body>
             <div class="spinner"></div>
-            <p style="margin-top: 14px; font-weight: 700; font-size: 13px;">Menghubungkan ke Google Cloud...</p>
+            <p style="margin-top: 14px; font-weight: 700; font-size: 13px;">Menghubungkan ke Google Cloud Platform...</p>
           </body>
           </html>
         `);
       }
 
-      // 2. Redirect URL kembali ke aplikasi ini di Vercel (https://shoppingstuff.vercel.app/)
-      let redirectTo = 'https://shoppingstuff.vercel.app/';
-      if (window.location.origin && window.location.origin.includes('vercel.app')) {
-        redirectTo = window.location.origin + '/';
-      }
+      // 2. Susun URL Google OAuth 2.0 resmi (Panduan Mr. Tio Step 5 & 6)
+      const redirectUri = getGoogleRedirectUri();
+      const stateNonce = 'st_' + Math.random().toString(36).substring(2, 10);
+      const authUrl = new URL(GOOGLE_OAUTH_CONFIG.AUTH_URI);
+      authUrl.searchParams.set('client_id', GOOGLE_OAUTH_CONFIG.CLIENT_ID);
+      authUrl.searchParams.set('redirect_uri', redirectUri);
+      authUrl.searchParams.set('response_type', 'token id_token');
+      authUrl.searchParams.set('scope', GOOGLE_OAUTH_CONFIG.SCOPES);
+      authUrl.searchParams.set('prompt', 'select_account');
+      authUrl.searchParams.set('nonce', stateNonce);
 
-      // 3. Minta URL autentikasi dari Supabase dengan skipBrowserRedirect: true
-      const { data, error } = await state.supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectTo,
-          skipBrowserRedirect: true,
-          queryParams: {
-            prompt: 'select_account',
-            access_type: 'offline'
-          }
-        }
-      });
-
-      if (error) {
-        if (popup) popup.close();
-        console.warn('Supabase Google OAuth status:', error.message);
-        showToast('Google OAuth error: ' + error.message, 'danger');
+      if (popup) {
+        popup.location.href = authUrl.toString();
+      } else {
+        window.location.href = authUrl.toString();
         return;
       }
 
-      if (data && data.url) {
-        if (popup) {
-          popup.location.href = data.url;
-        } else {
-          window.location.href = data.url;
-          return;
-        }
-
-        // 4. Timer pengawas: saat popup ditutup, cek apakah session sudah terisi
-        const popupWatcher = setInterval(async () => {
-          if (!popup || popup.closed) {
-            clearInterval(popupWatcher);
-            if (state.supabase) {
-              const { data: { session } } = await state.supabase.auth.getSession();
-              if (session && session.user) {
-                handleUserAuthenticated(session.user, 'google');
+      // 3. Monitor penutupan popup (Fallback jika postMessage terblokir)
+      const popupWatcher = setInterval(() => {
+        if (!popup || popup.closed) {
+          clearInterval(popupWatcher);
+          const savedUserStr = localStorage.getItem('smart_grocery_user');
+          if (savedUserStr) {
+            try {
+              const u = JSON.parse(savedUserStr);
+              if (u && !state.isLoggedIn) {
+                handleUserAuthenticated(u, 'google');
               }
-            }
+            } catch (e) {}
           }
-        }, 400);
-      }
+        }
+      }, 400);
+
     } catch (err) {
-      console.error('Google OAuth popup trigger error:', err);
-      showToast('Gagal memuat popup Google OAuth.', 'danger');
+      console.error('Google OAuth popup error:', err);
+      showToast('Gagal memuat popup Google Sign-In.', 'danger');
     }
   }
 
@@ -1691,7 +1677,7 @@
       showLoginScreen();
     }
 
-    await initSupabaseAuth();
+    await initGoogleAuth();
     await initSupabaseRealtime();
     registerPWA();
   }

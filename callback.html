@@ -44,6 +44,11 @@
         if (token) {
           if (window.opener) {
             window.opener.postMessage({
+              type: 'GOOGLE_OAUTH_SUCCESS',
+              token: token,
+              hash: window.location.hash
+            }, '*');
+            window.opener.postMessage({
               type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
               token: token,
               hash: window.location.hash

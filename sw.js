@@ -1,5 +1,5 @@
 // Service Worker for Smart Grocery & Budget Tracker PWA (Pink & White Edition)
-const CACHE_NAME = 'smart-grocery-pink-v4';
+const CACHE_NAME = 'smart-grocery-pink-v5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -38,7 +38,7 @@ self.addEventListener('activate', (event) => {
 // Network-First with Cache Fallback
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  if (event.request.url.includes('supabase.co')) return;
+  if (event.request.url.includes('supabase.co') || event.request.url.includes('/api/')) return;
 
   event.respondWith(
     fetch(event.request)

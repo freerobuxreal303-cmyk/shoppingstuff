@@ -5,4 +5,6 @@ Thumbs.db
 
 .vercel
 serve.ps1
+.env
+.env.local
 

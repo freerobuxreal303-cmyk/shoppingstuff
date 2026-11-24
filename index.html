@@ -164,34 +164,31 @@
 
       </div>
 
-      <!-- Footer Info: Google Cloud Project & Supabase Connection -->
+      <!-- Footer Info: Panduan Google Cloud OAuth 2.0 (Mr. Tio • Mutiara Bangsa 2 School) -->
       <div class="text-center pt-4 pb-2">
         <button type="button" onclick="app.toggleOAuthInfoBox()" class="text-[11px] font-bold text-pink-600 hover:text-pink-800 underline cursor-pointer">
-          ℹ️ Info Konfigurasi Google Cloud &amp; Supabase
+          ℹ️ Info Konfigurasi Google Cloud Platform (Panduan Mr. Tio)
         </button>
         <div id="oauthConfigInfoBox" class="hidden mt-2 p-3 bg-white/90 rounded-2xl border border-pink-200 text-left text-[11px] space-y-1.5 shadow-sm">
           <div class="font-bold text-ink flex items-center gap-1">
             <span class="material-symbols-outlined text-pink-500 text-[14px]">cloud_sync</span>
-            <span>Konfigurasi Google Cloud Console</span>
+            <span>Konfigurasi Google Cloud Console (Step 6)</span>
           </div>
           <p class="text-slate-600">
             Project: <code class="font-mono text-pink-700 bg-pink-50 px-1 py-0.5 rounded font-bold">maximal-zoo-512303-m3</code>
           </p>
-          <p class="text-slate-600">
-            Authorized Redirect URI di Google Cloud Console:
+          <p class="text-slate-600 font-semibold">
+            Authorized redirect URIs (Tambahkan kedua URI ini di Google Cloud Console):
           </p>
-          <div class="p-1.5 rounded bg-slate-50 border border-slate-200 font-mono text-[9px] text-slate-800 break-all select-all">
-            https://jnluauwepczsglnzckdw.supabase.co/auth/v1/callback
+          <div class="p-1.5 rounded bg-slate-50 border border-slate-200 font-mono text-[9px] text-slate-800 break-all select-all font-bold">
+            https://shoppingstuff.vercel.app/api/auth/callback/google
           </div>
-          <div class="mt-2 p-2 bg-pink-50 rounded-xl border border-pink-200 text-[10px] text-pink-900 space-y-1">
-            <div class="font-bold flex items-center gap-1 text-pink-700">
-              <span class="material-symbols-outlined text-[12px]">verified</span>
-              <span>Pengaturan Supabase Dashboard (Tab ke-6 di Browser Anda):</span>
-            </div>
-            <p>Buka tab <strong>Users | Authentication</strong> &gt; menu <strong>URL Configuration</strong>:</p>
-            <p>1. Ubah <strong>Site URL</strong> menjadi: <code class="font-bold bg-white px-1 py-0.5 rounded border border-pink-300 text-pink-700 select-all">https://shoppingstuff.vercel.app</code></p>
-            <p>2. Tambahkan ke <strong>Redirect URLs</strong>: <code class="font-bold bg-white px-1 py-0.5 rounded border border-pink-300 text-pink-700 select-all">https://shoppingstuff.vercel.app/**</code></p>
+          <div class="p-1.5 rounded bg-slate-50 border border-slate-200 font-mono text-[9px] text-slate-800 break-all select-all font-bold">
+            http://localhost:3000/api/auth/callback/google
           </div>
+          <p class="text-[10px] text-slate-500">
+            Sesuai Step 6 dokumen Mr. Tio: buka <em>Clients &gt; Web application &gt; Authorized redirect URIs</em>, tempel kedua URI di atas agar login dapat berfungsi baik di Vercel maupun perangkat lain.
+          </p>
         </div>
       </div>
 
@@ -818,6 +815,6 @@
 
   <!-- Supabase JS Client & Main Application Logic -->
   <script src="supabase.js"></script>
-  <script src="app.js?v=3.1"></script>
+  <script src="app.js?v=4.0"></script>
 </body>
 </html>
