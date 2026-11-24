@@ -1856,18 +1856,6 @@
     AudioEngine.playTap();
     if (modal) modal.classList.add('show');
   }
-    const descEl = document.getElementById('deleteItemModalDesc');
-    const confirmBtn = document.getElementById('btnExecuteConfirmDelete');
-
-    if (titleEl) titleEl.textContent = 'Hapus dari Katalog?';
-    if (descEl) descEl.textContent = `Yakin ingin menghapus "${item.name}" dari daftar katalog?`;
-    if (confirmBtn) {
-      confirmBtn.onclick = () => executeDeleteItem();
-    }
-
-    AudioEngine.playTap();
-    if (modal) modal.classList.add('show');
-  }
 
   function closeDeleteItemModal() {
     pendingDeleteTarget = null;
