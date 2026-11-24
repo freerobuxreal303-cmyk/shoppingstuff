@@ -1,6 +1,6 @@
 # 🛒 Smart Grocery & Budget Tracker (Mobile PWA)
-**Tugas Modul Evaluasi Daily Test 2 (DT2) — SMA Mutiara Bangsa 2**  
-*Studi Kasus: Rian (Budgeting Belanja, Proteksi Kasir, Diskon Kompound & Cloud Database)*
+**Modul Aplikasi Smart Grocery, Proteksi Anggaran & Multi-Device Cloud Sync**  
+*Aplikasi Manajemen Belanja Cerdas, Proteksi Kasir, Diskon Kompound & Cloud Database*
 
 ---
 
@@ -28,11 +28,9 @@ Aplikasi dirancang dengan tema **Pink & White** modern yang bersih, kontras ting
 
 ---
 
-## 🔐 Google OAuth Mandiri (Our Own Google Sign-In)
-Aplikasi menggunakan sistem Google OAuth mandiri yang bersih, tanpa dependensi port lokal yang rusak:
-- **Akun Bawaan Rian:** `Rian Pratama` (`rian.smartgrocery@gmail.com`) — Protagonis studi kasus.
-- **Akun Siswa:** `Siswa Mutiara Bangsa 2` (`siswa@mutiarabangsa.sch.id`).
-- **Akun Kustom:** Pengguna dapat memasukkan nama & email Google sendiri kapan saja.
+## 🔐 Autentikasi Pengguna & Google OAuth
+Aplikasi menyediakan sistem autentikasi modern yang bersih:
+- **Akun Pengguna:** Pengguna dapat masuk menggunakan Google OAuth atau kredensial akun pribadi.
 - **Bebas Pop-up Perayaan / Confetti:** Login mulus dengan notifikasi toast informatif non-blocking.
 
 ---

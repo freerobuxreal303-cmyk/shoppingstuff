@@ -7,4 +7,8 @@ Thumbs.db
 serve.ps1
 .env
 .env.local
+push.ps1
+push_to_github.bat
 
+.env
+.env.local

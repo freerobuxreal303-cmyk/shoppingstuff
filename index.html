@@ -5,11 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Smart Grocery &amp; Budget Tracker - Rian</title>
+  <title>Smart Grocery &amp; Budget Tracker</title>
 
   <!-- PWA & Meta Tags -->
   <meta name="description"
-    content="Mobile PWA Smart Grocery, Realtime Price Comparator &amp; Budget Safety Cap untuk Studi Kasus Rian.">
+    content="Smart Grocery &amp; Budget Tracker - Kelola belanjaan, pantau pagu anggaran, dan nikmati diskon hemat secara realtime.">
   <meta name="theme-color" content="#ec4899">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -84,8 +84,8 @@
           <span class="material-symbols-outlined text-[32px]"
             style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
         </div>
-        <h1 class="font-display text-[22px] font-black text-ink tracking-tight">Smart Grocery &bull; Rian</h1>
-        <p class="text-xs font-semibold text-pink-600 mt-0.5">Budget Safety Cap &amp; Google Cloud OAuth</p>
+        <h1 class="font-display text-[22px] font-black text-ink tracking-tight">Smart Grocery</h1>
+        <p class="text-xs font-semibold text-pink-600 mt-0.5">Budget Safety Cap &amp; Realtime Cloud</p>
       </div>
 
       <!-- Main Auth Card -->
@@ -111,8 +111,8 @@
             <div class="relative">
               <span
                 class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-pink-400 text-[18px]">person</span>
-              <input type="text" id="inputAuthLoginUsername" value="rian.smartgrocery@gmail.com" required
-                placeholder="rian.smartgrocery@gmail.com"
+              <input type="text" id="inputAuthLoginUsername" value="" required
+                placeholder="nama@email.com"
                 class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-pink-200 text-xs font-bold text-ink focus:outline-none focus:border-pink-500 bg-pink-50/30">
             </div>
           </div>
@@ -122,7 +122,7 @@
             <div class="relative">
               <span
                 class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-pink-400 text-[18px]">lock</span>
-              <input type="password" id="inputAuthLoginPassword" value="rian123" required
+              <input type="password" id="inputAuthLoginPassword" value="" required
                 placeholder="Masukkan password"
                 class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-pink-200 text-xs font-bold text-ink focus:outline-none focus:border-pink-500 bg-pink-50/30">
               <button type="button" onclick="app.togglePasswordVisibility('inputAuthLoginPassword')"
@@ -144,7 +144,7 @@
           onsubmit="event.preventDefault(); app.handlePasswordRegister();">
           <div>
             <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Lengkap</label>
-            <input type="text" id="inputAuthRegName" placeholder="Contoh: Rian Pratama" required
+            <input type="text" id="inputAuthRegName" placeholder="Contoh: Budi Santoso" required
               class="w-full px-3.5 py-2.5 rounded-xl border border-pink-200 text-xs font-bold text-ink focus:outline-none focus:border-pink-500 bg-pink-50/30">
           </div>
           <div>
@@ -256,7 +256,7 @@
             </div>
             <div>
               <h1 class="font-display text-[16px] font-black text-ink leading-tight">Smart Grocery</h1>
-              <p class="text-[11px] font-semibold text-pink-600">Studi Kasus Rian • DT2 Lab</p>
+              <p class="text-[11px] font-semibold text-pink-600">Smart Cart &amp; Budget Manager</p>
             </div>
           </div>
 
@@ -266,8 +266,8 @@
               class="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-pink-50 border border-pink-200 hover:bg-pink-100 transition-all cursor-pointer">
               <span
                 class="w-6 h-6 rounded-full bg-pink-500 text-white font-bold text-xs flex items-center justify-center"
-                id="headerUserAvatar">R</span>
-              <span class="text-xs font-bold text-pink-900 max-w-[80px] truncate" id="headerUserName">Rian</span>
+                id="headerUserAvatar">U</span>
+              <span class="text-xs font-bold text-pink-900 max-w-[80px] truncate" id="headerUserName">User</span>
             </button>
             <button type="button" onclick="app.logoutToLoginScreen()"
               class="w-7 h-7 rounded-full bg-pink-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer"
@@ -331,7 +331,7 @@
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-bold uppercase tracking-wider text-pink-700 flex items-center gap-1">
                 <span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>
-                <span>Saldo Belanja Rian</span>
+                <span>Saldo Belanja Saya</span>
               </span>
               <span id="budgetHealthPill"
                 class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -457,14 +457,14 @@
                 <div
                   class="w-12 h-12 rounded-full bg-pink-500 text-white font-bold text-lg flex items-center justify-center shadow-sm"
                   id="dompetUserAvatar">
-                  R
+                  U
                 </div>
                 <div>
-                  <h3 class="font-display text-sm font-black text-ink" id="dompetUserName">Rian Pratama</h3>
-                  <p class="text-xs text-pink-600 font-medium" id="dompetUserEmail">rian.smartgrocery@gmail.com</p>
+                  <h3 class="font-display text-sm font-black text-ink" id="dompetUserName">Pengguna</h3>
+                  <p class="text-xs text-pink-600 font-medium" id="dompetUserEmail">user@smartgrocery.app</p>
                   <span
                     class="inline-block mt-0.5 px-2 py-0.5 rounded-md bg-pink-100 text-pink-800 text-[9px] font-extrabold uppercase">
-                    Google OAuth Terverifikasi
+                    Status Akun Terhubung
                   </span>
                 </div>
               </div>
@@ -534,12 +534,10 @@
           <div class="bg-white rounded-2xl p-4 shadow-sm border border-pink-100 space-y-2">
             <h3 class="font-display text-sm font-bold text-ink flex items-center gap-1.5">
               <span class="material-symbols-outlined text-pink-500 text-[18px]">cloud</span>
-              <span>Integrasi Cloud &amp; Realtime Lab</span>
+              <span>Sinkronisasi Multi-Device Cloud</span>
             </h3>
             <p class="text-[11px] text-slate-500 leading-relaxed">
-              Sistem tersambung ke Supabase WebSocket Broadcast channel <code
-                class="font-mono text-pink-700 bg-pink-50 px-1 py-0.5 rounded">dt2_rian_live_sync</code>. Setiap aksi
-              penambahan di HP akan langsung muncul di PC tanpa reload F5 (≤ 2s).
+              Sistem tersambung ke Cloud Realtime Broadcast. Setiap aksi belanja yang dilakukan di ponsel akan langsung tersinkronisasi ke laptop/perangkat lain secara instan (≤ 2 detik).
             </p>
           </div>
 
@@ -734,7 +732,7 @@
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
             </svg>
             <h3 class="font-display text-lg font-bold text-ink">Sign in with Google</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Pilih akun untuk melanjutkan ke Smart Grocery &bull; Rian</p>
+            <p class="text-xs text-slate-500 mt-0.5">Pilih akun untuk melanjutkan ke Smart Grocery</p>
           </div>
 
           <div class="space-y-2 mb-4" id="googleAccountsChooserList">
@@ -760,32 +758,17 @@
               <span class="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
             </div>
 
-            <!-- Account 2: Rian Pratama -->
+            <!-- Account 2: Akun Standar Siswa / Pengguna -->
             <div class="google-account-card"
-              onclick="app.selectGoogleAccount('Rian Pratama', 'rian.smartgrocery@gmail.com', 'R', 'pink')">
-              <div
-                class="w-10 h-10 rounded-full bg-pink-500 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-pink-500/20">
-                R
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-bold text-ink">Rian Pratama</div>
-                <div class="text-xs text-slate-500 truncate">rian.smartgrocery@gmail.com</div>
-                <div class="text-[10px] text-pink-600 font-semibold">Siswa Rantau • Studi Kasus Utama DT2</div>
-              </div>
-              <span class="material-symbols-outlined text-slate-400 text-[18px]">chevron_right</span>
-            </div>
-
-            <!-- Account 3: Siswa SMA Mutiara Bangsa 2 -->
-            <div class="google-account-card"
-              onclick="app.selectGoogleAccount('Siswa SMA Mutiara Bangsa 2', 'siswa@mutiarabangsa.sch.id', 'S', 'blue')">
+              onclick="app.selectGoogleAccount('Siswa Mutiara Bangsa', 'siswa@mutiarabangsa.sch.id', 'S', 'blue')">
               <div
                 class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0 shadow-sm shadow-blue-600/20">
                 S
               </div>
               <div class="flex-1 min-w-0">
-                <div class="text-sm font-bold text-ink">Siswa Mutiara Bangsa 2</div>
+                <div class="text-sm font-bold text-ink">Siswa Mutiara Bangsa</div>
                 <div class="text-xs text-slate-500 truncate">siswa@mutiarabangsa.sch.id</div>
-                <div class="text-[10px] text-blue-600 font-semibold">Akun Evaluasi DT2 Meja Lab</div>
+                <div class="text-[10px] text-blue-600 font-semibold">Akun Siswa Mutiara Bangsa</div>
               </div>
               <span class="material-symbols-outlined text-slate-400 text-[18px]">chevron_right</span>
             </div>
@@ -802,7 +785,7 @@
                 class="hidden mt-2 p-3 rounded-xl bg-pink-50/60 border border-pink-200 space-y-2">
                 <div>
                   <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Nama Lengkap</label>
-                  <input type="text" id="customGoogleName" placeholder="Contoh: Rian Gunawan"
+                  <input type="text" id="customGoogleName" placeholder="Contoh: Budi Santoso"
                     class="w-full px-3 py-1.5 rounded-lg border border-pink-200 text-xs font-semibold">
                 </div>
                 <div>
@@ -907,7 +890,7 @@
 
   <!-- Supabase JS Client & Main Application Logic -->
   <script src="supabase.js"></script>
-  <script src="app.js?v=4.1"></script>
+  <script src="app.js?v=4.2"></script>
 </body>
 
 </html>

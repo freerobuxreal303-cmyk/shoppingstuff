@@ -1,6 +1,6 @@
 /**
- * SMART GROCERY & BUDGET TRACKER (STUDI KASUS RIAN - MOBILE PWA)
- * Daily Test 2 (DT2) 100% Compliance Suite • SMA Mutiara Bangsa 2
+ * SMART GROCERY & BUDGET TRACKER (MOBILE PWA)
+ * Daily Test 2 (DT2) Compliance Suite • SMA Mutiara Bangsa 2
  * 
  * Features:
  * - SRS F-01: Form Input Item, Lokasi Toko (Lotte Mart Puri Indah) & Selector Tanggal
@@ -157,10 +157,10 @@
     shoppingDate: new Date().toISOString().split('T')[0],
     isLoggedIn: false,
     currentUser: {
-      name: 'Rian Pratama',
-      email: 'rian.smartgrocery@gmail.com',
-      avatar: 'R',
-      provider: 'google'
+      name: 'Pengguna',
+      email: 'user@smartgrocery.app',
+      avatar: 'U',
+      provider: 'guest'
     },
     historySessions: [],
     soundEnabled: true,
@@ -468,14 +468,14 @@
   function handlePasswordLogin() {
     const userInp = document.getElementById('inputAuthLoginUsername');
     const val = userInp ? userInp.value.trim() : '';
-    const name = val.includes('@') ? val.split('@')[0] : (val || 'Rian Pratama');
-    const email = val.includes('@') ? val : `${val.toLowerCase()}@smartgrocery.app`;
+    const name = val.includes('@') ? val.split('@')[0] : (val || 'Pengguna');
+    const email = val.includes('@') ? val : `${val.toLowerCase() || 'pengguna'}@smartgrocery.app`;
 
     state.isLoggedIn = true;
     state.currentUser = {
       name: name.charAt(0).toUpperCase() + name.slice(1),
       email: email,
-      avatar: (name.charAt(0) || 'R').toUpperCase(),
+      avatar: (name.charAt(0) || 'U').toUpperCase(),
       provider: 'credentials',
       loginAt: Date.now()
     };
@@ -548,9 +548,9 @@
   function loginAsGuest() {
     state.isLoggedIn = true;
     state.currentUser = {
-      name: 'Rian Pratama',
-      email: 'rian.smartgrocery@gmail.com',
-      avatar: 'R',
+      name: 'Pengguna Tamu',
+      email: 'guest@smartgrocery.app',
+      avatar: 'G',
       provider: 'guest',
       loginAt: Date.now()
     };
@@ -562,7 +562,7 @@
         window.opener.postMessage({
           type: 'SUPABASE_OAUTH_POPUP_SUCCESS',
           user: state.currentUser,
-          token: user.access_token || null
+          token: null
         }, '*');
         localStorage.setItem('smart_grocery_popup_user', JSON.stringify(state.currentUser));
       } catch (e) {
@@ -576,7 +576,7 @@
 
     hideLoginScreen();
     updateUserProfileUI();
-    showToast('🟢 Masuk sebagai Rian Pratama (Mode Pengujian Lab)!');
+    showToast('🟢 Masuk sebagai Pengguna Tamu!');
   }
 
   async function logoutToLoginScreen() {
